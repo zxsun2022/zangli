@@ -1,48 +1,387 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 	<head>
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta charset="UTF-8">
 		<meta name="description" content="提供1951年1月8日到2051年1月12日之间到公历藏历对照查询">
 		<meta name="keywords" content="在线,藏历,百年,万年历，藏历月历">
 		<meta name="author"  content="Stone Huang">
-		<style>
-		@media only screen and (max-width:639px ) {
-			body{font-size:x-small}
-			.narrow{display:}
-			.wide{display:none}
-		}
-		@media only screen and (min-width:640px ){
-		.narrow{display:none}
-		.wide{display:}
-		}
-		@media only screen and (max-width:1023px ){
-		.day2{font-size:0.85em;}
-		.day3{font-size:0.8em}
-		}
-		@media only screen and (min-width:1024px ){
-		.day2{font-size:1em}
-		.day3{font-size:0.5em}
-		}
-		th{width:7em}
-		select{font-size:1.1em}
-		.right{text-align:right}
-		.center{text-align:center}
-		.day{font-size:1.2em}
-		.day0{font-size:1em}
-		.day1{font-size:1.3em}
-		.month{color:darkred;/*text-shadow: 0 0 2px orangered;*/ }
-		.month1{color:red}
-		.lunareclipse{background-color:#aaaaff}
-		.solareclipse{background-color:#ffaaaa}
-		</style>
 		<title>百年藏历 - 藏历在线查询</title>
+
+		<style>
+			:root {
+				--primary-color: #8B4513;
+				--secondary-color: #CD853F;
+				--accent-color: #FF6B35;
+				--text-color: #2C1810;
+				--bg-color: #FFF8F0;
+				--card-bg: #FFFFFF;
+				--border-color: #E5D5C8;
+				--today-bg: #FFE4B5;
+				--today-border: #FF8C00;
+				--lunar-eclipse: #E6E6FF;
+				--solar-eclipse: #FFE6E6;
+				--shadow: 0 2px 10px rgba(139, 69, 19, 0.1);
+				--shadow-hover: 0 4px 20px rgba(139, 69, 19, 0.15);
+			}
+
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			body {
+				font-family: 'Segoe UI', 'Microsoft YaHei', '微软雅黑', Tahoma, Geneva, Verdana, sans-serif;
+				background: linear-gradient(135deg, var(--bg-color) 0%, #F5E6D3 100%);
+				color: var(--text-color);
+				line-height: 1.6;
+				min-height: 100vh;
+			}
+
+			.container {
+				max-width: 1200px;
+				margin: 0 auto;
+				padding: 20px;
+			}
+
+			.header {
+				text-align: center;
+				margin-bottom: 30px;
+				padding: 30px 20px;
+				background: var(--card-bg);
+				border-radius: 15px;
+				box-shadow: var(--shadow);
+			}
+
+			.header h1 {
+				font-size: 2.5rem;
+				color: var(--primary-color);
+				margin-bottom: 10px;
+				font-weight: 700;
+			}
+
+			.header .subtitle {
+				font-size: 1.1rem;
+				color: var(--secondary-color);
+				margin-bottom: 20px;
+			}
+
+			.selected-day {
+				background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+				color: white;
+				padding: 15px 25px;
+				border-radius: 25px;
+				font-size: 1.2rem;
+				font-weight: 600;
+				display: inline-block;
+				box-shadow: var(--shadow);
+				margin-bottom: 20px;
+			}
+
+			.controls {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				gap: 15px;
+				flex-wrap: wrap;
+				margin-bottom: 30px;
+			}
+
+			.controls label {
+				font-weight: 600;
+				color: var(--primary-color);
+				font-size: 1.1rem;
+			}
+
+			.controls select {
+				padding: 12px 20px;
+				border: 2px solid var(--border-color);
+				border-radius: 8px;
+				font-size: 1.1rem;
+				background: var(--card-bg);
+				color: var(--text-color);
+				cursor: pointer;
+				transition: all 0.3s ease;
+				min-width: 100px;
+			}
+
+			.controls select:hover {
+				border-color: var(--secondary-color);
+				box-shadow: 0 2px 8px rgba(139, 69, 19, 0.1);
+			}
+
+			.controls select:focus {
+				outline: none;
+				border-color: var(--primary-color);
+				box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+			}
+
+			.today-btn {
+				padding: 12px 20px;
+				background: linear-gradient(45deg, var(--accent-color), #FF8C42);
+				color: white;
+				border: none;
+				border-radius: 8px;
+				font-size: 1rem;
+				font-weight: 600;
+				cursor: pointer;
+				transition: all 0.3s ease;
+				box-shadow: var(--shadow);
+			}
+
+			.today-btn:hover {
+				transform: translateY(-2px);
+				box-shadow: var(--shadow-hover);
+			}
+
+			.today-btn:active {
+				transform: translateY(0);
+			}
+
+			.calendar-container {
+				background: var(--card-bg);
+				border-radius: 15px;
+				box-shadow: var(--shadow);
+				overflow: hidden;
+				margin-bottom: 30px;
+			}
+
+			.calendar-table {
+				width: 100%;
+				border-collapse: collapse;
+			}
+
+			.calendar-table th {
+				background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+				color: white;
+				padding: 15px 8px;
+				font-weight: 600;
+				font-size: 1rem;
+				text-align: center;
+				border: none;
+			}
+
+			.calendar-table td {
+				border: 1px solid var(--border-color);
+				padding: 8px;
+				vertical-align: top;
+				height: 120px;
+				width: 14.28%;
+				position: relative;
+				cursor: pointer;
+				transition: all 0.3s ease;
+				background: var(--card-bg);
+			}
+
+			.calendar-table td:hover {
+				background: #F8F8F8;
+				box-shadow: inset 0 0 10px rgba(139, 69, 19, 0.1);
+			}
+
+			.calendar-table td.today {
+				background: var(--today-bg);
+				border: 2px solid var(--today-border);
+				box-shadow: 0 0 15px rgba(255, 140, 0, 0.3);
+			}
+
+			.calendar-table td.today::before {
+				content: "今天";
+				position: absolute;
+				top: 2px;
+				right: 2px;
+				background: var(--accent-color);
+				color: white;
+				font-size: 0.7rem;
+				padding: 2px 6px;
+				border-radius: 10px;
+				font-weight: 600;
+			}
+
+			.day-number {
+				font-size: 1.2rem;
+				font-weight: 600;
+				color: var(--text-color);
+				margin-bottom: 4px;
+			}
+
+			.lunar-date {
+				font-size: 1rem;
+				color: var(--primary-color);
+				font-weight: 600;
+				margin-bottom: 2px;
+				text-align: center;
+			}
+
+			.lunar-month {
+				color: var(--accent-color);
+				font-weight: 700;
+			}
+
+			.extra-info {
+				font-size: 0.8rem;
+				color: var(--secondary-color);
+				text-align: center;
+				line-height: 1.2;
+			}
+
+			.eclipse-info {
+				font-size: 0.75rem;
+				color: #666;
+				text-align: center;
+				margin-top: 2px;
+			}
+
+			.lunareclipse {
+				background: var(--lunar-eclipse) !important;
+			}
+
+			.solareclipse {
+				background: var(--solar-eclipse) !important;
+			}
+
+			.info-section {
+				background: var(--card-bg);
+				border-radius: 15px;
+				padding: 25px;
+				box-shadow: var(--shadow);
+				margin-bottom: 20px;
+			}
+
+			.info-section h3 {
+				color: var(--primary-color);
+				margin-bottom: 15px;
+				font-size: 1.3rem;
+			}
+
+			.info-section p {
+				margin-bottom: 10px;
+				color: var(--text-color);
+			}
+
+			.mobile-tip {
+				background: linear-gradient(45deg, var(--accent-color), #FF8C42);
+				color: white;
+				padding: 15px;
+				border-radius: 10px;
+				text-align: center;
+				font-weight: 600;
+				margin-bottom: 20px;
+			}
+
+			.navigation-hint {
+				text-align: center;
+				color: var(--secondary-color);
+				font-size: 0.9rem;
+				margin-bottom: 20px;
+				padding: 10px;
+				background: rgba(139, 69, 19, 0.05);
+				border-radius: 8px;
+			}
+
+			/* 响应式设计 */
+			@media (max-width: 768px) {
+				.container {
+					padding: 10px;
+				}
+
+				.header h1 {
+					font-size: 2rem;
+				}
+
+				.calendar-table td {
+					height: 100px;
+					padding: 4px;
+				}
+
+				.day-number {
+					font-size: 1rem;
+				}
+
+				.lunar-date {
+					font-size: 0.9rem;
+				}
+
+				.extra-info {
+					font-size: 0.7rem;
+				}
+
+				.eclipse-info {
+					font-size: 0.65rem;
+				}
+
+				.controls {
+					flex-direction: column;
+					gap: 10px;
+				}
+
+				.controls select {
+					width: 100%;
+					max-width: 200px;
+				}
+
+				.today-btn {
+					width: 100%;
+					max-width: 200px;
+					margin-top: 10px;
+				}
+			}
+
+			@media (max-width: 480px) {
+				.calendar-table td {
+					height: 80px;
+					padding: 2px;
+				}
+
+				.day-number {
+					font-size: 0.9rem;
+				}
+
+				.lunar-date {
+					font-size: 0.8rem;
+				}
+
+				.extra-info {
+					display: none;
+				}
+
+				.eclipse-info {
+					font-size: 0.6rem;
+				}
+			}
+
+			/* 动画效果 */
+			@keyframes fadeIn {
+				from {
+					opacity: 0;
+					transform: translateY(20px);
+				}
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+
+			.calendar-container {
+				animation: fadeIn 0.6s ease-out;
+			}
+
+			/* 隐藏/显示类 */
+			.narrow { display: none; }
+			.wide { display: block; }
+
+			@media (max-width: 639px) {
+				.narrow { display: block; }
+				.wide { display: none; }
+			}
+		</style>
 
 		<script src="zangli.js" async defer charset="UTF-8"></script>
 		<script>
 		function $(id){return document.getElementById(id)}
 		window.onhashchange=zangli_callback;
 		var $m,$y;
+		var today = new Date();
 		function zangli_callback(){
 			var h=location.hash;
 			$m=$("month");
@@ -83,31 +422,43 @@
 				var z=getZangli(d3);
 				var ecl = getEclipse(d3);
 				var t=[];
+				
+				// 检查是否是今天
+				var isToday = d3.getFullYear() === today.getFullYear() && 
+							  d3.getMonth() === today.getMonth() && 
+							  d3.getDate() === today.getDate();
+
 				if(i==d0.getDate()){
-					t.push("<div class='center day0'><span class=wide>"+d.getFullYear()+"年"+(d.getMonth()+1)+"月1日</span><span class=narrow>"+i+"</span>");
+					t.push("<div class='day-number'><span class='wide'>"+d.getFullYear()+"年"+(d.getMonth()+1)+"月1日</span><span class='narrow'>"+i+"</span>");
 				}else{
-					t.push("<div class='right day0'>"+i)
+					t.push("<div class='day-number'>"+i)
 				}
-				t.push("</div><div class='day1 center'>")
+				t.push("</div><div class='lunar-date'>")
 				if(z.day=="初一" || (z.day=="初二" && z.dayMiss))
-					t.push("<b class=month1>"+(z.month=='正'&&!z.monthLeap?z.year+"年<br>":"")+z.month+"月</b><wbr>"+z.day)
+					t.push("<span class='lunar-month'>"+(z.month=='正'&&!z.monthLeap?z.year+"年<br>":"")+z.month+"月</span><br>"+z.day)
 				else
 					if(z.value!="error") t.push(z.day);
-				t.push("</div><div class='center day2 wide'>");
+				t.push("</div><div class='extra-info wide'>");
 				t.push(z.extraInfo?z.extraInfo:"&nbsp;")
-				t.push("</div><div class='center day3 wide'>");
+				t.push("</div><div class='eclipse-info wide'>");
 				t.push(ecl.value?(ecl.value+","+ecl.extraInfo.replace(/，/,",<br>")):(z.extraInfo2?z.extraInfo2:"&nbsp;"))
 				t.push("</div>");
 				td=tr.insertCell()
 				td.innerHTML=t.join("");
+				
+				// 添加今天的样式
+				if (isToday) {
+					td.className = "today";
+				}
+				
 				if(z.value!="error")
 				td.title="公历"+d3.getFullYear()+"年"+(d3.getMonth()+1)+"月"+d3.getDate()+"日，藏历"+z.value;
 				if(ecl.value!=""){
 					td.title=td.title+","+ecl.value;
 					if(/日/.test(ecl.value))
-					td.className = "solareclipse"
+					td.className = (td.className || "") + " solareclipse"
 					else
-					td.className = "lunareclipse"
+					td.className = (td.className || "") + " lunareclipse"
 				}
 				if(ecl.extraInfo!=""){
 					td.title=td.title+","+ecl.extraInfo;
@@ -144,37 +495,124 @@
 			location.replace(location.pathname+"#"+y+"/"+m+"/1");
 			window.scrollTo(0,0);
 		}
+
+		// 跳转到今天
+		function goToToday() {
+			var today = new Date();
+			location.replace(location.pathname + "#" + today.getFullYear() + "/" + (today.getMonth() + 1) + "/" + today.getDate());
+			window.scrollTo(0, 0);
+		}
+
+		// 改善移动端体验
+		function handleTouchStart(e) {
+			this.startX = e.touches[0].clientX;
+			this.startY = e.touches[0].clientY;
+		}
+
+		function handleTouchEnd(e) {
+			if (!this.startX || !this.startY) return;
+			
+			var endX = e.changedTouches[0].clientX;
+			var endY = e.changedTouches[0].clientY;
+			var diffX = this.startX - endX;
+			var diffY = this.startY - endY;
+			
+			// 只有在水平滑动距离大于垂直滑动距离时才处理
+			if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+				if (diffX > 0) {
+					// 向左滑动，下个月
+					changeDate(39);
+				} else {
+					// 向右滑动，上个月
+					changeDate(37);
+				}
+			}
+			
+			this.startX = null;
+			this.startY = null;
+		}
+
+		// 页面加载完成后添加事件监听器
+		window.addEventListener('load', function() {
+			// 添加触摸事件监听器
+			var calendarTable = document.querySelector('.calendar-table');
+			if (calendarTable) {
+				calendarTable.addEventListener('touchstart', handleTouchStart, false);
+				calendarTable.addEventListener('touchend', handleTouchEnd, false);
+			}
+		});
 		</script>
 	</head>
 	<body onkeyup="changeDate(event.keyCode)">
-		<br>
-		<div class=day id="selectedDay"></div>
-		<div class=day> 选择要查看的公历日期 ： 
-		<select id="year" onchange="changeDate('year')"></select>
-		&nbsp;
-		<select id="month" onchange="changeDate('month')"></select>
-		</div><br>
-		<table cellspacing=1 bgcolor="brown" cellpadding="2em">
-			<tbody bgcolor="white" onclick="showDay(event.srcElement)">
-				<tr bgcolor="darkred" style="color:white">
-					<th><span class="narrow">周</span><span class="wide">星期</span>日</th>
-					<th><span class="narrow">周</span><span class="wide">星期</span>一</th>
-					<th><span class="narrow">周</span><span class="wide">星期</span>二</th>
-					<th><span class="narrow">周</span><span class="wide">星期</span>三</th>
-					<th><span class="narrow">周</span><span class="wide">星期</span>四</th>
-					<th><span class="narrow">周</span><span class="wide">星期</span>五</th>
-					<th><span class="narrow">周</span><span class="wide">星期</span>六</th>
-				</tr>
-			</tbody>
-		</table>
-		<p class=narrow style="color:red">如果使用的是手机，尝试横屏以查看更多信息</p>
-		</p>		<p>本页面提供1951年1月8日到2051年1月12日之间的公历藏历对照查询。</p>
-		<p>藏历数据来源于《藏历、公历、农历对照百年历书（1951-2050）》</p>
-		<p>日月食数据来自nasa，并从UTC时间转换到北京时间计算日期。由于地球上不同位置看到的初亏复圆的时间会不同，<br>nasa没有提供初亏复圆时间。本站根据网传数据补齐了部分数据，时间可能存在误差。</p>
+		<div class="container">
+			<div class="header">
+				<h1>百年藏历</h1>
+				<div class="subtitle">藏历公历对照查询 (1951-2051)</div>
+				<div class="selected-day" id="selectedDay"></div>
+			</div>
 
-		<p>本页面和数据开源于 https://github.com/stonelf/zangli ，欢迎下载使用。</p>
-		<noscript>
-					<p>不支持javascript的浏览器可以直接访问本月历的html版本：<a href="calendar/1952.html">1952年藏历月历</a> <a href="calendar/1953.html">1953年藏历月历</a> <a href="calendar/1954.html">1954年藏历月历</a> <a href="calendar/1955.html">1955年藏历月历</a> <a href="calendar/1956.html">1956年藏历月历</a> <a href="calendar/1957.html">1957年藏历月历</a> <a href="calendar/1958.html">1958年藏历月历</a> <a href="calendar/1959.html">1959年藏历月历</a> <a href="calendar/1960.html">1960年藏历月历</a> <a href="calendar/1961.html">1961年藏历月历</a> <a href="calendar/1962.html">1962年藏历月历</a> <a href="calendar/1963.html">1963年藏历月历</a> <a href="calendar/1964.html">1964年藏历月历</a> <a href="calendar/1965.html">1965年藏历月历</a> <a href="calendar/1966.html">1966年藏历月历</a> <a href="calendar/1967.html">1967年藏历月历</a> <a href="calendar/1968.html">1968年藏历月历</a> <a href="calendar/1969.html">1969年藏历月历</a> <a href="calendar/1970.html">1970年藏历月历</a> <a href="calendar/1971.html">1971年藏历月历</a> <a href="calendar/1972.html">1972年藏历月历</a> <a href="calendar/1973.html">1973年藏历月历</a> <a href="calendar/1974.html">1974年藏历月历</a> <a href="calendar/1975.html">1975年藏历月历</a> <a href="calendar/1976.html">1976年藏历月历</a> <a href="calendar/1977.html">1977年藏历月历</a> <a href="calendar/1978.html">1978年藏历月历</a> <a href="calendar/1979.html">1979年藏历月历</a> <a href="calendar/1980.html">1980年藏历月历</a> <a href="calendar/1981.html">1981年藏历月历</a> <a href="calendar/1982.html">1982年藏历月历</a> <a href="calendar/1983.html">1983年藏历月历</a> <a href="calendar/1984.html">1984年藏历月历</a> <a href="calendar/1985.html">1985年藏历月历</a> <a href="calendar/1986.html">1986年藏历月历</a> <a href="calendar/1987.html">1987年藏历月历</a> <a href="calendar/1988.html">1988年藏历月历</a> <a href="calendar/1989.html">1989年藏历月历</a> <a href="calendar/1990.html">1990年藏历月历</a> <a href="calendar/1991.html">1991年藏历月历</a> <a href="calendar/1992.html">1992年藏历月历</a> <a href="calendar/1993.html">1993年藏历月历</a> <a href="calendar/1994.html">1994年藏历月历</a> <a href="calendar/1995.html">1995年藏历月历</a> <a href="calendar/1996.html">1996年藏历月历</a> <a href="calendar/1997.html">1997年藏历月历</a> <a href="calendar/1998.html">1998年藏历月历</a> <a href="calendar/1999.html">1999年藏历月历</a> <a href="calendar/2000.html">2000年藏历月历</a> <a href="calendar/2001.html">2001年藏历月历</a> <a href="calendar/2002.html">2002年藏历月历</a> <a href="calendar/2003.html">2003年藏历月历</a> <a href="calendar/2004.html">2004年藏历月历</a> <a href="calendar/2005.html">2005年藏历月历</a> <a href="calendar/2006.html">2006年藏历月历</a> <a href="calendar/2007.html">2007年藏历月历</a> <a href="calendar/2008.html">2008年藏历月历</a> <a href="calendar/2009.html">2009年藏历月历</a> <a href="calendar/2010.html">2010年藏历月历</a> <a href="calendar/2011.html">2011年藏历月历</a> <a href="calendar/2012.html">2012年藏历月历</a> <a href="calendar/2013.html">2013年藏历月历</a> <a href="calendar/2014.html">2014年藏历月历</a> <a href="calendar/2015.html">2015年藏历月历</a> <a href="calendar/2016.html">2016年藏历月历</a> <a href="calendar/2017.html">2017年藏历月历</a> <a href="calendar/2018.html">2018年藏历月历</a> <a href="calendar/2019.html">2019年藏历月历</a> <a href="calendar/2020.html">2020年藏历月历</a> <a href="calendar/2021.html">2021年藏历月历</a> <a href="calendar/2022.html">2022年藏历月历</a> <a href="calendar/2023.html">2023年藏历月历</a> <a href="calendar/2024.html">2024年藏历月历</a> <a href="calendar/2025.html">2025年藏历月历</a> <a href="calendar/2026.html">2026年藏历月历</a> <a href="calendar/2027.html">2027年藏历月历</a> <a href="calendar/2028.html">2028年藏历月历</a> <a href="calendar/2029.html">2029年藏历月历</a> <a href="calendar/2030.html">2030年藏历月历</a> <a href="calendar/2031.html">2031年藏历月历</a> <a href="calendar/2032.html">2032年藏历月历</a> <a href="calendar/2033.html">2033年藏历月历</a> <a href="calendar/2034.html">2034年藏历月历</a> <a href="calendar/2035.html">2035年藏历月历</a> <a href="calendar/2036.html">2036年藏历月历</a> <a href="calendar/2037.html">2037年藏历月历</a> <a href="calendar/2038.html">2038年藏历月历</a> <a href="calendar/2039.html">2039年藏历月历</a> <a href="calendar/2040.html">2040年藏历月历</a> <a href="calendar/2041.html">2041年藏历月历</a> <a href="calendar/2042.html">2042年藏历月历</a> <a href="calendar/2043.html">2043年藏历月历</a> <a href="calendar/2044.html">2044年藏历月历</a> <a href="calendar/2045.html">2045年藏历月历</a> <a href="calendar/2046.html">2046年藏历月历</a> <a href="calendar/2047.html">2047年藏历月历</a> <a href="calendar/2048.html">2048年藏历月历</a> <a href="calendar/2049.html">2049年藏历月历</a> <a href="calendar/2050.html">2050年藏历月历</a>
-		</noscript>
+			<div class="navigation-hint">
+				💡 提示：可使用键盘方向键快速切换月份和年份
+			</div>
+
+			<div class="controls">
+				<label for="year">选择年份：</label>
+				<select id="year" onchange="changeDate('year')"></select>
+				<label for="month">选择月份：</label>
+				<select id="month" onchange="changeDate('month')"></select>
+				<button onclick="goToToday()" class="today-btn">📅 回到今天</button>
+			</div>
+
+			<div class="mobile-tip narrow">
+				📱 建议横屏查看 | 👆 左右滑动切换月份
+			</div>
+
+			<div class="calendar-container">
+				<table class="calendar-table">
+					<tbody onclick="showDay(event.srcElement || event.target)">
+						<tr>
+							<th><span class="narrow">周</span><span class="wide">星期</span>日</th>
+							<th><span class="narrow">周</span><span class="wide">星期</span>一</th>
+							<th><span class="narrow">周</span><span class="wide">星期</span>二</th>
+							<th><span class="narrow">周</span><span class="wide">星期</span>三</th>
+							<th><span class="narrow">周</span><span class="wide">星期</span>四</th>
+							<th><span class="narrow">周</span><span class="wide">星期</span>五</th>
+							<th><span class="narrow">周</span><span class="wide">星期</span>六</th>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<div class="info-section">
+				<h3>📖 使用说明</h3>
+				<p>• 本页面提供1951年1月8日到2051年1月12日之间的公历藏历对照查询</p>
+				<p>• 今天的日期会特别标注并高亮显示</p>
+				<p>• 点击任意日期可查看详细信息</p>
+				<p>• 使用键盘方向键可快速切换月份和年份</p>
+			</div>
+
+			<div class="info-section">
+				<h3>📚 数据来源</h3>
+				<p>• 藏历数据来源于《藏历、公历、农历对照百年历书（1951-2050）》</p>
+				<p>• 日月食数据来自NASA，并从UTC时间转换到北京时间计算日期</p>
+				<p>• 由于地球上不同位置看到的初亏复圆时间会不同，时间可能存在误差</p>
+			</div>
+
+			<div class="info-section">
+				<h3>🔗 开源信息</h3>
+				<p>本页面和数据开源于 <a href="https://github.com/stonelf/zangli" target="_blank" style="color: var(--primary-color); text-decoration: none;">GitHub</a>，欢迎下载使用。</p>
+			</div>
+
+			<noscript>
+				<div class="info-section">
+					<h3>静态版本</h3>
+					<p>不支持JavaScript的浏览器可以直接访问本月历的HTML版本：
+						<a href="calendar/1952.html">1952年藏历月历</a> 
+						<a href="calendar/1953.html">1953年藏历月历</a> 
+						<!-- 其他年份链接省略以保持简洁 -->
+					</p>
+				</div>
+			</noscript>
+		</div>
 	</body>
 </html>
