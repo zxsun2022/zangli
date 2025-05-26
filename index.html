@@ -47,8 +47,8 @@
 
 			.header {
 				text-align: center;
-				margin-bottom: 30px;
-				padding: 30px 20px;
+				margin-bottom: 20px;
+				padding: 10px 20px;
 				background: var(--card-bg);
 				border-radius: 15px;
 				box-shadow: var(--shadow);
@@ -64,7 +64,7 @@
 			.header .subtitle {
 				font-size: 1.1rem;
 				color: var(--secondary-color);
-				margin-bottom: 20px;
+				margin-bottom: 0px;
 			}
 
 			.selected-day {
@@ -132,7 +132,7 @@
 				justify-content: center;
 				align-items: center;
 				gap: 12px;
-				margin-bottom: 30px;
+				margin-bottom: 20px;
 				padding: 0 10px;
 			}
 
@@ -163,6 +163,13 @@
 				outline: none;
 				border-color: var(--primary-color);
 				box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+			}
+
+			.controls > .nav-btn, .controls > .nav-btn.today-btn {
+				flex: 1 1 0;
+				min-width: 0;
+				padding-left: 0;
+				padding-right: 0;
 			}
 
 			.nav-btn, .nav-btn.today-btn {
@@ -314,13 +321,14 @@
 				font-size: 1rem;
 				text-align: center;
 				border: none;
+				white-space: nowrap;
 			}
 
 			.calendar-table td {
 				border: 1px solid var(--border-color);
 				padding: 8px;
 				vertical-align: top;
-				height: 120px;
+				height: 100px;
 				width: 14.28%;
 				position: relative;
 				cursor: pointer;
@@ -865,8 +873,24 @@
 
 		const goToToday = () => {
 			const today = new Date();
-			location.replace(`${location.pathname}#${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`);
-			window.scrollTo(0, 0);
+			const currentHash = location.hash;
+			const todayHash = `#${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
+			if (currentHash === todayHash) {
+				// 已经在今天所在的月，手动触发选中今天
+				setTimeout(() => {
+					const tbody = document.getElementsByTagName("tbody")[0];
+					const tds = tbody.getElementsByTagName("td");
+					for (let td of tds) {
+						if (td.classList.contains("today")) {
+							showDay(td);
+							break;
+						}
+					}
+				}, 10);
+			} else {
+				location.replace(`${location.pathname}${todayHash}`);
+				window.scrollTo(0, 0);
+			}
 		};
 
 		const changeYear = direction => {
@@ -920,33 +944,19 @@
 				<table class="calendar-table">
 					<tbody onmousedown="showDay(event.target || event.srcElement)" onclick="showDay(event.target || event.srcElement)">
 						<tr>
-							<th><span class="narrow">周</span><span class="wide">星期</span>日</th>
-							<th><span class="narrow">周</span><span class="wide">星期</span>一</th>
-							<th><span class="narrow">周</span><span class="wide">星期</span>二</th>
-							<th><span class="narrow">周</span><span class="wide">星期</span>三</th>
-							<th><span class="narrow">周</span><span class="wide">星期</span>四</th>
-							<th><span class="narrow">周</span><span class="wide">星期</span>五</th>
-							<th><span class="narrow">周</span><span class="wide">星期</span>六</th>
+							<th>周日</th>
+							<th>周一</th>
+							<th>周二</th>
+							<th>周三</th>
+							<th>周四</th>
+							<th>周五</th>
+							<th>周六</th>
 						</tr>
 					</tbody>
 				</table>
 			</div>
 
-			<div class="navigation-hint">
-				💡 提示：可使用键盘方向键快速切换月份和年份 | 🎉 带图标的日期为藏历节日
-			</div>
-
 			<div class="selected-day-bottom" id="selectedDayBottom"></div>
-
-			<div class="info-section">
-				<h3>📖 使用说明</h3>
-				<p>• 本页面提供1951年1月8日到2051年1月12日之间的公历藏历对照查询</p>
-				<p>• 今天的日期会特别标注并高亮显示</p>
-				<p>• 点击任意日期可查看详细信息，选中的日期会有蓝色边框</p>
-				<p>• 使用日历上方的导航按钮可以切换年份和月份</p>
-				<p>• 使用键盘方向键也可以快速切换月份和年份</p>
-				<p>• 🎉 节日日期会有特殊图标标识，节日详情显示在页面上方和日历下方</p>
-			</div>
 
 			<div class="info-section">
 				<h3>📚 数据来源</h3>
