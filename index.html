@@ -577,9 +577,16 @@
 			}
 		}
 		function showDay(e){
-			while(e.tagName!="TD" && e.tagName!="TABLE"){
+			// 确保e存在
+			if(!e) return;
+			
+			// 向上查找到TD元素
+			while(e && e.tagName!="TD" && e.tagName!="TABLE"){
 				e=e.parentNode;
 			}
+			
+			// 如果没有找到TD元素，退出
+			if(!e || e.tagName !== "TD") return;
 			
 			// 移除之前选中的样式
 			if(selectedCell){
@@ -587,22 +594,23 @@
 			}
 			
 			// 添加选中样式到当前单元格
-			if(e.tagName === "TD" && e.innerHTML.trim() !== ""){
+			if(e.innerHTML.trim() !== ""){
 				selectedCell = e;
 				e.classList.add('selected');
-			}
-			
-			if(e.title){
-				$("selectedDay").innerHTML=e.title;
-			}
-			
-			// 检查是否点击了节日日期，在移动端显示节日信息
-			if(window.innerWidth <= 768 && e.querySelector && e.querySelector('.lunar-date.festival')){
-				showFestivalTooltip(e, event);
+				
+				// 更新选中日期显示
+				if(e.title){
+					$("selectedDay").innerHTML=e.title;
+				}
+				
+				// 检查是否点击了节日日期，在移动端显示节日信息
+				if(window.innerWidth <= 768 && e.querySelector && e.querySelector('.lunar-date.festival')){
+					showFestivalTooltip(e);
+				}
 			}
 		}
 
-		function showFestivalTooltip(cell, event) {
+		function showFestivalTooltip(cell) {
 			// 隐藏现有的tooltip
 			hideFestivalTooltip();
 			
@@ -610,12 +618,26 @@
 			var title = cell.title || "";
 			var festivalInfo = "";
 			
-			// 简单的节日信息提取（可以根据需要改进）
-			if(title.includes("节日") || title.includes("佛") || title.includes("菩萨") || title.includes("荟供")){
-				var parts = title.split("，");
-				if(parts.length > 1) {
-					festivalInfo = parts[1]; // 获取藏历信息后的部分
+			// 查找节日信息
+			try {
+				// 查找extraInfo中的节日信息
+				var extraInfoDiv = cell.querySelector('.extra-info');
+				if(extraInfoDiv && extraInfoDiv.innerHTML && extraInfoDiv.innerHTML.trim() !== "&nbsp;" && extraInfoDiv.innerHTML.trim() !== ""){
+					festivalInfo = extraInfoDiv.innerHTML.replace(/<br>/g, " ");
 				}
+				
+				// 如果没有找到，从title中提取
+				if(!festivalInfo && title.includes("，")){
+					var parts = title.split("，");
+					for(var i = 1; i < parts.length; i++){
+						if(parts[i].includes("节日") || parts[i].includes("佛") || parts[i].includes("菩萨") || parts[i].includes("荟供")){
+							festivalInfo = parts[i];
+							break;
+						}
+					}
+				}
+			} catch(err) {
+				console.log("提取节日信息时出错:", err);
 			}
 			
 			if(festivalInfo) {
@@ -721,6 +743,9 @@
 				calendarTable.addEventListener('touchstart', handleTouchStart, false);
 				calendarTable.addEventListener('touchend', handleTouchEnd, false);
 			}
+			
+			// 初始化日历
+			zangli_callback();
 		});
 		</script>
 	</head>
@@ -750,7 +775,7 @@
 
 			<div class="calendar-container">
 				<table class="calendar-table">
-					<tbody onclick="showDay(event.srcElement || event.target)">
+					<tbody onclick="showDay(event.target || event.srcElement)">
 						<tr>
 							<th><span class="narrow">周</span><span class="wide">星期</span>日</th>
 							<th><span class="narrow">周</span><span class="wide">星期</span>一</th>
