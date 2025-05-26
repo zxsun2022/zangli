@@ -170,12 +170,17 @@
 				width: 14.28%;
 				position: relative;
 				cursor: pointer;
-				transition: all 0.3s ease;
+				transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
 				background: var(--card-bg);
 			}
 
 			.calendar-table td:active {
 				transform: scale(0.98);
+				transition: transform 0.05s ease;
+			}
+
+			.calendar-table td:not(:active) {
+				transition: transform 0.1s ease;
 			}
 
 			.calendar-table td:hover {
@@ -203,15 +208,17 @@
 			}
 
 			.calendar-table td.selected {
-				background: #E8F4FD;
-				border: 2px solid #4A90E2;
-				box-shadow: 0 0 10px rgba(74, 144, 226, 0.3);
+				background: #E8F4FD !important;
+				border: 2px solid #4A90E2 !important;
+				box-shadow: 0 0 10px rgba(74, 144, 226, 0.3) !important;
+				transition: none !important;
 			}
 
 			.calendar-table td.selected.today {
-				background: linear-gradient(135deg, var(--today-bg) 0%, #E8F4FD 100%);
-				border: 2px solid var(--today-border);
-				box-shadow: 0 0 15px rgba(255, 140, 0, 0.4);
+				background: linear-gradient(135deg, var(--today-bg) 0%, #E8F4FD 100%) !important;
+				border: 2px solid var(--today-border) !important;
+				box-shadow: 0 0 15px rgba(255, 140, 0, 0.4) !important;
+				transition: none !important;
 			}
 
 			.day-number {
@@ -588,24 +595,28 @@
 			// 如果没有找到TD元素，退出
 			if(!e || e.tagName !== "TD") return;
 			
-			// 移除之前选中的样式
+			// 立即移除之前选中的样式
 			if(selectedCell){
 				selectedCell.classList.remove('selected');
 			}
 			
-			// 添加选中样式到当前单元格
+			// 立即添加选中样式到当前单元格
 			if(e.innerHTML.trim() !== ""){
 				selectedCell = e;
+				// 强制立即应用样式
 				e.classList.add('selected');
 				
-				// 更新选中日期显示
+				// 立即更新选中日期显示
 				if(e.title){
 					$("selectedDay").innerHTML=e.title;
 				}
 				
 				// 检查是否点击了节日日期，在移动端显示节日信息
 				if(window.innerWidth <= 768 && e.querySelector && e.querySelector('.lunar-date.festival')){
-					showFestivalTooltip(e);
+					// 使用setTimeout确保DOM更新后再显示弹窗
+					setTimeout(function(){
+						showFestivalTooltip(e);
+					}, 0);
 				}
 			}
 		}
@@ -775,7 +786,7 @@
 
 			<div class="calendar-container">
 				<table class="calendar-table">
-					<tbody onclick="showDay(event.target || event.srcElement)">
+					<tbody onmousedown="showDay(event.target || event.srcElement)" onclick="showDay(event.target || event.srcElement)">
 						<tr>
 							<th><span class="narrow">周</span><span class="wide">星期</span>日</th>
 							<th><span class="narrow">周</span><span class="wide">星期</span>一</th>
