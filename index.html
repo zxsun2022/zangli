@@ -174,6 +174,10 @@
 				background: var(--card-bg);
 			}
 
+			.calendar-table td:active {
+				transform: scale(0.98);
+			}
+
 			.calendar-table td:hover {
 				background: #F8F8F8;
 				box-shadow: inset 0 0 10px rgba(139, 69, 19, 0.1);
@@ -198,11 +202,27 @@
 				font-weight: 600;
 			}
 
+			.calendar-table td.selected {
+				background: #E8F4FD;
+				border: 2px solid #4A90E2;
+				box-shadow: 0 0 10px rgba(74, 144, 226, 0.3);
+			}
+
+			.calendar-table td.selected.today {
+				background: linear-gradient(135deg, var(--today-bg) 0%, #E8F4FD 100%);
+				border: 2px solid var(--today-border);
+				box-shadow: 0 0 15px rgba(255, 140, 0, 0.4);
+			}
+
 			.day-number {
 				font-size: 1.2rem;
 				font-weight: 600;
 				color: var(--text-color);
 				margin-bottom: 4px;
+			}
+
+			.day-number.first-day {
+				text-align: center;
 			}
 
 			.lunar-date {
@@ -211,6 +231,37 @@
 				font-weight: 600;
 				margin-bottom: 2px;
 				text-align: center;
+			}
+
+			.lunar-date.festival {
+				position: relative;
+			}
+
+			.lunar-date.festival::after {
+				content: "";
+				position: absolute;
+				bottom: -2px;
+				left: 50%;
+				transform: translateX(-50%);
+				width: 80%;
+				height: 2px;
+				background: linear-gradient(90deg, var(--accent-color), #FF8C42);
+				border-radius: 1px;
+			}
+
+			.lunar-date.festival::before {
+				content: "🎉";
+				position: absolute;
+				top: -2px;
+				right: -2px;
+				font-size: 0.6rem;
+				opacity: 0.8;
+				animation: festivalPulse 2s infinite;
+			}
+
+			@keyframes festivalPulse {
+				0%, 100% { transform: scale(1); opacity: 0.8; }
+				50% { transform: scale(1.2); opacity: 1; }
 			}
 
 			.lunar-month {
@@ -277,6 +328,43 @@
 				padding: 10px;
 				background: rgba(139, 69, 19, 0.05);
 				border-radius: 8px;
+			}
+
+			.festival-tooltip {
+				position: fixed;
+				background: var(--card-bg);
+				border: 2px solid var(--accent-color);
+				border-radius: 10px;
+				padding: 15px;
+				box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+				z-index: 1000;
+				max-width: 280px;
+				font-size: 0.9rem;
+				color: var(--text-color);
+				display: none;
+				animation: tooltipFadeIn 0.3s ease-out;
+			}
+
+			.festival-tooltip::before {
+				content: "🎉";
+				font-size: 1.2rem;
+				margin-right: 8px;
+			}
+
+			.festival-tooltip .close-btn {
+				position: absolute;
+				top: 5px;
+				right: 8px;
+				background: none;
+				border: none;
+				font-size: 1.2rem;
+				cursor: pointer;
+				color: var(--secondary-color);
+			}
+
+			@keyframes tooltipFadeIn {
+				from { opacity: 0; transform: scale(0.8); }
+				to { opacity: 1; transform: scale(1); }
 			}
 
 			/* 响应式设计 */
@@ -348,6 +436,17 @@
 				.eclipse-info {
 					font-size: 0.6rem;
 				}
+
+				.lunar-date.festival::before {
+					font-size: 0.5rem;
+					top: -1px;
+					right: -1px;
+				}
+
+				.lunar-date.festival::after {
+					height: 1.5px;
+					width: 90%;
+				}
 			}
 
 			/* 动画效果 */
@@ -382,6 +481,7 @@
 		window.onhashchange=zangli_callback;
 		var $m,$y;
 		var today = new Date();
+		var selectedCell = null;
 		function zangli_callback(){
 			var h=location.hash;
 			$m=$("month");
@@ -390,6 +490,10 @@
 			if(d<startDate)d=startDate;
 			if(d>endDate)d=endDate;
 			$("selectedDay").innerHTML="公历"+d.getFullYear()+"年"+(d.getMonth()+1)+"月"+d.getDate()+"日，藏历"+getZangli(d).value;
+			
+			// 清除之前的选中状态
+			selectedCell = null;
+			hideFestivalTooltip();
 			$y.options.length=0;
 			for(var i=1951;i<2052;i++){
 				$y.appendChild(new Option(i));
@@ -429,11 +533,15 @@
 							  d3.getDate() === today.getDate();
 
 				if(i==d0.getDate()){
-					t.push("<div class='day-number'><span class='wide'>"+d.getFullYear()+"年"+(d.getMonth()+1)+"月1日</span><span class='narrow'>"+i+"</span>");
+					t.push("<div class='day-number first-day'><span class='wide'>"+d.getFullYear()+"年"+(d.getMonth()+1)+"月1日</span><span class='narrow'>"+i+"</span>");
 				}else{
 					t.push("<div class='day-number'>"+i)
 				}
-				t.push("</div><div class='lunar-date'>")
+				// 检查是否是节日
+				var isFestival = z.extraInfo && z.extraInfo.trim() !== "" && z.extraInfo !== "&nbsp;";
+				var festivalClass = isFestival ? " festival" : "";
+				
+				t.push("</div><div class='lunar-date" + festivalClass + "'>")
 				if(z.day=="初一" || (z.day=="初二" && z.dayMiss))
 					t.push("<span class='lunar-month'>"+(z.month=='正'&&!z.monthLeap?z.year+"年<br>":"")+z.month+"月</span><br>"+z.day)
 				else
@@ -472,8 +580,81 @@
 			while(e.tagName!="TD" && e.tagName!="TABLE"){
 				e=e.parentNode;
 			}
+			
+			// 移除之前选中的样式
+			if(selectedCell){
+				selectedCell.classList.remove('selected');
+			}
+			
+			// 添加选中样式到当前单元格
+			if(e.tagName === "TD" && e.innerHTML.trim() !== ""){
+				selectedCell = e;
+				e.classList.add('selected');
+			}
+			
 			if(e.title){
 				$("selectedDay").innerHTML=e.title;
+			}
+			
+			// 检查是否点击了节日日期，在移动端显示节日信息
+			if(window.innerWidth <= 768 && e.querySelector && e.querySelector('.lunar-date.festival')){
+				showFestivalTooltip(e, event);
+			}
+		}
+
+		function showFestivalTooltip(cell, event) {
+			// 隐藏现有的tooltip
+			hideFestivalTooltip();
+			
+			// 从cell的title中提取节日信息
+			var title = cell.title || "";
+			var festivalInfo = "";
+			
+			// 简单的节日信息提取（可以根据需要改进）
+			if(title.includes("节日") || title.includes("佛") || title.includes("菩萨") || title.includes("荟供")){
+				var parts = title.split("，");
+				if(parts.length > 1) {
+					festivalInfo = parts[1]; // 获取藏历信息后的部分
+				}
+			}
+			
+			if(festivalInfo) {
+				var tooltip = document.createElement('div');
+				tooltip.className = 'festival-tooltip';
+				tooltip.id = 'festivalTooltip';
+				tooltip.innerHTML = festivalInfo + '<button class="close-btn" onclick="hideFestivalTooltip()">×</button>';
+				
+				document.body.appendChild(tooltip);
+				
+				// 定位tooltip
+				var rect = cell.getBoundingClientRect();
+				var tooltipRect = tooltip.getBoundingClientRect();
+				
+				var left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+				var top = rect.top - tooltipRect.height - 10;
+				
+				// 确保tooltip在屏幕内
+				if(left < 10) left = 10;
+				if(left + tooltipRect.width > window.innerWidth - 10) {
+					left = window.innerWidth - tooltipRect.width - 10;
+				}
+				if(top < 10) {
+					top = rect.bottom + 10;
+				}
+				
+				tooltip.style.left = left + 'px';
+				tooltip.style.top = top + 'px';
+				tooltip.style.display = 'block';
+				
+				// 3秒后自动隐藏
+				setTimeout(hideFestivalTooltip, 3000);
+			}
+		}
+
+		function hideFestivalTooltip() {
+			var tooltip = document.getElementById('festivalTooltip');
+			if(tooltip) {
+				tooltip.remove();
 			}
 		}
 		function changeDate(code){
@@ -552,7 +733,7 @@
 			</div>
 
 			<div class="navigation-hint">
-				💡 提示：可使用键盘方向键快速切换月份和年份
+				💡 提示：可使用键盘方向键快速切换月份和年份 | 🎉 带下划线的日期为藏历节日
 			</div>
 
 			<div class="controls">
@@ -587,8 +768,10 @@
 				<h3>📖 使用说明</h3>
 				<p>• 本页面提供1951年1月8日到2051年1月12日之间的公历藏历对照查询</p>
 				<p>• 今天的日期会特别标注并高亮显示</p>
-				<p>• 点击任意日期可查看详细信息</p>
+				<p>• 点击任意日期可查看详细信息，选中的日期会有蓝色边框</p>
 				<p>• 使用键盘方向键可快速切换月份和年份</p>
+				<p>• <span style="position: relative; display: inline-block; padding: 2px 8px; color: var(--primary-color); font-weight: 600;">🎉 节日日期<span style="position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%); width: 80%; height: 2px; background: linear-gradient(90deg, var(--accent-color), #FF8C42); border-radius: 1px;"></span></span> 会有特殊标识和下划线</p>
+				<p>• 在移动设备上点击节日日期可查看节日详情</p>
 			</div>
 
 			<div class="info-section">
