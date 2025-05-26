@@ -71,12 +71,59 @@
 				background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
 				color: white;
 				padding: 15px 25px;
-				border-radius: 25px;
+				border-radius: 15px;
 				font-size: 1.2rem;
 				font-weight: 600;
-				display: inline-block;
 				box-shadow: var(--shadow);
 				margin-bottom: 20px;
+				text-align: center;
+				line-height: 1.3;
+				max-width: 90%;
+				height: 85px;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				margin-left: auto;
+				margin-right: auto;
+				overflow: hidden;
+			}
+
+			.selected-day .festival-info {
+				font-size: 0.9rem;
+				margin-top: 3px;
+				margin-bottom: 0;
+				opacity: 0.95;
+				font-weight: 500;
+				line-height: 1.2;
+			}
+
+			.selected-day-bottom {
+				background: var(--card-bg);
+				border: 2px solid var(--primary-color);
+				border-radius: 15px;
+				padding: 20px;
+				margin: 30px 0;
+				text-align: center;
+				box-shadow: var(--shadow);
+				font-size: 1.1rem;
+				color: var(--text-color);
+				line-height: 1.3;
+				height: 100px;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				overflow: hidden;
+			}
+
+			.selected-day-bottom .festival-info {
+				color: var(--accent-color);
+				font-weight: 600;
+				margin-top: 5px;
+				margin-bottom: 0;
+				font-size: 0.95rem;
+				line-height: 1.2;
 			}
 
 			.controls {
@@ -244,17 +291,7 @@
 				position: relative;
 			}
 
-			.lunar-date.festival::after {
-				content: "";
-				position: absolute;
-				bottom: -2px;
-				left: 50%;
-				transform: translateX(-50%);
-				width: 80%;
-				height: 2px;
-				background: linear-gradient(90deg, var(--accent-color), #FF8C42);
-				border-radius: 1px;
-			}
+
 
 			.lunar-date.festival::before {
 				content: "🎉";
@@ -384,6 +421,25 @@
 					font-size: 2rem;
 				}
 
+				.selected-day {
+					height: 90px;
+					padding: 12px 20px;
+					font-size: 1.1rem;
+				}
+
+				.selected-day .festival-info {
+					font-size: 0.85rem;
+				}
+
+				.selected-day-bottom {
+					height: 110px;
+					padding: 15px;
+				}
+
+				.selected-day-bottom .festival-info {
+					font-size: 0.9rem;
+				}
+
 				.calendar-table td {
 					height: 100px;
 					padding: 4px;
@@ -450,10 +506,7 @@
 					right: -1px;
 				}
 
-				.lunar-date.festival::after {
-					height: 1.5px;
-					width: 90%;
-				}
+
 			}
 
 			/* 动画效果 */
@@ -496,7 +549,9 @@
 			var d=h?new Date(h.substr(1)):new Date();
 			if(d<startDate)d=startDate;
 			if(d>endDate)d=endDate;
-			$("selectedDay").innerHTML="公历"+d.getFullYear()+"年"+(d.getMonth()+1)+"月"+d.getDate()+"日，藏历"+getZangli(d).value;
+			
+			// 更新选中日期显示
+			updateSelectedDayDisplay(d);
 			
 			// 清除之前的选中状态
 			selectedCell = null;
@@ -583,6 +638,30 @@
 				tr.insertCell();
 			}
 		}
+		function updateSelectedDayDisplay(date) {
+			var z = getZangli(date);
+			var dateStr = "公历" + date.getFullYear() + "年" + (date.getMonth() + 1) + "月" + date.getDate() + "日，藏历" + z.value;
+			
+			// 检查是否有节日信息
+			var festivalInfo = "";
+			if (z.extraInfo && z.extraInfo.trim() !== "" && z.extraInfo !== "&nbsp;") {
+				festivalInfo = z.extraInfo.replace(/<br>/g, " ");
+				if (z.extraInfo2 && z.extraInfo2.trim() !== "" && z.extraInfo2 !== "&nbsp;") {
+					festivalInfo += ", " + z.extraInfo2;
+				}
+			}
+			
+			var html = dateStr;
+			var bottomHtml = dateStr;
+			if (festivalInfo) {
+				html += '<div class="festival-info">' + festivalInfo + '</div>';
+				bottomHtml += '<div class="festival-info">' + festivalInfo + '</div>';
+			}
+			
+			$("selectedDay").innerHTML = html;
+			$("selectedDayBottom").innerHTML = bottomHtml;
+		}
+
 		function showDay(e){
 			// 确保e存在
 			if(!e) return;
@@ -608,16 +687,21 @@
 				
 				// 立即更新选中日期显示
 				if(e.title){
-					$("selectedDay").innerHTML=e.title;
+					// 从title中提取日期信息并更新显示
+					var titleParts = e.title.split("，");
+					if(titleParts.length >= 2) {
+						// 提取公历日期
+						var gregorianMatch = titleParts[0].match(/公历(\d+)年(\d+)月(\d+)日/);
+						if(gregorianMatch) {
+							var selectedDate = new Date(parseInt(gregorianMatch[1]), parseInt(gregorianMatch[2]) - 1, parseInt(gregorianMatch[3]));
+							updateSelectedDayDisplay(selectedDate);
+						}
+					} else {
+						$("selectedDay").innerHTML = e.title;
+					}
 				}
 				
-				// 检查是否点击了节日日期，在移动端显示节日信息
-				if(window.innerWidth <= 768 && e.querySelector && e.querySelector('.lunar-date.festival')){
-					// 使用setTimeout确保DOM更新后再显示弹窗
-					setTimeout(function(){
-						showFestivalTooltip(e);
-					}, 0);
-				}
+
 			}
 		}
 
@@ -764,12 +848,11 @@
 		<div class="container">
 			<div class="header">
 				<h1>百年藏历</h1>
-				<div class="subtitle">藏历公历对照查询 (1951-2051)</div>
 				<div class="selected-day" id="selectedDay"></div>
 			</div>
 
 			<div class="navigation-hint">
-				💡 提示：可使用键盘方向键快速切换月份和年份 | 🎉 带下划线的日期为藏历节日
+				💡 提示：可使用键盘方向键快速切换月份和年份 | 🎉 带图标的日期为藏历节日
 			</div>
 
 			<div class="controls">
@@ -800,14 +883,15 @@
 				</table>
 			</div>
 
+			<div class="selected-day-bottom" id="selectedDayBottom"></div>
+
 			<div class="info-section">
 				<h3>📖 使用说明</h3>
 				<p>• 本页面提供1951年1月8日到2051年1月12日之间的公历藏历对照查询</p>
 				<p>• 今天的日期会特别标注并高亮显示</p>
 				<p>• 点击任意日期可查看详细信息，选中的日期会有蓝色边框</p>
 				<p>• 使用键盘方向键可快速切换月份和年份</p>
-				<p>• <span style="position: relative; display: inline-block; padding: 2px 8px; color: var(--primary-color); font-weight: 600;">🎉 节日日期<span style="position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%); width: 80%; height: 2px; background: linear-gradient(90deg, var(--accent-color), #FF8C42); border-radius: 1px;"></span></span> 会有特殊标识和下划线</p>
-				<p>• 在移动设备上点击节日日期可查看节日详情</p>
+				<p>• 🎉 节日日期会有特殊图标标识，节日详情显示在页面上方和日历下方</p>
 			</div>
 
 			<div class="info-section">
