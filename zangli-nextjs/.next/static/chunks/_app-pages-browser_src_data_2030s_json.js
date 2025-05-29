@@ -1,0 +1,22 @@
+"use strict";
+/*
+ * ATTENTION: An "eval-source-map" devtool has been used.
+ * This devtool is neither made for production nor for readable output files.
+ * It uses "eval()" calls to create a separate source file with attached SourceMaps in the browser devtools.
+ * If you are trying to read the output file, select a different devtool (https://webpack.js.org/configuration/devtool/)
+ * or disable the default devtool with "devtool: false".
+ * If you are looking for production-ready output files, see mode: "production" (https://webpack.js.org/configuration/mode/).
+ */
+(self["webpackChunk_N_E"] = self["webpackChunk_N_E"] || []).push([["_app-pages-browser_src_data_2030s_json"],{
+
+/***/ "(app-pages-browser)/./src/data/2030s.json":
+/*!*****************************!*\
+  !*** ./src/data/2030s.json ***!
+  \*****************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+module.exports = /*#__PURE__*/JSON.parse('{"decade":2030,"years":[{"year":2030,"data":[[-22],[1,-16],[5,-9,-22,23],[-13,29],[-6],[-9,26],[-2,-13,16],[-5,22,-27],[],[-2,16,-25],[-30],[0,9,-24],[12,-18]]},{"year":2031,"data":[[-23],[4,-17],[-21,28],[-14],[-17,25],[-9],[-12,21],[-5],[-9,16],[-2,20,-26],[],[-1,11,-25]]},{"year":2032,"data":[[15,-19],[-24],[8,-17],[-21],[3,-14],[-16,30],[-9],[-12,25],[-5],[-9,19],[-3,23,-27],[]]},{"year":2033,"data":[[-2,14,-27],[],[-1,7,-24],[12,-17],[-21],[8,-13,-25,28],[-16],[0,5,-8,-20,24],[-13,29],[-6],[-10,22],[-4],[-10,14]]},{"year":2034,"data":[[-3,17,-28],[],[-1,11,-25],[-28],[6,-21],[-23],[3,-16],[-20,29],[-13],[-18,22],[-11,25],[-6]]},{"year":2035,"data":[[-11,17],[-4,21,-28],[],[-2,15,-25],[-28],[11,-21],[-23],[8,-16],[-20],[2,-14],[-18,25],[-12,28]]},{"year":2036,"data":[[-7],[-11,20],[-5,25,-27],[-10,14],[0,-2,20,-24],[-6,10,-28],[18,-19],[-1,7,-24],[13,-16,-28],[1,-21],[6,-15],[-19,28],[-14]]},{"year":2037,"data":[[1,-8],[-12,24],[-6],[-9,19],[-2],[-5,15,-28],[],[-1,11,-24],[-28],[6,-22],[9,-15],[-21]]},{"year":2038,"data":[[1,-15],[5,-8,-21,22],[-13,28],[-6],[-9,23],[-2],[-5,20,-28],[],[-1,15,-24],[-28],[9,-23],[13,-16],[0,-22]]},{"year":2039,"data":[[4,-16],[-20,27],[-13],[3,-5,-17,22],[-9],[-12,19],[-5],[-8,15],[-1,19,-25],[-29],[12,-24],[-30]]}],"metadata":{"startYear":2030,"endYear":2039,"totalYears":10}}');
+
+/***/ })
+
+}]);

@@ -1,0 +1,25 @@
+"use strict";
+/*
+ * ATTENTION: An "eval-source-map" devtool has been used.
+ * This devtool is neither made for production nor for readable output files.
+ * It uses "eval()" calls to create a separate source file with attached SourceMaps in the browser devtools.
+ * If you are trying to read the output file, select a different devtool (https://webpack.js.org/configuration/devtool/)
+ * or disable the default devtool with "devtool: false".
+ * If you are looking for production-ready output files, see mode: "production" (https://webpack.js.org/configuration/mode/).
+ */
+exports.id = "_ssr_src_data_1959_json";
+exports.ids = ["_ssr_src_data_1959_json"];
+exports.modules = {
+
+/***/ "(ssr)/./src/data/1959.json":
+/*!****************************!*\
+  !*** ./src/data/1959.json ***!
+  \****************************/
+/***/ ((module) => {
+
+module.exports = /*#__PURE__*/JSON.parse('{"year":1959,"data":[[9,-11,-24,26],[-17],[1,-10],[-14,26],[-7],[-10,23],[-2],[-5,19,-29],[],[-2,13,-26],[],[-2,4,-25]],"metadata":{"months":12,"startDate":"1959-01-01","endDate":"1959-12-31"}}');
+
+/***/ })
+
+};
+;

@@ -1,0 +1,25 @@
+"use strict";
+/*
+ * ATTENTION: An "eval-source-map" devtool has been used.
+ * This devtool is neither made for production nor for readable output files.
+ * It uses "eval()" calls to create a separate source file with attached SourceMaps in the browser devtools.
+ * If you are trying to read the output file, select a different devtool (https://webpack.js.org/configuration/devtool/)
+ * or disable the default devtool with "devtool: false".
+ * If you are looking for production-ready output files, see mode: "production" (https://webpack.js.org/configuration/mode/).
+ */
+exports.id = "_ssr_src_data_1970s_json";
+exports.ids = ["_ssr_src_data_1970s_json"];
+exports.modules = {
+
+/***/ "(ssr)/./src/data/1970s.json":
+/*!*****************************!*\
+  !*** ./src/data/1970s.json ***!
+  \*****************************/
+/***/ ((module) => {
+
+module.exports = /*#__PURE__*/JSON.parse('{"decade":1970,"years":[{"year":1970,"data":[[14,-20],[-24],[7,-18],[-21],[2,-14],[-17,29],[-10],[-13,25],[-6],[-10,19],[-4,22,-27],[]]},{"year":1971,"data":[[-3,14,-27],[],[-2,6,-25],[11,-18],[0,-21],[7,-14],[-17],[4,-9,-21,23],[-13,29],[-6],[-11,22],[-5],[-11,13]]},{"year":1972,"data":[[-4,17,-28],[],[-2,10,-25],[-29],[6,-21],[-24],[3,-17],[-20,28],[-14],[3,-6,-19,21],[-12,25],[-6]]},{"year":1973,"data":[[-11,17],[-5,20,-29],[],[-2,14,-26],[-28],[11,-21],[-24],[7,-17],[-20],[2,-14],[-19,25],[-13,28],[0,-7]]},{"year":1974,"data":[[-12,20],[-6,24,-29],[-11,13],[-3,19,-25],[-28],[16,-20],[-2,6,-24],[12,-17],[-21],[6,-15],[-20,28],[-14]]},{"year":1975,"data":[[1,-8],[-13,23],[-6],[-10,18],[-3],[-6,15,-28],[],[-1,11,-24],[-28],[5,-22],[9,-16],[-21]]},{"year":1976,"data":[[1,-15],[4,-9],[-13,27],[-7],[-10,23],[-3],[-5,20,-28],[],[-1,15,-25],[0,-29],[8,-23],[12,-17],[-22]]},{"year":1977,"data":[[3,-16],[-21,26],[-14],[1,-6,-18,21],[-10,28],[-2,-13,18],[-5,25,-27],[-9,14],[-2,19,-25],[-30],[12,-24],[]]},{"year":1978,"data":[[-1,2,-23],[7,-17],[-21],[1,-14],[-17,27],[-10],[-13,23],[-6],[-9,18],[-3,24,-25],[-8,11],[-1,14,-25]]},{"year":1979,"data":[[],[-1,6,-24],[10,-18],[-21],[5,-14],[0,-17],[1,-10],[-13,28],[-6],[-10,22],[-3],[-8,14],[-2,17,-27]]}],"metadata":{"startYear":1970,"endYear":1979,"totalYears":10}}');
+
+/***/ })
+
+};
+;
