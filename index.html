@@ -646,14 +646,19 @@
 			}
 		</style>
 
-		<script src="zangli.js" async defer charset="UTF-8"></script>
 		<script>
 		const $ = id => document.getElementById(id);
-		window.onhashchange = zangli_callback;
 		let $m, $y;
 		const today = new Date();
 		let selectedCell = null;
 		function zangli_callback() {
+			// 确保DOM已经加载完成
+			if (!document.body || !$("selectedDay") || !$("selectedDayBottom")) {
+				// 如果DOM还没准备好，延迟执行
+				setTimeout(zangli_callback, 100);
+				return;
+			}
+			
 			const h = location.hash;
 			$m = $("month");
 			$y = $("year");
@@ -769,8 +774,16 @@
 				bottomHtml += `<div class="festival-info">${festivalInfo}</div>`;
 			}
 			
-			$("selectedDay").innerHTML = html;
-			$("selectedDayBottom").innerHTML = bottomHtml;
+			// 确保DOM元素存在后再设置内容
+			const selectedDayElement = $("selectedDay");
+			const selectedDayBottomElement = $("selectedDayBottom");
+			
+			if (selectedDayElement) {
+				selectedDayElement.innerHTML = html;
+			}
+			if (selectedDayBottomElement) {
+				selectedDayBottomElement.innerHTML = bottomHtml;
+			}
 		}
 
 		function showDay(e) {
@@ -794,7 +807,10 @@
 							updateSelectedDayDisplay(selectedDate);
 						}
 					} else {
-						$("selectedDay").innerHTML = e.title;
+						const selectedDayElement = $("selectedDay");
+						if (selectedDayElement) {
+							selectedDayElement.innerHTML = e.title;
+						}
 					}
 				}
 			}
@@ -919,6 +935,10 @@
 		window.addEventListener('load', () => {
 			zangli_callback();
 		});
+		</script>
+		<script src="zangli.js" charset="UTF-8"></script>
+		<script>
+		window.onhashchange = zangli_callback;
 		</script>
 	</head>
 	<body onkeyup="changeDate(event.keyCode)">
