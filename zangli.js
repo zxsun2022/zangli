@@ -162,9 +162,9 @@ function getZangli(p) {
 		console.error(trans(`错误:不能转换晚于${endDate.getFullYear()}年${endDate.getMonth() + 1}月${endDate.getDate()}日的日期`));
 		return { value: "error" };
 	}
-	// 标准化到当天的午夜，避免时间影响日期计算
-	const normalizedDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-	const days = Math.round((normalizedDate - startDate) / 86400 / 1000);
+	// 将输入时间标准化为当天中午12点，避免时间影响日期计算
+	const standardizedDate = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0);
+	const days = Math.round((standardizedDate - startDate) / 86400 / 1000);
 	let countingDays = 0;
 	for (let years = 0; years < specialDays.length; years++) {
 		let leapMonths = 0;
