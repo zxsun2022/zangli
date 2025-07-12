@@ -1,16 +1,15 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-TW">
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta charset="UTF-8">
-		<meta name="description" content="提供1951年1月8日到2051年1月12日之间到公历藏历对照查询">
-		<meta name="keywords" content="在线,藏历,百年,万年历，藏历月历">
+		<meta name="description" content="提供1951年1月8日到2051年1月12日之間的公曆藏曆對照查詢">
+		<meta name="keywords" content="在線,藏曆,百年,萬年曆,藏曆月曆">
 		<meta name="author"  content="Stone Huang">
-		<title>百年藏历 - 藏历在线查询</title>
+		<title>百年藏曆 - 藏曆線上查詢</title>
 		<link rel="alternate" hreflang="zh-CN" href="https://stonelf.github.io/zangli/" />
 		<link rel="alternate" hreflang="zh-TW" href="https://stonelf.github.io/zangli/tw/" />
 		<link rel="alternate" hreflang="x-default" href="https://stonelf.github.io/zangli/" />
-		<script src="js/langDetect.js"></script>
 
 		<style>
 			:root {
@@ -716,7 +715,7 @@
 								d3.getDate() === today.getDate();
 
 				if (i === d0.getDate()) {
-					t.push(`<div class='day-number first-day'><span class='wide'>${d.getFullYear()}年${d.getMonth() + 1}月1日</span><span class='narrow'>${i}</span>`);
+					t.push(trans(`<div class='day-number first-day'><span class='wide'>${d.getFullYear()}年${d.getMonth() + 1}月1日</span><span class='narrow'>${i}</span>`));
 				} else {
 					t.push(`<div class='day-number'>${i}`);
 				}
@@ -726,12 +725,12 @@
 				
 				t.push(`</div><div class='lunar-date${festivalClass}'>`);
 				if (z.day === "初一" || (z.day === "初二" && z.dayMiss))
-					t.push(`<span class='lunar-month'>${z.month === '正' && !z.monthLeap ? z.year + "年<br>" : ""}${z.month}月</span><br>${z.day}`);
-				else if (z.value !== "error") t.push(z.day);
+					t.push(trans(`<span class='lunar-month'>${z.month === '正' && !z.monthLeap ? z.year + "年<br>" : ""}${z.month}月</span><br>${z.day}`));
+				else if (z.value !== "error") t.push(trans(z.day));
 				t.push(`</div><div class='extra-info wide'>`);
-				t.push(z.extraInfo ? z.extraInfo : "&nbsp;");
+				t.push(z.extraInfo ? trans(z.extraInfo) : "&nbsp;");
 				t.push(`</div><div class='eclipse-info wide'>`);
-				t.push(ecl.value ? `${ecl.value},${ecl.extraInfo.replace(/，/,",<br>")}` : (z.extraInfo2 ? z.extraInfo2 : "&nbsp;" ));
+				t.push(ecl.value ? trans(`${ecl.value},${ecl.extraInfo.replace(/，/,",<br>")}`) : (z.extraInfo2 ? trans(z.extraInfo2) : "&nbsp;" ));
 				t.push(`</div>`);
 				td = tr.insertCell();
 				td.innerHTML = t.join("");
@@ -742,16 +741,16 @@
 				}
 				
 				if (z.value !== "error")
-					td.title = `公历${d3.getFullYear()}年${d3.getMonth() + 1}月${d3.getDate()}日，藏历${z.value}`;
+					td.title = trans(`公历${d3.getFullYear()}年${d3.getMonth() + 1}月${d3.getDate()}日，藏历${z.value}`);
 				if (ecl.value !== "") {
-					td.title = `${td.title},${ecl.value}`;
+					td.title = trans(`${td.title},${ecl.value}`);
 					if (/日/.test(ecl.value))
 						td.className = (td.className || "") + " solareclipse";
 					else
 						td.className = (td.className || "") + " lunareclipse";
 				}
 				if (ecl.extraInfo !== "") {
-					td.title = `${td.title},${ecl.extraInfo}`;
+					td.title = trans(`${td.title},${ecl.extraInfo}`);
 				}
 			}
 			for (let i = d3.getDay(); i < 6; i++) {
@@ -760,7 +759,7 @@
 		}
 		function updateSelectedDayDisplay(date) {
 			const z = getZangli(date);
-			const dateStr = `公历${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日，藏历${z.value}`;
+			const dateStr = trans(`公历${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日，藏历${z.value}`);
 			
 			// 检查是否有节日信息
 			let festivalInfo = "";
@@ -774,8 +773,8 @@
 			let html = dateStr;
 			let bottomHtml = dateStr;
 			if (festivalInfo) {
-				html += `<div class="festival-info">${festivalInfo}</div>`;
-				bottomHtml += `<div class="festival-info">${festivalInfo}</div>`;
+				html += `<div class="festival-info">${trans(festivalInfo)}</div>`;
+				bottomHtml += `<div class="festival-info">${trans(festivalInfo)}</div>`;
 			}
 			
 			// 确保DOM元素存在后再设置内容
@@ -803,9 +802,9 @@
 				selectedCell = e;
 				e.classList.add('selected');
 				if (e.title) {
-					const titleParts = e.title.split("，");
+					const titleParts = e.title.split(trans("，"));
 					if (titleParts.length >= 2) {
-						const gregorianMatch = titleParts[0].match(/公历(\d+)年(\d+)月(\d+)日/);
+						const gregorianMatch = titleParts[0].match(new RegExp(trans("公历(\\d+)年(\\d+)月(\\d+)日")));
 						if (gregorianMatch) {
 							const selectedDate = new Date(parseInt(gregorianMatch[1]), parseInt(gregorianMatch[2]) - 1, parseInt(gregorianMatch[3]));
 							updateSelectedDayDisplay(selectedDate);
@@ -829,17 +828,17 @@
 				if (extraInfoDiv && extraInfoDiv.innerHTML && extraInfoDiv.innerHTML.trim() !== "&nbsp;" && extraInfoDiv.innerHTML.trim() !== "") {
 					festivalInfo = extraInfoDiv.innerHTML.replace(/<br>/g, " ");
 				}
-				if (!festivalInfo && title.includes("，")) {
-					const parts = title.split("，");
+				if (!festivalInfo && title.includes(trans("，"))) {
+					const parts = title.split(trans("，"));
 					for (let i = 1; i < parts.length; i++) {
-						if (parts[i].includes("节日") || parts[i].includes("佛") || parts[i].includes("菩萨") || parts[i].includes("荟供")) {
+						if (parts[i].includes(trans("节日")) || parts[i].includes(trans("佛")) || parts[i].includes(trans("菩萨")) || parts[i].includes(trans("荟供"))) {
 							festivalInfo = parts[i];
 							break;
 						}
 					}
 				}
 			} catch (err) {
-				console.log("提取节日信息时出错:", err);
+				console.log(trans("提取节日信息时出错:"), err);
 			}
 			if (festivalInfo) {
 				const tooltip = document.createElement('div');
@@ -940,8 +939,10 @@
 			zangli_callback();
 		});
 		</script>
-		<script>const trans = text => text;</script>
-		<script src="zangli.js" charset="UTF-8"></script>
+		<script src="https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/full.min.js"></script>
+		<script src="../js/i18n.js"></script>
+		<script src="../zangli.js" charset="UTF-8"></script>
+		<script src="../eclipse.js" charset="UTF-8"></script>
 		<script>
 		window.onhashchange = zangli_callback;
 		</script>
@@ -949,7 +950,7 @@
 	<body onkeyup="changeDate(event.keyCode)">
 		<div class="container">
 			<div class="header">
-				<h1>百年藏历</h1>
+				<h1>百年藏曆</h1>
 				<div class="selected-day" id="selectedDay"></div>
 			</div>
 
@@ -969,13 +970,13 @@
 				<table class="calendar-table">
 					<tbody onmousedown="showDay(event.target || event.srcElement)" onclick="showDay(event.target || event.srcElement)">
 						<tr>
-							<th>周日</th>
-							<th>周一</th>
-							<th>周二</th>
-							<th>周三</th>
-							<th>周四</th>
-							<th>周五</th>
-							<th>周六</th>
+							<th>週日</th>
+							<th>週一</th>
+							<th>週二</th>
+							<th>週三</th>
+							<th>週四</th>
+							<th>週五</th>
+							<th>週六</th>
 						</tr>
 					</tbody>
 				</table>
@@ -984,27 +985,27 @@
 			<div class="selected-day-bottom" id="selectedDayBottom"></div>
 
 			<div class="info-section">
-				<h3>📚 数据来源</h3>
-				<p>• 藏历数据来源于《藏历、公历、农历对照百年历书（1951-2050）》</p>
-				<p>• 日月食数据来自NASA，并从UTC时间转换到北京时间计算日期</p>
-				<p>• 由于地球上不同位置看到的初亏复圆时间会不同，时间可能存在误差</p>
+				<h3>📚 資料來源</h3>
+				<p>• 藏曆資料來源於《藏曆、公曆、農曆對照百年曆書（1951-2050）》</p>
+				<p>• 日月食資料來自NASA，並從UTC時間轉換到北京時間計算日期</p>
+				<p>• 由於地球上不同位置看到的初虧復圓時間會不同，時間可能存在誤差</p>
 			</div>
 
 			<div class="info-section">
-				<h3>🔗 开源信息</h3>
-				<p>本页面和数据开源于 <a href="https://github.com/stonelf/zangli" target="_blank" style="color: var(--primary-color); text-decoration: none;">GitHub</a>，欢迎下载使用。</p>
+				<h3>🔗 開源資訊</h3>
+				<p>本頁面和資料開源於 <a href="https://github.com/stonelf/zangli" target="_blank" style="color: var(--primary-color); text-decoration: none;">GitHub</a>，歡迎下載使用。</p>
 			</div>
 
 			<noscript>
 				<div class="info-section">
-					<h3>静态版本</h3>
-					<p>不支持JavaScript的浏览器可以直接访问本月历的HTML版本：
-						<a href="calendar/1952.html">1952年藏历月历</a> 
-						<a href="calendar/1953.html">1953年藏历月历</a> 
-						<!-- 其他年份链接省略以保持简洁 -->
+					<h3>靜態版本</h3>
+					<p>不支援JavaScript的瀏覽器可以直接存取本月曆的HTML版本：
+						<a href="../calendar/1952.html">1952年藏曆月曆</a> 
+						<a href="../calendar/1953.html">1953年藏曆月曆</a> 
+						<!-- 其他年份鏈接省略以保持簡潔 -->
 					</p>
 				</div>
 			</noscript>
 		</div>
 	</body>
-</html>
+</html> 
