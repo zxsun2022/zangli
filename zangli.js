@@ -142,24 +142,24 @@ function getZangli(p) {
 	if (typeof d === "string") {
 		d = new Date(d);
 		if ("Invalid Date" === d.toString()) {
-			console.error(`错误：\"${p}\" 字符串的日期格式不对`);
+			console.error(trans(`错误：\"${p}\" 字符串的日期格式不对`));
 			return "error";
 		}
 	}
 	if (typeof d === "number") {
-		console.warn(`警告：尝试把数字 ${p} 按秒转换成日期`);
+		console.warn(trans(`警告：尝试把数字 ${p} 按秒转换成日期`));
 		d = new Date(d);
 	}
 	if (!(d instanceof Date)) {
-		console.error(`错误：只能接受日期类型数字类型或者标准格式的字符串类型输入,当前输入的是${p.constructor.toString()}`);
+		console.error(trans(`错误：只能接受日期类型数字类型或者标准格式的字符串类型输入,当前输入的是${p.constructor.toString()}`));
 		return { value: "error" };
 	}
 	if (d.getTime() < startDate.getTime()) {
-		console.error(`错误:不能转换早于${startDate.getFullYear()}年${startDate.getMonth() + 1}月${startDate.getDate()}日的日期`);
+		console.error(trans(`错误:不能转换早于${startDate.getFullYear()}年${startDate.getMonth() + 1}月${startDate.getDate()}日的日期`));
 		return { value: "error" };
 	}
 	if (d.getTime() >= (endDate.getTime() + 86400000)) {
-		console.error(`错误:不能转换晚于${endDate.getFullYear()}年${endDate.getMonth() + 1}月${endDate.getDate()}日的日期`);
+		console.error(trans(`错误:不能转换晚于${endDate.getFullYear()}年${endDate.getMonth() + 1}月${endDate.getDate()}日的日期`));
 		return { value: "error" };
 	}
 	const days = Math.round((d - startDate) / 86400 / 1000);
@@ -200,34 +200,34 @@ function getZangli(p) {
 					months = 12 - specialDays[0].length;
 				}
 				const result = {};
-				result.year = `铁水木火土`.substr(Math.floor((years) / 2) % 5, 1) + `虎兔龙蛇马羊猴鸡狗猪鼠牛`.substr(years % 12, 1);
-				result.month = (monthLeap ? "闰" : "") + ["正", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二"][months - leapMonths];
-				result.tMonth = (monthLeap ? "闰" : "") + ["神变", "苦行", "具香", "萨嘎", "作净", "明净", "具醉", "具贤", "天降", "持众", "庄严", "满意"][months - leapMonths];
-				result.day = (dayLeap ? "闰" : "") + ["初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十", "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十", "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"][tDays2];
+				result.year = trans(`铁水木火土`.substr(Math.floor((years) / 2) % 5, 1) + `虎兔龙蛇马羊猴鸡狗猪鼠牛`.substr(years % 12, 1));
+				result.month = trans((monthLeap ? "闰" : "") + ["正", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二"][months - leapMonths]);
+				result.tMonth = trans((monthLeap ? "闰" : "") + ["神变", "苦行", "具香", "萨嘎", "作净", "明净", "具醉", "具贤", "天降", "持众", "庄严", "满意"][months - leapMonths]);
+				result.day = trans((dayLeap ? "闰" : "") + ["初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十", "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十", "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"][tDays2]);
 				result.dayLeap = dayLeap;
 				result.monthLeap = monthLeap;
 				result.dayMiss = dayMiss;
-				result.value = `${result.year}年${result.month}月(${result.tMonth}月)${result.day}`;
+				result.value = trans(`${result.year}年${result.month}月(${result.tMonth}月)${result.day}`);
 				let extraInfo = "";
 				let extraInfo2 = "";
 				if (!dayLeap) switch (tDays2) {
 					case 0:
-						if (months === 0) extraInfo = "神变节"; else { extraInfo = "禅定胜王佛节日"; extraInfo2 = "作何善恶成百倍"; }
+						if (months === 0) extraInfo = trans("神变节"); else { extraInfo = trans("禅定胜王佛节日"); extraInfo2 = trans("作何善恶成百倍"); }
 						break;
-					case 3: if (months === 5) extraInfo = "释迦牟尼佛<br>初转法轮日"; break;
-					case 6: if (months === 3) extraInfo = "释迦牟尼佛诞辰"; break;
-					case 7: extraInfo = "药师佛节日"; extraInfo2 = "作何善恶成千倍"; break;
-					case 9: extraInfo = "莲师荟供日"; extraInfo2 = "作何善恶成十万倍"; break;
+					case 3: if (months === 5) extraInfo = trans("释迦牟尼佛<br>初转法轮日"); break;
+					case 6: if (months === 3) extraInfo = trans("释迦牟尼佛诞辰"); break;
+					case 7: extraInfo = trans("药师佛节日"); extraInfo2 = trans("作何善恶成千倍"); break;
+					case 9: extraInfo = trans("莲师荟供日"); extraInfo2 = trans("作何善恶成十万倍"); break;
 					case 14:
-						if (months === 3) extraInfo = "释迦牟尼佛<br>成道日涅槃日";
-						else if (months === 5) extraInfo = "释迦牟尼佛入胎日";
-						else extraInfo = "阿弥陀佛节日"; extraInfo2 = "作何善恶成百万倍";
+						if (months === 3) extraInfo = trans("释迦牟尼佛<br>成道日涅槃日");
+						else if (months === 5) extraInfo = trans("释迦牟尼佛入胎日");
+						else extraInfo = trans("阿弥陀佛节日"); extraInfo2 = trans("作何善恶成百万倍");
 						break;
-					case 17: extraInfo = "观音菩萨节日"; extraInfo2 = "作何善恶成千万倍"; break;
-					case 19: if (months === 8) extraInfo = "释迦牟尼佛天降日"; break;
-					case 20: extraInfo = "地藏王菩萨节日"; extraInfo2 = "作何善恶成亿倍"; break;
-					case 24: extraInfo = "空行母荟供日"; break;
-					case 29: extraInfo = "释迦牟尼佛节日"; extraInfo2 = "作何善恶成九亿倍"; break;
+					case 17: extraInfo = trans("观音菩萨节日"); extraInfo2 = trans("作何善恶成千万倍"); break;
+					case 19: if (months === 8) extraInfo = trans("释迦牟尼佛天降日"); break;
+					case 20: extraInfo = trans("地藏王菩萨节日"); extraInfo2 = trans("作何善恶成亿倍"); break;
+					case 24: extraInfo = trans("空行母荟供日"); break;
+					case 29: extraInfo = trans("释迦牟尼佛节日"); extraInfo2 = trans("作何善恶成九亿倍"); break;
 				}
 				result.extraInfo = extraInfo;
 				result.extraInfo2 = extraInfo2;
@@ -238,7 +238,7 @@ function getZangli(p) {
 	}
 }
 
-const eclipseType = ["日全食", "日偏食", "日环食", "日偏食", "金边日食", "月全食", "月偏食", "???", "月偏食", "???"];
+const eclipseType = [trans("日全食"), trans("日偏食"), trans("日环食"), trans("日偏食"), trans("金边日食"), trans("月全食"), trans("月偏食"), "???", trans("月偏食"), "???"];
 const eclipseList = [
 	[-593924780000,2],
 	[-592579347000,8],
@@ -756,14 +756,14 @@ const getEclipse = (date) => {
 	if (e) {
 		let d = new Date(e[0]);
 		result.value = eclipseType[e[1]];
-		result.extraInfo = `食甚${d.getHours()}点${d.getMinutes()}分`;
+		result.extraInfo = trans(`食甚${d.getHours()}点${d.getMinutes()}分`);
 		result.extraInfo2 = "";
 		if (e.length > 2) {
 			result.extraInfo2 = result.extraInfo;
 			d = new Date(e[2] + 28800000);
-			result.extraInfo = `初亏${d.getUTCHours()}点${d.getUTCMinutes()}分`;
+			result.extraInfo = trans(`初亏${d.getUTCHours()}点${d.getUTCMinutes()}分`);
 			d = new Date(e[3] + 28800000);
-			result.extraInfo += `，复圆${d.getUTCHours()}点${d.getUTCMinutes()}分`;
+			result.extraInfo += trans(`，复圆${d.getUTCHours()}点${d.getUTCMinutes()}分`);
 		}
 	}
 	return result;
