@@ -661,7 +661,8 @@
 		<script>
 		const $ = id => document.getElementById(id);
 		let $m, $y;
-		const today = new Date();
+		const today_raw = new Date();
+		const today = new Date(today_raw.getFullYear(), today_raw.getMonth(), today_raw.getDate());
 		let selectedCell = null;
 		function zangli_callback() {
 			// 确保DOM已经加载完成
@@ -675,9 +676,9 @@
 			$m = $("month");
 			$y = $("year");
 
-			// Normalize date to prevent time-of-day inconsistencies
-			const d_raw = h ? new Date(h.substr(1)) : new Date();
-			let d = new Date(d_raw.getFullYear(), d_raw.getMonth(), d_raw.getDate());
+			// Use the raw date for zangli calculations
+			const d_raw = h ? new Date(h.substr(1)) : today_raw;
+			let d = d_raw;
 
 			if (d < startDate) d = startDate;
 			if (d > endDate) d = endDate;
@@ -771,8 +772,10 @@
 			}
 		}
 		function updateSelectedDayDisplay(date) {
-			const z = getZangli(date);
-			const dateStr = `公历${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日，藏历${z.value}`;
+			// Normalize the date to ensure consistency
+			const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+			const z = getZangli(normalizedDate);
+			const dateStr = `公历${normalizedDate.getFullYear()}年${normalizedDate.getMonth() + 1}月${normalizedDate.getDate()}日，藏历${z.value}`;
 			
 			// 检查是否有节日信息
 			let festivalInfo = "";
