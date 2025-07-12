@@ -162,7 +162,7 @@ function getZangli(p) {
 		console.error(trans(`错误:不能转换晚于${endDate.getFullYear()}年${endDate.getMonth() + 1}月${endDate.getDate()}日的日期`));
 		return { value: "error" };
 	}
-	const days = Math.round((d - startDate) / 86400 / 1000);
+	const days = Math.floor((d - startDate) / 86400 / 1000);
 	let countingDays = 0;
 	for (let years = 0; years < specialDays.length; years++) {
 		let leapMonths = 0;
