@@ -1,19 +1,39 @@
 (function () {
-  const LOCALE_TRAD = /^zh(?:[-_](?:TW|HK|MO|HANT))/i;
-  const onTwPath    = /^\/tw(\/|$)/i.test(location.pathname);
+  // Use navigator.languages for more robust detection, with fallback.
+  // The regex covers zh-TW, zh-HK, zh-MO, and the generic zh-Hant.
+  const userLanguages = navigator.languages || [navigator.language || navigator.userLanguage];
+  const isTwLocale = userLanguages.some(lang => /^zh(?:[-_](?:TW|HK|MO|HANT))/i.test(lang));
 
-  const lang = (navigator.languages && navigator.languages[0]) ||
-               navigator.language;
+  const { pathname, search, hash } = location;
 
-  if (LOCALE_TRAD.test(lang)) {
-    if (!onTwPath) {
-      const newPath = '/tw' + (location.pathname.replace(/\/$/, '') || '') + (location.pathname.endsWith('/') ? '/' : '');
-      location.replace(newPath);
+  // Detect if the site is running in a subdirectory (like GitHub Pages)
+  // and determine the correct base path.
+  let basePath = '/';
+  const onTwPath = /^\/tw(\/|$)/.test(pathname);
+  const subdirMatch = pathname.match(/^(\/[^/]+\/)(tw\/)?/);
+  if (subdirMatch && subdirMatch[1] !== '/tw/') {
+    basePath = subdirMatch[1];
+  }
+
+  const inTwSubPath = pathname.startsWith(basePath + 'tw/');
+
+  // Function to build the final URL, preserving query parameters and hash.
+  function buildRedirectUrl(newPath) {
+    return newPath + search + hash;
+  }
+
+  if (isTwLocale) {
+    // If browser locale is TW/HK/MO, but we are not on the 'tw' path, redirect.
+    if (!inTwSubPath) {
+      const relativePath = pathname.substring(basePath.length);
+      const newPath = (basePath + 'tw/' + relativePath).replace(/\/\//g, '/');
+      location.replace(buildRedirectUrl(newPath));
     }
   } else {
-    if (onTwPath) {
-      const newPath = location.pathname.replace(/^\/tw\/?/, '/');
-      location.replace(newPath || '/');
+    // If browser locale is not TW/HK/MO, but we are on the 'tw' path, redirect back.
+    if (inTwSubPath) {
+      const newPath = pathname.replace(basePath + 'tw/', basePath).replace(/\/\//g, '/');
+      location.replace(buildRedirectUrl(newPath));
     }
   }
 })(); 
