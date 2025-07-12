@@ -191,7 +191,7 @@ function getZangli(p) {
 							tDays2--;
 						} else if (sd > 0 && sd < tDays2) {
 							tDays2--;
-						} else if (sd < 0 && -sd - 1 < tDays2) {
+						} else if (sd < 0 && -sd - 1 <= tDays2) {
 							tDays2++;
 						}
 					}
@@ -203,7 +203,7 @@ function getZangli(p) {
 				result.year = trans(`铁水木火土`.substr(Math.floor((years) / 2) % 5, 1) + `虎兔龙蛇马羊猴鸡狗猪鼠牛`.substr(years % 12, 1));
 				result.month = trans((monthLeap ? "闰" : "") + ["正", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二"][months - leapMonths]);
 				result.tMonth = trans((monthLeap ? "闰" : "") + ["神变", "苦行", "具香", "萨嘎", "作净", "明净", "具醉", "具贤", "天降", "持众", "庄严", "满意"][months - leapMonths]);
-				result.day = trans((dayLeap ? "闰" : "") + ["初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十", "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十", "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"][tDays2]);
+				result.day = trans((dayLeap ? "闰" : "") + ["初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十", "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十", "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"][tDays2 + 1]);
 				result.dayLeap = dayLeap;
 				result.monthLeap = monthLeap;
 				result.dayMiss = dayMiss;
@@ -211,23 +211,23 @@ function getZangli(p) {
 				let extraInfo = "";
 				let extraInfo2 = "";
 				if (!dayLeap) switch (tDays2) {
-					case 0:
+					case -1:
 						if (months === 0) extraInfo = trans("神变节"); else { extraInfo = trans("禅定胜王佛节日"); extraInfo2 = trans("作何善恶成百倍"); }
 						break;
-					case 3: if (months === 5) extraInfo = trans("释迦牟尼佛<br>初转法轮日"); break;
-					case 6: if (months === 3) extraInfo = trans("释迦牟尼佛诞辰"); break;
-					case 7: extraInfo = trans("药师佛节日"); extraInfo2 = trans("作何善恶成千倍"); break;
-					case 9: extraInfo = trans("莲师荟供日"); extraInfo2 = trans("作何善恶成十万倍"); break;
-					case 14:
+					case 2: if (months === 5) extraInfo = trans("释迦牟尼佛<br>初转法轮日"); break;
+					case 5: if (months === 3) extraInfo = trans("释迦牟尼佛诞辰"); break;
+					case 6: extraInfo = trans("药师佛节日"); extraInfo2 = trans("作何善恶成千倍"); break;
+					case 8: extraInfo = trans("莲师荟供日"); extraInfo2 = trans("作何善恶成十万倍"); break;
+					case 13:
 						if (months === 3) extraInfo = trans("释迦牟尼佛<br>成道日涅槃日");
 						else if (months === 5) extraInfo = trans("释迦牟尼佛入胎日");
 						else extraInfo = trans("阿弥陀佛节日"); extraInfo2 = trans("作何善恶成百万倍");
 						break;
-					case 17: extraInfo = trans("观音菩萨节日"); extraInfo2 = trans("作何善恶成千万倍"); break;
-					case 19: if (months === 8) extraInfo = trans("释迦牟尼佛天降日"); break;
-					case 20: extraInfo = trans("地藏王菩萨节日"); extraInfo2 = trans("作何善恶成亿倍"); break;
-					case 24: extraInfo = trans("空行母荟供日"); break;
-					case 29: extraInfo = trans("释迦牟尼佛节日"); extraInfo2 = trans("作何善恶成九亿倍"); break;
+					case 16: extraInfo = trans("观音菩萨节日"); extraInfo2 = trans("作何善恶成千万倍"); break;
+					case 18: if (months === 8) extraInfo = trans("释迦牟尼佛天降日"); break;
+					case 19: extraInfo = trans("地藏王菩萨节日"); extraInfo2 = trans("作何善恶成亿倍"); break;
+					case 23: extraInfo = trans("空行母荟供日"); break;
+					case 28: extraInfo = trans("释迦牟尼佛节日"); extraInfo2 = trans("作何善恶成九亿倍"); break;
 				}
 				result.extraInfo = extraInfo;
 				result.extraInfo2 = extraInfo2;

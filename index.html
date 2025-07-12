@@ -674,7 +674,11 @@
 			const h = location.hash;
 			$m = $("month");
 			$y = $("year");
-			let d = h ? new Date(h.substr(1)) : new Date();
+
+			// Normalize date to prevent time-of-day inconsistencies
+			const d_raw = h ? new Date(h.substr(1)) : new Date();
+			let d = new Date(d_raw.getFullYear(), d_raw.getMonth(), d_raw.getDate());
+
 			if (d < startDate) d = startDate;
 			if (d > endDate) d = endDate;
 			
