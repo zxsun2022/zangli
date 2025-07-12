@@ -1,8 +1,11 @@
 (function () {
-  const LOCALE_TRAD = /^(zh-(TW|HK|MO))/i;
+  const LOCALE_TRAD = /^zh(?:[-_](?:TW|HK|MO|HANT))/i;
   const onTwPath    = /^\/tw(\/|$)/i.test(location.pathname);
 
-  if (LOCALE_TRAD.test(navigator.language || navigator.userLanguage)) {
+  const lang = (navigator.languages && navigator.languages[0]) ||
+               navigator.language;
+
+  if (LOCALE_TRAD.test(lang)) {
     if (!onTwPath) {
       const newPath = '/tw' + (location.pathname.replace(/\/$/, '') || '') + (location.pathname.endsWith('/') ? '/' : '');
       location.replace(newPath);
