@@ -79,7 +79,7 @@
 				margin-bottom: 0px;
 			}
 
-			.selected-day {
+                       .selected-day {
 				background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
 				color: white;
 				padding: 15px 25px;
@@ -98,8 +98,26 @@
 				align-items: center;
 				margin-left: auto;
 				margin-right: auto;
-				overflow: hidden;
-			}
+                                overflow: hidden;
+                       }
+
+                        .share-button {
+                                position: absolute;
+                                top: 10px;
+                                right: 10px;
+                                background: var(--accent-color);
+                                color: #fff;
+                                border: none;
+                                padding: 6px 12px;
+                                border-radius: 10px;
+                                font-size: 0.9rem;
+                                cursor: pointer;
+                                box-shadow: var(--shadow);
+                        }
+
+                        .share-button:hover {
+                                opacity: 0.9;
+                        }
 
 			.selected-day .festival-info {
 				font-size: 0.9rem;
@@ -652,10 +670,79 @@
 			.narrow { display: none; }
 			.wide { display: block; }
 
-			@media (max-width: 639px) {
-				.narrow { display: block; }
-				.wide { display: none; }
-			}
+                        @media (max-width: 639px) {
+                                .narrow { display: block; }
+                                .wide { display: none; }
+                        }
+
+                        .modal-backdrop {
+                                position: fixed;
+                                top: 0;
+                                left: 0;
+                                right: 0;
+                                bottom: 0;
+                                background: rgba(0,0,0,0.5);
+                                display: none;
+                                align-items: center;
+                                justify-content: center;
+                                z-index: 1000;
+                        }
+
+                        .modal {
+                                background: var(--card-bg);
+                                border-radius: 8px;
+                                max-width: 90vw;
+                                max-height: 90vh;
+                                box-shadow: var(--shadow);
+                                display: flex;
+                                flex-direction: column;
+                                overflow: hidden;
+                        }
+
+                        .modal-header {
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                                padding: 10px 15px;
+                                border-bottom: 1px solid var(--border-color);
+                        }
+
+                        .modal-content {
+                                padding: 15px;
+                                text-align: center;
+                        }
+
+                        .modal-actions {
+                                padding: 10px;
+                                text-align: center;
+                        }
+
+                        .close-button {
+                                background: none;
+                                border: none;
+                                font-size: 1.2rem;
+                                cursor: pointer;
+                        }
+
+                        .loading-container {
+                                text-align: center;
+                                padding: 20px;
+                        }
+
+                        .loading-spinner {
+                                width: 40px;
+                                height: 40px;
+                                border: 4px solid #f3f3f3;
+                                border-top: 4px solid var(--primary-color);
+                                border-radius: 50%;
+                                animation: spin 1s linear infinite;
+                                margin: 0 auto;
+                        }
+
+                        @keyframes spin {
+                                0% { transform: rotate(0deg); }
+                                100% { transform: rotate(360deg); }
+                        }
 		</style>
 
 		<script>
@@ -956,10 +1043,48 @@
 		});
 		</script>
 		<script>const trans = text => text;</script>
-		<script src="zangli.js" charset="UTF-8"></script>
-		<script>
-		window.onhashchange = zangli_callback;
-		</script>
+                <script src="zangli.js" charset="UTF-8"></script>
+                <script src="https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
+                <script>
+                function openShareModal() {
+                        const modal = document.getElementById('shareModal');
+                        const loading = document.getElementById('shareLoading');
+                        const preview = document.getElementById('sharePreview');
+                        loading.style.display = 'block';
+                        preview.style.display = 'none';
+                        modal.style.display = 'flex';
+                        htmlToImage.toPng(document.getElementById('selectedDay'), { pixelRatio: 2 })
+                                .then(dataUrl => {
+                                        preview.src = dataUrl;
+                                        loading.style.display = 'none';
+                                        preview.style.display = 'block';
+                                })
+                                .catch(() => {
+                                        loading.innerHTML = '<p>图片生成失败</p>';
+                                });
+                }
+
+                function closeShareModal() {
+                        document.getElementById('shareModal').style.display = 'none';
+                }
+
+                function downloadShareImage() {
+                        const img = document.getElementById('sharePreview');
+                        const link = document.createElement('a');
+                        link.download = 'calendar.png';
+                        link.href = img.src;
+                        link.click();
+                }
+
+                document.addEventListener('keydown', e => {
+                        if (e.key === 'Escape') {
+                                closeShareModal();
+                        }
+                });
+                </script>
+                <script>
+                window.onhashchange = zangli_callback;
+                </script>
 	</head>
 	<body onkeyup="changeDate(event.keyCode)">
 		<div class="container">
@@ -969,6 +1094,7 @@
                                 <div id="countdown-placeholder-en"></div>
                                 <!-- <div class="lang-switch"><a href="tw/index.html">繁體中文 / 简体中文</a></div> -->
                                 <div class="selected-day" id="selectedDay"></div>
+                                <button class="share-button" onclick="openShareModal()">分享</button>
                         </div>
 
 			<div class="controls">
@@ -999,7 +1125,26 @@
 				</table>
 			</div>
 
-			<div class="selected-day-bottom" id="selectedDayBottom"></div>
+                        <div class="selected-day-bottom" id="selectedDayBottom"></div>
+
+                        <div id="shareModal" class="modal-backdrop">
+                                <div class="modal">
+                                        <div class="modal-header">
+                                                <h2>图片预览</h2>
+                                                <button class="close-button" onclick="closeShareModal()">&times;</button>
+                                        </div>
+                                        <div class="modal-content">
+                                                <div id="shareLoading" class="loading-container">
+                                                        <div class="loading-spinner"></div>
+                                                        <p>正在生成图片...</p>
+                                                </div>
+                                                <img id="sharePreview" style="max-width:100%;display:none;border-radius:10px;" />
+                                        </div>
+                                        <div class="modal-actions">
+                                                <button onclick="downloadShareImage()">下载</button>
+                                        </div>
+                                </div>
+                        </div>
 
 			<div class="info-section">
 				<h3>📚 数据来源</h3>
