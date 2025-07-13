@@ -652,10 +652,69 @@
 			.narrow { display: none; }
 			.wide { display: block; }
 
-			@media (max-width: 639px) {
-				.narrow { display: block; }
-				.wide { display: none; }
-			}
+                        @media (max-width: 639px) {
+                                .narrow { display: block; }
+                                .wide { display: none; }
+                        }
+
+                        /* 日期详情弹层 */
+                        #detailMask {
+                                position: fixed;
+                                top: 0;
+                                left: 0;
+                                right: 0;
+                                bottom: 0;
+                                background: rgba(0,0,0,0.3);
+                                display: none;
+                                z-index: 999;
+                        }
+
+                        #detailDialog {
+                                background: var(--card-bg);
+                                border-radius: 12px;
+                                box-shadow: var(--shadow);
+                                padding: 20px;
+                                max-width: 320px;
+                                position: absolute;
+                                z-index: 1000;
+                                display: none;
+                        }
+
+                        #detailDialog.bottom-sheet {
+                                position: fixed;
+                                left: 50%;
+                                transform: translate(-50%,100%);
+                                bottom: 0;
+                                width: 95%;
+                                max-height: 80vh;
+                                overflow-y: auto;
+                                border-radius: 12px 12px 0 0;
+                                transition: transform 0.15s ease-out;
+                        }
+
+                        #detailDialog.bottom-sheet.active {
+                                transform: translate(-50%,0);
+                        }
+
+                        #detailDialog .close-btn {
+                                position: absolute;
+                                top: 8px;
+                                right: 8px;
+                                background: none;
+                                border: none;
+                                font-size: 1.2rem;
+                                cursor: pointer;
+                        }
+
+                        #detailDialog .share-btn {
+                                margin-top: 10px;
+                                padding: 6px 12px;
+                                border: none;
+                                background: var(--primary-color);
+                                color: #fff;
+                                border-radius: 6px;
+                                cursor: pointer;
+                        }
 		</style>
 
 		<script>
@@ -817,23 +876,24 @@
 			if (e.innerHTML.trim() !== "") {
 				selectedCell = e;
 				e.classList.add('selected');
-				if (e.title) {
-					const titleParts = e.title.split("，");
-					if (titleParts.length >= 2) {
-						const gregorianMatch = titleParts[0].match(/公历(\d+)年(\d+)月(\d+)日/);
-						if (gregorianMatch) {
-							const selectedDate = new Date(parseInt(gregorianMatch[1]), parseInt(gregorianMatch[2]) - 1, parseInt(gregorianMatch[3]));
-							updateSelectedDayDisplay(selectedDate);
-						}
-					} else {
-						const selectedDayElement = $("selectedDay");
-						if (selectedDayElement) {
-							selectedDayElement.innerHTML = e.title;
-						}
-					}
-				}
-			}
-		}
+                                if (e.title) {
+                                        const titleParts = e.title.split("，");
+                                        if (titleParts.length >= 2) {
+                                                const gregorianMatch = titleParts[0].match(/公历(\d+)年(\d+)月(\d+)日/);
+                                                if (gregorianMatch) {
+                                                        const selectedDate = new Date(parseInt(gregorianMatch[1]), parseInt(gregorianMatch[2]) - 1, parseInt(gregorianMatch[3]));
+                                                        updateSelectedDayDisplay(selectedDate);
+                                                        openDetail(selectedDate, e);
+                                                }
+                                        } else {
+                                                const selectedDayElement = $("selectedDay");
+                                                if (selectedDayElement) {
+                                                        selectedDayElement.innerHTML = e.title;
+                                                }
+                                        }
+                                }
+                        }
+                }
 
 		function showFestivalTooltip(cell) {
 			hideFestivalTooltip();
@@ -935,7 +995,7 @@
 			window.scrollTo(0, 0);
 		};
 
-		const changeMonth = direction => {
+const changeMonth = direction => {
 			let currentMonth = parseInt($m.value);
 			let currentYear = parseInt($y.value);
 			let newMonth = currentMonth + direction;
@@ -948,12 +1008,113 @@
 				newMonth = 1;
 			}
 			location.replace(`${location.pathname}#${newYear}/${newMonth}/1`);
-			window.scrollTo(0, 0);
-		};
+                       window.scrollTo(0, 0);
+               };
 
-		window.addEventListener('load', () => {
-			zangli_callback();
-		});
+               let detailMask, detailDialog, detailContent, activeDate;
+
+               function initDetailElements() {
+                       detailMask = document.getElementById('detailMask');
+                       detailDialog = document.getElementById('detailDialog');
+                       detailContent = document.getElementById('detailContent');
+               }
+
+               const pad = n => n.toString().padStart(2, '0');
+
+               function buildDetailHTML(date) {
+                       const z = getZangli(date);
+                       let html = `<h3 id="detailTitle">${date.getFullYear()}年${date.getMonth()+1}月${date.getDate()}日 周${'日一二三四五六'[date.getDay()]}</h3>`;
+                       html += `<p>藏历：${z.value}</p>`;
+                       if (z.extraInfo && z.extraInfo.trim() !== '' && z.extraInfo !== '&nbsp;') html += `<p>${z.extraInfo}</p>`;
+                       if (z.extraInfo2 && z.extraInfo2.trim() !== '' && z.extraInfo2 !== '&nbsp;') html += `<p>${z.extraInfo2}</p>`;
+                       return html;
+               }
+
+               function openDetail(date, anchor) {
+                       if (!detailDialog) initDetailElements();
+                       activeDate = date;
+                       const isMobile = window.innerWidth <= 768;
+                       detailDialog.classList.toggle('bottom-sheet', isMobile);
+                       detailContent.innerHTML = buildDetailHTML(date);
+                       detailMask.style.display = 'block';
+                       detailDialog.style.display = 'block';
+                       if (isMobile) {
+                               requestAnimationFrame(() => detailDialog.classList.add('active'));
+                       } else if (anchor) {
+                               const rect = anchor.getBoundingClientRect();
+                               detailDialog.style.top = `${rect.bottom + window.scrollY + 8}px`;
+                               detailDialog.style.left = `${rect.left + window.scrollX}px`;
+                       }
+                       detailDialog.querySelector('.close-btn').focus();
+                       history.pushState({}, '', `/date/${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`);
+               }
+
+               function closeDetail() {
+                       if (!detailDialog) return;
+                       detailMask.style.display = 'none';
+                       if (detailDialog.classList.contains('bottom-sheet')) {
+                               detailDialog.classList.remove('active');
+                               setTimeout(() => { detailDialog.style.display = 'none'; }, 150);
+                       } else {
+                               detailDialog.style.display = 'none';
+                       }
+                       history.pushState({}, '', '/');
+               }
+
+               function shareDate() {
+                       if (!activeDate) return;
+                       const url = `${location.origin}/date/${activeDate.getFullYear()}-${pad(activeDate.getMonth()+1)}-${pad(activeDate.getDate())}`;
+                       if (navigator.share) {
+                               navigator.share({ url }).catch(() => {});
+                       } else if (navigator.clipboard) {
+                               navigator.clipboard.writeText(url).then(() => showToast('链接已复制'));
+                       }
+               }
+
+               function showToast(msg) {
+                       const t = document.createElement('div');
+                       t.textContent = msg;
+                       t.style.position = 'fixed';
+                       t.style.bottom = '20px';
+                       t.style.left = '50%';
+                       t.style.transform = 'translateX(-50%)';
+                       t.style.background = 'rgba(0,0,0,0.7)';
+                       t.style.color = '#fff';
+                       t.style.padding = '8px 12px';
+                       t.style.borderRadius = '4px';
+                       t.style.zIndex = '1001';
+                       document.body.appendChild(t);
+                       setTimeout(() => t.remove(), 2000);
+               }
+
+               function checkDeepLink() {
+                       const m = location.pathname.match(/\/date\/(\d{4}-\d{2}-\d{2})/);
+                       if (m) {
+                               const d = new Date(m[1]);
+                               if (!isNaN(d)) {
+                                       const tbody = document.querySelector('.calendar-table tbody');
+                                       const cells = tbody.getElementsByTagName('td');
+                                       for (let td of cells) {
+                                               if (td.title && td.title.includes(`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`)) {
+                                                       showDay(td);
+                                                       openDetail(d, td);
+                                                       break;
+                                               }
+                                       }
+                               }
+                       }
+               }
+
+               document.addEventListener('keydown', e => {
+                       if (e.key === 'Escape') {
+                               closeDetail();
+                       }
+               });
+
+               window.addEventListener('load', () => {
+                       zangli_callback();
+                       checkDeepLink();
+               });
 		</script>
 		<script>const trans = text => text;</script>
 		<script src="zangli.js" charset="UTF-8"></script>
@@ -1023,6 +1184,12 @@
 					</p>
 				</div>
 			</noscript>
-		</div>
-	</body>
+                </div>
+                <div id="detailMask" onclick="closeDetail()"></div>
+                <div id="detailDialog" aria-modal="true" role="dialog" tabindex="-1">
+                        <button class="close-btn" onclick="closeDetail()" aria-label="关闭">×</button>
+                        <div id="detailContent"></div>
+                        <button class="share-btn" onclick="shareDate()">分享</button>
+                </div>
+        </body>
 </html>
