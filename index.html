@@ -3,13 +3,65 @@
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta charset="UTF-8">
-		<meta name="description" content="提供1951年1月8日到2051年1月12日之间到公历藏历对照查询">
-		<meta name="keywords" content="在线,藏历,百年,万年历，藏历月历">
-		<meta name="author"  content="Stone Huang">
-		<title>百年藏历 - 藏历在线查询</title>
+		<meta name="description" content="百年藏历在线查询工具，提供1951年-2051年公历藏历对照查询，包含藏历节日、日月食信息、佛教节日等详细信息。支持简体中文和繁体中文，响应式设计适配手机平板电脑。">
+		<meta name="keywords" content="藏历,百年藏历,藏历查询,公历藏历对照,藏历节日,佛教节日,日月食,万年历,在线日历,藏历月历,西藏历法,藏族传统节日">
+		<meta name="author" content="Stone Huang">
+		<meta name="robots" content="index, follow">
+		<meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+		<meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+		
+		<!-- Open Graph 标签 -->
+		<meta property="og:title" content="百年藏历 - 在线藏历查询工具">
+		<meta property="og:description" content="提供1951年-2051年公历藏历对照查询，包含藏历节日、日月食信息等详细信息。支持中文简繁体，响应式设计。">
+		<meta property="og:type" content="website">
+		<meta property="og:url" content="https://stonelf.github.io/zangli/">
+		<meta property="og:image" content="https://stonelf.github.io/zangli/favicon.ico">
+		<meta property="og:site_name" content="百年藏历">
+		<meta property="og:locale" content="zh_CN">
+		<meta property="og:locale:alternate" content="zh_TW">
+		
+		<!-- Twitter Card 标签 -->
+		<meta name="twitter:card" content="summary_large_image">
+		<meta name="twitter:title" content="百年藏历 - 在线藏历查询工具">
+		<meta name="twitter:description" content="提供1951年-2051年公历藏历对照查询，包含藏历节日、日月食信息等详细信息。">
+		<meta name="twitter:image" content="https://stonelf.github.io/zangli/favicon.ico">
+		
+		<!-- 网站图标 -->
+		<link rel="icon" href="favicon.ico" type="image/x-icon">
+		<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+		
+		<title>百年藏历 - 在线藏历查询工具 | 公历藏历对照 | 藏历节日查询</title>
+		
+		<!-- 多语言支持 -->
 		<link rel="alternate" hreflang="zh-CN" href="https://stonelf.github.io/zangli/" />
 		<link rel="alternate" hreflang="zh-TW" href="https://stonelf.github.io/zangli/tw/" />
 		<link rel="alternate" hreflang="x-default" href="https://stonelf.github.io/zangli/" />
+		
+		<!-- 结构化数据 -->
+		<script type="application/ld+json">
+		{
+			"@context": "https://schema.org",
+			"@type": "WebApplication",
+			"name": "百年藏历",
+			"url": "https://stonelf.github.io/zangli/",
+			"description": "提供1951年-2051年公历藏历对照查询，包含藏历节日、日月食信息等详细信息",
+			"applicationCategory": "Calendar",
+			"operatingSystem": "All",
+			"offers": {
+				"@type": "Offer",
+				"price": "0",
+				"priceCurrency": "CNY"
+			},
+			"author": {
+				"@type": "Person",
+				"name": "Stone Huang"
+			},
+			"datePublished": "2024-01-01",
+			"inLanguage": ["zh-CN", "zh-TW"],
+			"keywords": "藏历,百年藏历,藏历查询,公历藏历对照,藏历节日,佛教节日,日月食,万年历"
+		}
+		</script>
+		
 		<script src="js/langDetect.js"></script>
 
 		<style>
@@ -652,10 +704,292 @@
 			.narrow { display: none; }
 			.wide { display: block; }
 
-			@media (max-width: 639px) {
-				.narrow { display: block; }
-				.wide { display: none; }
-			}
+                        @media (max-width: 639px) {
+                                .narrow { display: block; }
+                                .wide { display: none; }
+                        }
+
+                        /* 日期详情弹层 */
+                        #detailMask {
+                                position: fixed;
+                                top: 0;
+                                left: 0;
+                                right: 0;
+                                bottom: 0;
+                                background: rgba(0,0,0,0.3);
+                                display: none;
+                                z-index: 999;
+                        }
+
+                        #detailDialog {
+                                background: var(--card-bg);
+                                border-radius: 12px;
+                                box-shadow: var(--shadow);
+                                padding: 20px;
+                                max-width: 480px;
+                                width: 90%;
+                                max-height: 85vh;
+                                overflow-y: auto;
+                                position: fixed;
+                                top: 50%;
+                                left: 50%;
+                                transform: translate(-50%, -50%);
+                                z-index: 1000;
+                                display: none;
+                        }
+
+                        #detailDialog.bottom-sheet {
+                                position: fixed;
+                                top: auto;
+                                left: 0;
+                                right: 0;
+                                bottom: 0;
+                                transform: translateY(100%);
+                                width: 100%;
+                                max-width: none;
+                                max-height: 80vh;
+                                overflow-y: auto;
+                                border-radius: 12px 12px 0 0;
+                                transition: transform 0.15s ease-out;
+                        }
+
+                        #detailDialog.bottom-sheet.active {
+                                transform: translateY(0);
+                        }
+
+                        #detailDialog .close-btn {
+                                position: absolute;
+                                top: 8px;
+                                right: 8px;
+                                background: none;
+                                border: none;
+                                font-size: 1.2rem;
+                                cursor: pointer;
+                                color: var(--secondary-color);
+                                padding: 4px 8px;
+                                border-radius: 4px;
+                                transition: background-color 0.2s ease;
+                        }
+
+                        #detailDialog .close-btn:hover {
+                                background-color: rgba(0, 0, 0, 0.1);
+                        }
+
+                        #detailDialog .dialog-header {
+                                position: absolute;
+                                top: 8px;
+                                right: 8px;
+                                display: flex;
+                                gap: 8px;
+                                align-items: center;
+                                z-index: 1;
+                        }
+
+                        #detailDialog .dialog-header .close-btn {
+                                position: static;
+                                font-size: 1.2rem;
+                                color: var(--secondary-color);
+                                padding: 4px 8px;
+                        }
+
+                        #detailDialog .dialog-header .share-btn {
+                                background: none;
+                                border: none;
+                                font-size: 0.9rem;
+                                cursor: pointer;
+                                color: var(--primary-color);
+                                padding: 6px 12px;
+                                border-radius: 4px;
+                                transition: all 0.2s ease;
+                                font-weight: 500;
+                        }
+
+                        #detailDialog .dialog-header .share-btn:hover {
+                                background-color: var(--primary-color);
+                                color: #fff;
+                        }
+
+                        #detailDialog .dialog-header .close-btn:hover {
+                                background-color: rgba(0, 0, 0, 0.1);
+                        }
+
+                        #detailDialog .dialog-footer {
+                                display: flex;
+                                justify-content: center;
+                                margin-top: 16px;
+                                padding-top: 16px;
+                                border-top: 1px solid var(--border-color);
+                        }
+
+                        #detailDialog .dialog-actions {
+                                display: flex;
+                                gap: 10px;
+                                justify-content: center;
+                                margin-top: 16px;
+                                padding-top: 16px;
+                                border-top: 1px solid var(--border-color);
+                        }
+
+                        #detailDialog .copy-btn {
+                                padding: 8px 16px;
+                                border: 1px solid var(--primary-color);
+                                background: transparent;
+                                color: var(--primary-color);
+                                border-radius: 6px;
+                                cursor: pointer;
+                                font-size: 0.9rem;
+                                transition: all 0.2s ease;
+                        }
+
+                        #detailDialog .copy-btn:hover {
+                                background-color: var(--primary-color);
+                                color: #fff;
+                        }
+
+                        #detailDialog h3 {
+                                margin: 0 0 16px 0;
+                                color: var(--primary-color);
+                                font-size: 1.3rem;
+                                border-bottom: 2px solid var(--border-color);
+                                padding-bottom: 8px;
+                        }
+
+                        #detailDialog .detail-section {
+                                margin-bottom: 16px;
+                                padding: 12px;
+                                background: rgba(0, 0, 0, 0.02);
+                                border-radius: 8px;
+                                border-left: 4px solid var(--primary-color);
+                        }
+
+                        #detailDialog .detail-section h4 {
+                                margin: 0 0 8px 0;
+                                color: var(--primary-color);
+                                font-size: 1rem;
+                                font-weight: 600;
+                        }
+
+                        #detailDialog .detail-section p {
+                                margin: 4px 0;
+                                color: var(--text-color);
+                                font-size: 0.9rem;
+                                line-height: 1.4;
+                        }
+
+                        #detailDialog .festival-section {
+                                border-left-color: var(--accent-color);
+                                background: rgba(255, 140, 0, 0.05);
+                        }
+
+                        #detailDialog .festival-section h4 {
+                                color: var(--accent-color);
+                        }
+
+                        #detailDialog .festival-info {
+                                font-weight: 600;
+                                color: var(--accent-color);
+                        }
+
+                        #detailDialog .eclipse-section {
+                                border-left-color: #4A90E2;
+                                background: rgba(74, 144, 226, 0.05);
+                        }
+
+                        #detailDialog .eclipse-section h4 {
+                                color: #4A90E2;
+                        }
+
+                        #detailDialog .date-url {
+                                font-family: monospace;
+                                font-size: 0.8rem;
+                                background: rgba(0, 0, 0, 0.05);
+                                padding: 6px 8px;
+                                border-radius: 4px;
+                                word-break: break-all;
+                                color: var(--secondary-color);
+                        }
+
+                        /* 弹窗响应式设计 */
+                        @media (max-width: 768px) {
+                                #detailDialog {
+                                        max-width: 95vw;
+                                        margin: 20px auto;
+                                        padding: 20px;
+                                }
+
+                                #detailDialog.bottom-sheet {
+                                        max-height: 85vh;
+                                        padding: 20px;
+                                }
+
+                                #detailDialog .dialog-header {
+                                        top: 12px;
+                                        right: 12px;
+                                        gap: 12px;
+                                }
+
+                                #detailDialog .share-btn,
+                                #detailDialog .close-btn {
+                                        padding: 8px 10px;
+                                        font-size: 1.3rem;
+                                }
+
+                                #detailDialog .detail-section {
+                                        padding: 10px;
+                                        margin-bottom: 12px;
+                                }
+
+                                #detailDialog .dialog-footer {
+                                        margin-top: 20px;
+                                        padding-top: 20px;
+                                }
+
+                                #detailDialog .copy-btn {
+                                        width: 100%;
+                                        padding: 12px;
+                                }
+                        }
+
+                        @media (max-width: 480px) {
+                                #detailDialog {
+                                        padding: 16px;
+                                }
+
+                                #detailDialog h3 {
+                                        font-size: 1.1rem;
+                                        margin-bottom: 12px;
+                                        padding-right: 60px;
+                                }
+
+                                #detailDialog .dialog-header {
+                                        top: 8px;
+                                        right: 8px;
+                                        gap: 8px;
+                                }
+
+                                #detailDialog .share-btn,
+                                #detailDialog .close-btn {
+                                        padding: 6px 8px;
+                                        font-size: 1.2rem;
+                                }
+
+                                #detailDialog .detail-section h4 {
+                                        font-size: 0.9rem;
+                                }
+
+                                #detailDialog .detail-section p {
+                                        font-size: 0.85rem;
+                                }
+
+                                #detailDialog .date-url {
+                                        font-size: 0.75rem;
+                                }
+
+                                #detailDialog .copy-btn {
+                                        padding: 10px;
+                                        font-size: 0.85rem;
+                                }
+                        }
 		</style>
 
 		<script>
@@ -817,23 +1151,24 @@
 			if (e.innerHTML.trim() !== "") {
 				selectedCell = e;
 				e.classList.add('selected');
-				if (e.title) {
-					const titleParts = e.title.split("，");
-					if (titleParts.length >= 2) {
-						const gregorianMatch = titleParts[0].match(/公历(\d+)年(\d+)月(\d+)日/);
-						if (gregorianMatch) {
-							const selectedDate = new Date(parseInt(gregorianMatch[1]), parseInt(gregorianMatch[2]) - 1, parseInt(gregorianMatch[3]));
-							updateSelectedDayDisplay(selectedDate);
-						}
-					} else {
-						const selectedDayElement = $("selectedDay");
-						if (selectedDayElement) {
-							selectedDayElement.innerHTML = e.title;
-						}
-					}
-				}
-			}
-		}
+                                if (e.title) {
+                                        const titleParts = e.title.split("，");
+                                        if (titleParts.length >= 2) {
+                                                const gregorianMatch = titleParts[0].match(/公历(\d+)年(\d+)月(\d+)日/);
+                                                if (gregorianMatch) {
+                                                        const selectedDate = new Date(parseInt(gregorianMatch[1]), parseInt(gregorianMatch[2]) - 1, parseInt(gregorianMatch[3]));
+                                                        updateSelectedDayDisplay(selectedDate);
+                                                        openDetail(selectedDate, e);
+                                                }
+                                        } else {
+                                                const selectedDayElement = $("selectedDay");
+                                                if (selectedDayElement) {
+                                                        selectedDayElement.innerHTML = e.title;
+                                                }
+                                        }
+                                }
+                        }
+                }
 
 		function showFestivalTooltip(cell) {
 			hideFestivalTooltip();
@@ -935,7 +1270,7 @@
 			window.scrollTo(0, 0);
 		};
 
-		const changeMonth = direction => {
+const changeMonth = direction => {
 			let currentMonth = parseInt($m.value);
 			let currentYear = parseInt($y.value);
 			let newMonth = currentMonth + direction;
@@ -948,12 +1283,222 @@
 				newMonth = 1;
 			}
 			location.replace(`${location.pathname}#${newYear}/${newMonth}/1`);
-			window.scrollTo(0, 0);
-		};
+                       window.scrollTo(0, 0);
+               };
 
-		window.addEventListener('load', () => {
-			zangli_callback();
-		});
+               let detailMask, detailDialog, detailContent, activeDate;
+
+               function initDetailElements() {
+                       detailMask = document.getElementById('detailMask');
+                       detailDialog = document.getElementById('detailDialog');
+                       detailContent = document.getElementById('detailContent');
+               }
+
+               const pad = n => n.toString().padStart(2, '0');
+
+               function buildDetailHTML(date) {
+                       const z = getZangli(date);
+                       const ecl = getEclipse(date);
+                       const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
+                       
+                       let html = `<h3 id="detailTitle">${date.getFullYear()}年${date.getMonth()+1}月${date.getDate()}日 周${weekDays[date.getDay()]}</h3>`;
+                       
+                       // 藏历信息
+                       html += `<div class="detail-section">`;
+                       html += `<h4>📖 藏历信息</h4>`;
+                       html += `<p><strong>藏历日期：</strong>${z.value}</p>`;
+                       if (z.monthLeap) html += `<p><small>🔸 闰月</small></p>`;
+                       if (z.dayLeap) html += `<p><small>🔸 闰日</small></p>`;
+                       if (z.dayMiss) html += `<p><small>🔸 缺日</small></p>`;
+                       html += `</div>`;
+                       
+                       // 节日信息
+                       if (z.extraInfo && z.extraInfo.trim() !== '' && z.extraInfo !== '&nbsp;') {
+                               html += `<div class="detail-section festival-section">`;
+                               html += `<h4>🎊 节日庆典</h4>`;
+                               html += `<p class="festival-info">${z.extraInfo}</p>`;
+                               if (z.extraInfo2 && z.extraInfo2.trim() !== '' && z.extraInfo2 !== '&nbsp;') {
+                                       html += `<p class="festival-desc">${z.extraInfo2}</p>`;
+                               }
+                               html += `</div>`;
+                       }
+                       
+                       // 日月食信息
+                       if (ecl.value) {
+                               html += `<div class="detail-section eclipse-section">`;
+                               html += `<h4>🌙 天象信息</h4>`;
+                               html += `<p><strong>${ecl.value}</strong></p>`;
+                               if (ecl.extraInfo) html += `<p>${ecl.extraInfo}</p>`;
+                               if (ecl.extraInfo2) html += `<p>${ecl.extraInfo2}</p>`;
+                               html += `</div>`;
+                       }
+                       
+                       return html;
+               }
+
+               function copyDateInfo() {
+                       if (!activeDate) return;
+                       const z = getZangli(activeDate);
+                       const ecl = getEclipse(activeDate);
+                       const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
+                       
+                       let copyText = `${activeDate.getFullYear()}年${activeDate.getMonth()+1}月${activeDate.getDate()}日 周${weekDays[activeDate.getDay()]}\n`;
+                       copyText += `藏历：${z.value}\n`;
+                       
+                       if (z.extraInfo && z.extraInfo.trim() !== '' && z.extraInfo !== '&nbsp;') {
+                               copyText += `节日：${z.extraInfo.replace(/<br>/g, ' ')}\n`;
+                               if (z.extraInfo2 && z.extraInfo2.trim() !== '' && z.extraInfo2 !== '&nbsp;') {
+                                       copyText += `${z.extraInfo2}\n`;
+                               }
+                       }
+                       
+                       if (ecl.value) {
+                               copyText += `天象：${ecl.value}\n`;
+                               if (ecl.extraInfo) copyText += `${ecl.extraInfo.replace(/<br>/g, ' ')}\n`;
+                       }
+                       
+                       if (navigator.clipboard) {
+                               navigator.clipboard.writeText(copyText).then(() => {
+                                       showToast('日期信息已复制');
+                               });
+                       } else {
+                               // 降级处理
+                               const textArea = document.createElement('textarea');
+                               textArea.value = copyText;
+                               document.body.appendChild(textArea);
+                               textArea.select();
+                               document.execCommand('copy');
+                               document.body.removeChild(textArea);
+                               showToast('日期信息已复制');
+                       }
+               }
+
+               function openDetail(date, anchor) {
+                       if (!detailDialog) initDetailElements();
+                       activeDate = date;
+                       const isMobile = window.innerWidth <= 768;
+                       detailDialog.classList.toggle('bottom-sheet', isMobile);
+                       detailContent.innerHTML = buildDetailHTML(date);
+                       detailMask.style.display = 'block';
+                       detailDialog.style.display = 'block';
+                       if (isMobile) {
+                               requestAnimationFrame(() => detailDialog.classList.add('active'));
+                       }
+                       detailDialog.querySelector('.close-btn').focus();
+                       const pad = n => n.toString().padStart(2, '0');
+                       history.pushState({}, '', `/date/${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`);
+               }
+
+               function closeDetail() {
+                       if (!detailDialog) return;
+                       detailMask.style.display = 'none';
+                       if (detailDialog.classList.contains('bottom-sheet')) {
+                               detailDialog.classList.remove('active');
+                               setTimeout(() => { detailDialog.style.display = 'none'; }, 150);
+                       } else {
+                               detailDialog.style.display = 'none';
+                       }
+                       history.pushState({}, '', '/');
+               }
+
+               function shareDate() {
+                       if (!activeDate) return;
+                       const pad = n => n.toString().padStart(2, '0');
+                       const dateStr = `${activeDate.getFullYear()}年${activeDate.getMonth()+1}月${activeDate.getDate()}日`;
+                       const url = `${location.origin}/date/${activeDate.getFullYear()}-${pad(activeDate.getMonth()+1)}-${pad(activeDate.getDate())}`;
+                       
+                       const shareData = {
+                               title: `百年藏历 - ${dateStr}`,
+                               text: `查看${dateStr}的藏历信息`,
+                               url: url
+                       };
+                       
+                       if (navigator.share) {
+                               navigator.share(shareData).catch(() => {
+                                       // 降级到复制链接
+                                       fallbackCopyUrl(url);
+                               });
+                       } else {
+                               fallbackCopyUrl(url);
+                       }
+               }
+
+               function fallbackCopyUrl(url) {
+                       if (navigator.clipboard) {
+                               navigator.clipboard.writeText(url).then(() => {
+                                       showToast('分享链接已复制');
+                               }).catch(() => {
+                                       legacyCopyUrl(url);
+                               });
+                       } else {
+                               legacyCopyUrl(url);
+                       }
+               }
+
+               function legacyCopyUrl(url) {
+                       const textArea = document.createElement('textarea');
+                       textArea.value = url;
+                       document.body.appendChild(textArea);
+                       textArea.select();
+                       document.execCommand('copy');
+                       document.body.removeChild(textArea);
+                       showToast('分享链接已复制');
+               }
+
+               function showToast(msg) {
+                       const t = document.createElement('div');
+                       t.textContent = msg;
+                       t.style.position = 'fixed';
+                       t.style.bottom = '20px';
+                       t.style.left = '50%';
+                       t.style.transform = 'translateX(-50%)';
+                       t.style.background = 'rgba(0,0,0,0.7)';
+                       t.style.color = '#fff';
+                       t.style.padding = '8px 12px';
+                       t.style.borderRadius = '4px';
+                       t.style.zIndex = '1001';
+                       document.body.appendChild(t);
+                       setTimeout(() => t.remove(), 2000);
+               }
+
+               function checkDeepLink() {
+                       const m = location.pathname.match(/\/date\/(\d{4}-\d{2}-\d{2})/);
+                       if (m) {
+                               const d = new Date(m[1]);
+                               if (!isNaN(d)) {
+                                       const tbody = document.querySelector('.calendar-table tbody');
+                                       const cells = tbody.getElementsByTagName('td');
+                                       for (let td of cells) {
+                                               if (td.title && td.title.includes(`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`)) {
+                                                       showDay(td);
+                                                       openDetail(d, td);
+                                                       break;
+                                               }
+                                       }
+                               }
+                       }
+               }
+
+               document.addEventListener('keydown', e => {
+                       if (e.key === 'Escape') {
+                               closeDetail();
+                       }
+                       if (detailDialog && detailDialog.style.display === 'block') {
+                               if (e.key === 'c' && (e.ctrlKey || e.metaKey)) {
+                                       e.preventDefault();
+                                       copyDateInfo();
+                               }
+                               if (e.key === 's' && (e.ctrlKey || e.metaKey)) {
+                                       e.preventDefault();
+                                       shareDate();
+                               }
+                       }
+               });
+
+               window.addEventListener('load', () => {
+                       zangli_callback();
+                       checkDeepLink();
+               });
 		</script>
 		<script>const trans = text => text;</script>
 		<script src="zangli.js" charset="UTF-8"></script>
@@ -1023,6 +1568,17 @@
 					</p>
 				</div>
 			</noscript>
-		</div>
-	</body>
+                </div>
+                <div id="detailMask" onclick="closeDetail()"></div>
+                <div id="detailDialog" aria-modal="true" role="dialog" tabindex="-1" aria-labelledby="detailTitle" aria-describedby="detailContent">
+                        <div class="dialog-header">
+                                <button class="share-btn" onclick="shareDate()" aria-label="分享日期">分享</button>
+                                <button class="close-btn" onclick="closeDetail()" aria-label="关闭弹窗">×</button>
+                        </div>
+                        <div id="detailContent"></div>
+                        <div class="dialog-footer">
+                                <button class="copy-btn" onclick="copyDateInfo()" aria-label="复制日期信息 (Ctrl+C)">📋 复制信息</button>
+                        </div>
+                </div>
+        </body>
 </html>

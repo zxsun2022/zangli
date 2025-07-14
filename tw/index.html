@@ -3,13 +3,65 @@
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta charset="UTF-8">
-		<meta name="description" content="提供1951年1月8日到2051年1月12日之間的公曆藏曆對照查詢">
-		<meta name="keywords" content="在線,藏曆,百年,萬年曆,藏曆月曆">
-		<meta name="author"  content="Stone Huang">
-		<title>百年藏曆 - 藏曆線上查詢</title>
+		<meta name="description" content="百年藏曆線上查詢工具，提供1951年-2051年公曆藏曆對照查詢，包含藏曆節日、日月食資訊、佛教節日等詳細資訊。支援簡體中文和繁體中文，響應式設計適配手機平板電腦。">
+		<meta name="keywords" content="藏曆,百年藏曆,藏曆查詢,公曆藏曆對照,藏曆節日,佛教節日,日月食,萬年曆,線上日曆,藏曆月曆,西藏曆法,藏族傳統節日">
+		<meta name="author" content="Stone Huang">
+		<meta name="robots" content="index, follow">
+		<meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+		<meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+		
+		<!-- Open Graph 標籤 -->
+		<meta property="og:title" content="百年藏曆 - 線上藏曆查詢工具">
+		<meta property="og:description" content="提供1951年-2051年公曆藏曆對照查詢，包含藏曆節日、日月食資訊等詳細資訊。">
+		<meta property="og:type" content="website">
+		<meta property="og:url" content="https://stonelf.github.io/zangli/tw/">
+		<meta property="og:image" content="https://stonelf.github.io/zangli/favicon.ico">
+		<meta property="og:site_name" content="百年藏曆">
+		<meta property="og:locale" content="zh_TW">
+		<meta property="og:locale:alternate" content="zh_CN">
+		
+		<!-- Twitter Card 標籤 -->
+		<meta name="twitter:card" content="summary_large_image">
+		<meta name="twitter:title" content="百年藏曆 - 線上藏曆查詢工具">
+		<meta name="twitter:description" content="提供1951年-2051年公曆藏曆對照查詢，包含藏曆節日、日月食資訊等詳細資訊。">
+		<meta name="twitter:image" content="https://stonelf.github.io/zangli/favicon.ico">
+		
+		<!-- 網站圖標 -->
+		<link rel="icon" href="../favicon.ico" type="image/x-icon">
+		<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
+		
+		<title>百年藏曆 - 線上藏曆查詢工具 | 公曆藏曆對照 | 藏曆節日查詢</title>
+		
+		<!-- 多語言支援 -->
 		<link rel="alternate" hreflang="zh-CN" href="https://stonelf.github.io/zangli/" />
 		<link rel="alternate" hreflang="zh-TW" href="https://stonelf.github.io/zangli/tw/" />
 		<link rel="alternate" hreflang="x-default" href="https://stonelf.github.io/zangli/" />
+		
+		<!-- 結構化資料 -->
+		<script type="application/ld+json">
+		{
+			"@context": "https://schema.org",
+			"@type": "WebApplication",
+			"name": "百年藏曆",
+			"url": "https://stonelf.github.io/zangli/tw/",
+			"description": "提供1951年-2051年公曆藏曆對照查詢，包含藏曆節日、日月食資訊等詳細資訊",
+			"applicationCategory": "Calendar",
+			"operatingSystem": "All",
+			"offers": {
+				"@type": "Offer",
+				"price": "0",
+				"priceCurrency": "CNY"
+			},
+			"author": {
+				"@type": "Person",
+				"name": "Stone Huang"
+			},
+			"datePublished": "2024-01-01",
+			"inLanguage": ["zh-TW", "zh-CN"],
+			"keywords": "藏曆,百年藏曆,藏曆查詢,公曆藏曆對照,藏曆節日,佛教節日,日月食,萬年曆"
+		}
+		</script>
+		
 		<script src="../js/langDetect.js"></script>
 		<style>
 			:root {
@@ -655,6 +707,303 @@
 				.narrow { display: block; }
 				.wide { display: none; }
 			}
+
+			/* 详情弹窗样式 */
+			#detailMask {
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				background: rgba(0, 0, 0, 0.5);
+				z-index: 1000;
+				display: none;
+				backdrop-filter: blur(5px);
+			}
+
+			#detailDialog {
+				background: var(--card-bg);
+				border-radius: 15px;
+				padding: 20px;
+				box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+				max-width: 480px;
+				width: 90%;
+				max-height: 90%;
+				overflow-y: auto;
+				display: none;
+				position: fixed;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				z-index: 1001;
+				transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+				transform-origin: center;
+			}
+
+			#detailDialog.bottom-sheet {
+				position: fixed;
+				top: auto;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				transform: translateY(100%);
+				width: 100%;
+				max-width: none;
+				max-height: 80vh;
+				border-radius: 12px 12px 0 0;
+				transition: transform 0.15s ease-out;
+			}
+
+			#detailDialog.bottom-sheet.active {
+				transform: translateY(0);
+			}
+
+			#detailContent {
+				padding: 0;
+			}
+
+			#detailContent h3 {
+				color: var(--primary-color);
+				margin-bottom: 15px;
+				font-size: 1.5rem;
+				text-align: center;
+			}
+
+			.detail-section {
+				margin-bottom: 20px;
+				padding-bottom: 15px;
+				border-bottom: 1px solid var(--border-color);
+			}
+
+			.detail-section:last-child {
+				border-bottom: none;
+				padding-bottom: 0;
+			}
+
+			.detail-section h4 {
+				color: var(--primary-color);
+				margin-bottom: 10px;
+				font-size: 1.1rem;
+			}
+
+			.festival-section .festival-info {
+				color: var(--accent-color);
+				font-weight: 600;
+				font-size: 1.1rem;
+				margin-bottom: 5px;
+			}
+
+			.festival-section .festival-desc {
+				font-size: 0.9rem;
+				color: var(--text-color);
+				margin-top: 3px;
+			}
+
+			.eclipse-section p {
+				color: var(--secondary-color);
+				font-size: 0.9rem;
+				margin-top: 5px;
+			}
+
+			.date-url {
+				word-break: break-all;
+				font-size: 0.9rem;
+				color: var(--text-color);
+				background: var(--bg-color);
+				padding: 10px;
+				border-radius: 8px;
+				border: 1px solid var(--border-color);
+				white-space: pre-wrap;
+				word-wrap: break-word;
+			}
+
+			.close-btn {
+				position: absolute;
+				top: 10px;
+				right: 10px;
+				background: none;
+				border: none;
+				font-size: 2rem;
+				color: var(--secondary-color);
+				cursor: pointer;
+				padding: 5px;
+				border-radius: 50%;
+				transition: background-color 0.2s ease;
+			}
+
+			.close-btn:hover {
+				background-color: rgba(139, 69, 19, 0.1);
+			}
+
+			.dialog-header {
+				position: absolute;
+				top: 8px;
+				right: 8px;
+				display: flex;
+				gap: 8px;
+				align-items: center;
+				z-index: 1;
+			}
+
+			.dialog-header .close-btn {
+				position: static;
+				font-size: 1.2rem;
+				color: var(--secondary-color);
+				padding: 4px 8px;
+				border-radius: 4px;
+			}
+
+					.dialog-header .share-btn {
+			background: none;
+			border: none;
+			font-size: 0.9rem;
+			cursor: pointer;
+			color: var(--primary-color);
+			padding: 6px 12px;
+			border-radius: 4px;
+			transition: all 0.2s ease;
+			font-weight: 500;
+		}
+
+			.dialog-header .share-btn:hover {
+				background-color: var(--primary-color);
+				color: #fff;
+			}
+
+			.dialog-header .close-btn:hover {
+				background-color: rgba(0, 0, 0, 0.1);
+			}
+
+			.dialog-footer {
+				display: flex;
+				justify-content: center;
+				margin-top: 16px;
+				padding-top: 16px;
+				border-top: 1px solid var(--border-color);
+			}
+
+			.dialog-actions {
+				display: flex;
+				gap: 10px;
+				justify-content: center;
+				margin-top: 16px;
+				padding-top: 16px;
+				border-top: 1px solid var(--border-color);
+			}
+
+			.copy-btn, .share-btn {
+				padding: 8px 16px;
+				border: 1px solid var(--primary-color);
+				background: transparent;
+				color: var(--primary-color);
+				border-radius: 6px;
+				cursor: pointer;
+				font-size: 0.9rem;
+				transition: all 0.2s ease;
+			}
+
+			.copy-btn:hover, .share-btn:hover {
+				background-color: var(--primary-color);
+				color: #fff;
+			}
+
+			.copy-btn {
+				padding: 8px 16px;
+				border: 1px solid var(--primary-color);
+				background: transparent;
+				color: var(--primary-color);
+				border-radius: 6px;
+				cursor: pointer;
+				font-size: 0.9rem;
+				transition: all 0.2s ease;
+			}
+
+			.copy-btn:hover {
+				background-color: var(--primary-color);
+				color: #fff;
+			}
+
+			/* 弹窗响应式设计 */
+			@media (max-width: 768px) {
+				#detailDialog {
+					max-width: 95vw;
+					margin: 20px auto;
+					padding: 20px;
+				}
+
+				#detailDialog.bottom-sheet {
+					max-height: 85vh;
+					padding: 20px;
+				}
+
+				.dialog-header {
+					top: 12px;
+					right: 12px;
+					gap: 12px;
+				}
+
+				.share-btn,
+				.close-btn {
+					padding: 8px 10px;
+					font-size: 1.3rem;
+				}
+
+				.detail-section {
+					padding: 10px;
+					margin-bottom: 12px;
+				}
+
+				.dialog-footer {
+					margin-top: 20px;
+					padding-top: 20px;
+				}
+
+				.copy-btn {
+					width: 100%;
+					padding: 12px;
+				}
+			}
+
+			@media (max-width: 480px) {
+				#detailDialog {
+					padding: 16px;
+				}
+
+				#detailContent h3 {
+					font-size: 1.1rem;
+					margin-bottom: 12px;
+					padding-right: 60px;
+				}
+
+				.dialog-header {
+					top: 8px;
+					right: 8px;
+					gap: 8px;
+				}
+
+				.share-btn,
+				.close-btn {
+					padding: 6px 8px;
+					font-size: 1.2rem;
+				}
+
+				.detail-section h4 {
+					font-size: 0.9rem;
+				}
+
+				.detail-section p {
+					font-size: 0.85rem;
+				}
+
+				.date-url {
+					font-size: 0.75rem;
+				}
+
+				.copy-btn {
+					padding: 10px;
+					font-size: 0.85rem;
+				}
+			}
 		</style>
 
 		<script>
@@ -816,6 +1165,7 @@
 						if (gregorianMatch) {
 							const selectedDate = new Date(parseInt(gregorianMatch[1]), parseInt(gregorianMatch[2]) - 1, parseInt(gregorianMatch[3]));
 							updateSelectedDayDisplay(selectedDate);
+							openDetail(selectedDate, e);
 						}
 					} else {
 						const selectedDayElement = $("selectedDay");
@@ -827,125 +1177,180 @@
 			}
 		}
 
-		function showFestivalTooltip(cell) {
-			hideFestivalTooltip();
-			const title = cell.title || "";
-			let festivalInfo = "";
-			try {
-				const extraInfoDiv = cell.querySelector('.extra-info');
-				if (extraInfoDiv && extraInfoDiv.innerHTML && extraInfoDiv.innerHTML.trim() !== "&nbsp;" && extraInfoDiv.innerHTML.trim() !== "") {
-					festivalInfo = extraInfoDiv.innerHTML.replace(/<br>/g, " ");
+		function buildDetailHTML(date) {
+			const z = getZangli(date);
+			const ecl = getEclipse(date);
+			const weekDays = [trans('日'), trans('一'), trans('二'), trans('三'), trans('四'), trans('五'), trans('六')];
+			
+			let html = `<h3 id="detailTitle">${date.getFullYear()}${trans('年')}${date.getMonth()+1}${trans('月')}${date.getDate()}${trans('日 周')}${weekDays[date.getDay()]}</h3>`;
+			
+			// 藏历信息
+			html += `<div class="detail-section">`;
+			html += `<h4>📖 ${trans('藏历信息')}</h4>`;
+			html += `<p><strong>${trans('藏历日期：')}</strong>${z.value}</p>`;
+			if (z.monthLeap) html += `<p><small>🔸 ${trans('闰月')}</small></p>`;
+			if (z.dayLeap) html += `<p><small>🔸 ${trans('闰日')}</small></p>`;
+			if (z.dayMiss) html += `<p><small>🔸 ${trans('缺日')}</small></p>`;
+			html += `</div>`;
+			
+			// 节日信息
+			if (z.extraInfo && z.extraInfo.trim() !== '' && z.extraInfo !== '&nbsp;') {
+				html += `<div class="detail-section festival-section">`;
+				html += `<h4>🎊 ${trans('节日庆典')}</h4>`;
+				html += `<p class="festival-info">${z.extraInfo}</p>`;
+				if (z.extraInfo2 && z.extraInfo2.trim() !== '' && z.extraInfo2 !== '&nbsp;') {
+					html += `<p class="festival-desc">${z.extraInfo2}</p>`;
 				}
-				if (!festivalInfo && title.includes(trans("，"))) {
-					const parts = title.split(trans("，"));
-					for (let i = 1; i < parts.length; i++) {
-						if (parts[i].includes(trans("节日")) || parts[i].includes(trans("佛")) || parts[i].includes(trans("菩萨")) || parts[i].includes(trans("荟供"))) {
-							festivalInfo = parts[i];
-							break;
-						}
-					}
-				}
-			} catch (err) {
-				console.log(trans("提取节日信息时出错:"), err);
+				html += `</div>`;
 			}
-			if (festivalInfo) {
-				const tooltip = document.createElement('div');
-				tooltip.className = 'festival-tooltip';
-				tooltip.id = 'festivalTooltip';
-				tooltip.innerHTML = `${festivalInfo}<button class="close-btn" onclick="hideFestivalTooltip()">×</button>`;
-				document.body.appendChild(tooltip);
-				const rect = cell.getBoundingClientRect();
-				const tooltipRect = tooltip.getBoundingClientRect();
-				let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
-				let top = rect.top - tooltipRect.height - 10;
-				if (left < 10) left = 10;
-				if (left + tooltipRect.width > window.innerWidth - 10) {
-					left = window.innerWidth - tooltipRect.width - 10;
-				}
-				if (top < 10) {
-					top = rect.bottom + 10;
-				}
-				tooltip.style.left = `${left}px`;
-				tooltip.style.top = `${top}px`;
-				tooltip.style.display = 'block';
-				setTimeout(hideFestivalTooltip, 3000);
+			
+			// 日月食信息
+			if (ecl.value) {
+				html += `<div class="detail-section eclipse-section">`;
+				html += `<h4>🌙 ${trans('天象信息')}</h4>`;
+				html += `<p><strong>${ecl.value}</strong></p>`;
+				if (ecl.extraInfo) html += `<p>${ecl.extraInfo}</p>`;
+				if (ecl.extraInfo2) html += `<p>${ecl.extraInfo2}</p>`;
+				html += `</div>`;
 			}
+			
+			return html;
 		}
 
-		function hideFestivalTooltip() {
-			const tooltip = document.getElementById('festivalTooltip');
-			if (tooltip) {
-				tooltip.remove();
+		function openDetail(date, anchor) {
+			if (!detailDialog) initDetailElements();
+			activeDate = date;
+			const isMobile = window.innerWidth <= 768;
+			detailDialog.classList.toggle('bottom-sheet', isMobile);
+			detailContent.innerHTML = buildDetailHTML(date);
+			detailMask.style.display = 'block';
+			detailDialog.style.display = 'block';
+			if (isMobile) {
+				requestAnimationFrame(() => detailDialog.classList.add('active'));
 			}
-		}
-		function changeDate(code) {
-			let m = $m.value;
-			let y = $y.value;
-			if (code === 37) {
-				m--;
-			} else if (code === 38) {
-				y--;
-			} else if (code === 39) {
-				m++;
-			} else if (code === 40) {
-				y++;
-			} else if (code !== "year" && code !== "month") {
-				return;
-			}
-			if (m === 0) { y--; m = 12; }
-			if (m === 13) { y++; m = 1; }
-			location.replace(`${location.pathname}#${y}/${m}/1`);
-			window.scrollTo(0, 0);
+			detailDialog.querySelector('.close-btn').focus();
+			const pad = n => n.toString().padStart(2, '0');
+			history.pushState({}, '', `/date/${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`);
 		}
 
-		const goToToday = () => {
-			const today = new Date();
-			const currentHash = location.hash;
-			const todayHash = `#${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
-			if (currentHash === todayHash) {
-				// 已经在今天所在的月，手动触发选中今天
-				setTimeout(() => {
-					const tbody = document.getElementsByTagName("tbody")[0];
-					const tds = tbody.getElementsByTagName("td");
-					for (let td of tds) {
-						if (td.classList.contains("today")) {
-							showDay(td);
-							break;
-						}
-					}
-				}, 10);
+		function closeDetail() {
+			if (!detailDialog) return;
+			detailMask.style.display = 'none';
+			if (detailDialog.classList.contains('bottom-sheet')) {
+				detailDialog.classList.remove('active');
+				setTimeout(() => { detailDialog.style.display = 'none'; }, 150);
 			} else {
-				location.replace(`${location.pathname}${todayHash}`);
-				window.scrollTo(0, 0);
+				detailDialog.style.display = 'none';
 			}
-		};
+			history.pushState({}, '', '/');
+		}
 
-		const changeYear = direction => {
-			const currentYear = parseInt($y.value);
-			const newYear = currentYear + direction;
-			location.replace(`${location.pathname}#${newYear}/${$m.value}/1`);
-			window.scrollTo(0, 0);
-		};
-
-		const changeMonth = direction => {
-			let currentMonth = parseInt($m.value);
-			let currentYear = parseInt($y.value);
-			let newMonth = currentMonth + direction;
-			let newYear = currentYear;
-			if (newMonth === 0) {
-				newYear--;
-				newMonth = 12;
-			} else if (newMonth === 13) {
-				newYear++;
-				newMonth = 1;
+		function shareDate() {
+			if (!activeDate) return;
+			const pad = n => n.toString().padStart(2, '0');
+			const dateStr = `${activeDate.getFullYear()}${trans('年')}${activeDate.getMonth()+1}${trans('月')}${activeDate.getDate()}${trans('日')}`;
+			const url = `${location.origin}/date/${activeDate.getFullYear()}-${pad(activeDate.getMonth()+1)}-${pad(activeDate.getDate())}`;
+			
+			const shareData = {
+				title: `${trans('百年藏历')} - ${dateStr}`,
+				text: `${trans('查看')}${dateStr}${trans('的藏历信息')}`,
+				url: url
+			};
+			
+			if (navigator.share) {
+				navigator.share(shareData).catch(() => {
+					// 降级到复制链接
+					fallbackCopyUrl(url);
+				});
+			} else {
+				fallbackCopyUrl(url);
 			}
-			location.replace(`${location.pathname}#${newYear}/${newMonth}/1`);
-			window.scrollTo(0, 0);
-		};
+		}
 
-		window.addEventListener('load', () => {
-			zangli_callback();
-		});
+		function fallbackCopyUrl(url) {
+			if (navigator.clipboard) {
+				navigator.clipboard.writeText(url).then(() => {
+					showToast(trans('分享链接已复制'));
+				}).catch(() => {
+					legacyCopyUrl(url);
+				});
+			} else {
+				legacyCopyUrl(url);
+			}
+		}
+
+		function legacyCopyUrl(url) {
+			const textArea = document.createElement('textarea');
+			textArea.value = url;
+			document.body.appendChild(textArea);
+			textArea.select();
+			document.execCommand('copy');
+			document.body.removeChild(textArea);
+			showToast(trans('分享链接已复制'));
+		}
+
+		function showToast(msg) {
+			const t = document.createElement('div');
+			t.textContent = msg;
+			t.style.position = 'fixed';
+			t.style.bottom = '20px';
+			t.style.left = '50%';
+			t.style.transform = 'translateX(-50%)';
+			t.style.background = 'rgba(0,0,0,0.7)';
+			t.style.color = '#fff';
+			t.style.padding = '8px 12px';
+			t.style.borderRadius = '4px';
+			t.style.zIndex = '1001';
+			document.body.appendChild(t);
+			setTimeout(() => t.remove(), 2000);
+		}
+
+		function copyDateInfo() {
+			if (!activeDate) return;
+			const z = getZangli(activeDate);
+			const ecl = getEclipse(activeDate);
+			const weekDays = [trans('日'), trans('一'), trans('二'), trans('三'), trans('四'), trans('五'), trans('六')];
+			
+			let copyText = `${activeDate.getFullYear()}${trans('年')}${activeDate.getMonth()+1}${trans('月')}${activeDate.getDate()}${trans('日 周')}${weekDays[activeDate.getDay()]}\n`;
+			copyText += `${trans('藏历：')}${z.value}\n`;
+			
+			if (z.extraInfo && z.extraInfo.trim() !== '' && z.extraInfo !== '&nbsp;') {
+				copyText += `${trans('节日：')}${z.extraInfo.replace(/<br>/g, ' ')}\n`;
+				if (z.extraInfo2 && z.extraInfo2.trim() !== '' && z.extraInfo2 !== '&nbsp;') {
+					copyText += `${z.extraInfo2}\n`;
+				}
+			}
+			
+			if (ecl.value) {
+				copyText += `${trans('天象：')}${ecl.value}\n`;
+				if (ecl.extraInfo) copyText += `${ecl.extraInfo.replace(/<br>/g, ' ')}\n`;
+			}
+			
+			if (navigator.clipboard) {
+				navigator.clipboard.writeText(copyText).then(() => {
+					showToast(trans('日期信息已复制'));
+				});
+			} else {
+				// 降级处理
+				const textArea = document.createElement('textarea');
+				textArea.value = copyText;
+				document.body.appendChild(textArea);
+				textArea.select();
+				document.execCommand('copy');
+				document.body.removeChild(textArea);
+				showToast(trans('日期信息已复制'));
+			}
+		}
+
+		let detailMask, detailDialog, detailContent, activeDate;
+
+		function initDetailElements() {
+			detailMask = document.getElementById('detailMask');
+			detailDialog = document.getElementById('detailDialog');
+			detailContent = document.getElementById('detailContent');
+		}
+
+		const pad = n => n.toString().padStart(2, '0');
 		</script>
 		<script src="https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/full.min.js"></script>
 		<script src="../js/i18n.js"></script>
@@ -953,6 +1358,27 @@
 		<script src="../eclipse.js" charset="UTF-8"></script>
 		<script>
 		window.onhashchange = zangli_callback;
+		</script>
+		<script>
+		window.addEventListener('load', () => {
+			zangli_callback();
+		});
+
+		document.addEventListener('keydown', e => {
+			if (e.key === 'Escape') {
+				closeDetail();
+			}
+			if (detailDialog && detailDialog.style.display === 'block') {
+				if (e.key === 'c' && (e.ctrlKey || e.metaKey)) {
+					e.preventDefault();
+					copyDateInfo();
+				}
+				if (e.key === 's' && (e.ctrlKey || e.metaKey)) {
+					e.preventDefault();
+					shareDate();
+				}
+			}
+		});
 		</script>
 	</head>
 	<body onkeyup="changeDate(event.keyCode)">
@@ -1017,6 +1443,19 @@
 					</p>
 				</div>
 			</noscript>
+		</div>
+
+		<!-- 详情弹窗 -->
+		<div id="detailMask" onclick="closeDetail()"></div>
+		<div id="detailDialog" aria-modal="true" role="dialog" tabindex="-1" aria-labelledby="detailTitle" aria-describedby="detailContent" onclick="event.stopPropagation()">
+			<div class="dialog-header">
+				<button class="share-btn" onclick="shareDate()" aria-label="分享日期">分享</button>
+				<button class="close-btn" onclick="closeDetail()" aria-label="關閉彈窗">×</button>
+			</div>
+			<div id="detailContent"></div>
+			<div class="dialog-footer">
+				<button class="copy-btn" onclick="copyDateInfo()" aria-label="復製日期信息 (Ctrl+C)">📋 復製信息</button>
+			</div>
 		</div>
 	</body>
 </html> 
