@@ -1,0 +1,6 @@
+# Allow all user agents
+User-agent: *
+Disallow:
+
+# Provide sitemap location
+Sitemap: https://zangli.org/sitemap.xml 
