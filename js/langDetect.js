@@ -9,7 +9,6 @@
   // Detect if the site is running in a subdirectory (like GitHub Pages)
   // and determine the correct base path.
   let basePath = '/';
-  const onTwPath = /^\/tw(\/|$)/.test(pathname);
   const subdirMatch = pathname.match(/^(\/[^/]+\/)(tw\/)?/);
   if (subdirMatch && subdirMatch[1] !== '/tw/') {
     basePath = subdirMatch[1];

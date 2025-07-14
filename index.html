@@ -26,9 +26,20 @@
 	<meta name="twitter:description" content="提供1951年-2051年公历藏历对照查询，包含藏历节日、日月食信息等详细信息。">
 	<meta name="twitter:image" content="https://zangli.org/favicon.ico">
 		
-		<!-- 网站图标 -->
-		<link rel="icon" href="favicon.ico" type="image/x-icon">
-		<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+			<!-- 网站图标 -->
+	<script>
+		// 早期基路径检测用于favicon
+		(function() {
+			const pathname = location.pathname;
+			let faviconBasePath = '/';
+			const subdirMatch = pathname.match(/^(\/[^/]+\/)(tw\/)?/);
+			if (subdirMatch && subdirMatch[1] !== '/tw/') {
+				faviconBasePath = subdirMatch[1];
+			}
+			document.write('<link rel="icon" href="' + faviconBasePath + 'favicon.ico" type="image/x-icon">');
+			document.write('<link rel="shortcut icon" href="' + faviconBasePath + 'favicon.ico" type="image/x-icon">');
+		})();
+	</script>
 		
 		<title>百年藏历 - 在线藏历查询工具 | 公历藏历对照 | 藏历节日查询</title>
 		
@@ -992,8 +1003,16 @@
                         }
 		</style>
 
-		<script>
-		const $ = id => document.getElementById(id);
+			<script>
+	// 检测基路径以支持子目录部署
+	const { pathname } = location;
+	let basePath = '/';
+	const subdirMatch = pathname.match(/^(\/[^/]+\/)(tw\/)?/);
+	if (subdirMatch && subdirMatch[1] !== '/tw/') {
+		basePath = subdirMatch[1];
+	}
+	
+	const $ = id => document.getElementById(id);
 		let $m, $y;
 		const today_raw = new Date();
 		const today = new Date(today_raw.getFullYear(), today_raw.getMonth(), today_raw.getDate());
@@ -1221,25 +1240,30 @@
 				tooltip.remove();
 			}
 		}
-		function changeDate(code) {
-			let m = $m.value;
-			let y = $y.value;
-			if (code === 37) {
-				m--;
-			} else if (code === 38) {
-				y--;
-			} else if (code === 39) {
-				m++;
-			} else if (code === 40) {
-				y++;
-			} else if (code !== "year" && code !== "month") {
-				return;
-			}
-			if (m === 0) { y--; m = 12; }
-			if (m === 13) { y++; m = 1; }
-			location.replace(`${location.pathname}#${y}/${m}/1`);
-			window.scrollTo(0, 0);
+			function changeDate(code) {
+		// 检查$m和$y是否已初始化
+		if (!$m || !$y) {
+			return;
 		}
+		
+		let m = $m.value;
+		let y = $y.value;
+		if (code === 37) {
+			m--;
+		} else if (code === 38) {
+			y--;
+		} else if (code === 39) {
+			m++;
+		} else if (code === 40) {
+			y++;
+		} else if (code !== "year" && code !== "month") {
+			return;
+		}
+		if (m === 0) { y--; m = 12; }
+		if (m === 13) { y++; m = 1; }
+		location.replace(`${location.pathname}#${y}/${m}/1`);
+		window.scrollTo(0, 0);
+	}
 
 		const goToToday = () => {
 			const today = new Date();
@@ -1384,34 +1408,34 @@ const changeMonth = direction => {
                        if (isMobile) {
                                requestAnimationFrame(() => detailDialog.classList.add('active'));
                        }
-                       detailDialog.querySelector('.close-btn').focus();
-                       const pad = n => n.toString().padStart(2, '0');
-                       history.pushState({}, '', `/date/${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`);
-               }
+                       		detailDialog.querySelector('.close-btn').focus();
+		const pad = n => n.toString().padStart(2, '0');
+		history.pushState({}, '', `${basePath}date/${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`);
+	}
 
-               function closeDetail() {
-                       if (!detailDialog) return;
-                       detailMask.style.display = 'none';
-                       if (detailDialog.classList.contains('bottom-sheet')) {
-                               detailDialog.classList.remove('active');
-                               setTimeout(() => { detailDialog.style.display = 'none'; }, 150);
-                       } else {
-                               detailDialog.style.display = 'none';
-                       }
-                       history.pushState({}, '', '/');
-               }
+               	function closeDetail() {
+		if (!detailDialog) return;
+		detailMask.style.display = 'none';
+		if (detailDialog.classList.contains('bottom-sheet')) {
+			detailDialog.classList.remove('active');
+			setTimeout(() => { detailDialog.style.display = 'none'; }, 150);
+		} else {
+			detailDialog.style.display = 'none';
+		}
+		history.pushState({}, '', basePath);
+	}
 
-               function shareDate() {
-                       if (!activeDate) return;
-                       const pad = n => n.toString().padStart(2, '0');
-                       const dateStr = `${activeDate.getFullYear()}年${activeDate.getMonth()+1}月${activeDate.getDate()}日`;
-                       const url = `${location.origin}/date/${activeDate.getFullYear()}-${pad(activeDate.getMonth()+1)}-${pad(activeDate.getDate())}`;
-                       
-                       const shareData = {
-                               title: `百年藏历 - ${dateStr}`,
-                               text: `查看${dateStr}的藏历信息`,
-                               url: url
-                       };
+               	function shareDate() {
+		if (!activeDate) return;
+		const pad = n => n.toString().padStart(2, '0');
+		const dateStr = `${activeDate.getFullYear()}年${activeDate.getMonth()+1}月${activeDate.getDate()}日`;
+		const url = `${location.origin}${basePath}date/${activeDate.getFullYear()}-${pad(activeDate.getMonth()+1)}-${pad(activeDate.getDate())}`;
+		
+		const shareData = {
+			title: `百年藏历 - ${dateStr}`,
+			text: `查看${dateStr}的藏历信息`,
+			url: url
+		};
                        
                        if (navigator.share) {
                                navigator.share(shareData).catch(() => {
