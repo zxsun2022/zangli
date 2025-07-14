@@ -744,18 +744,18 @@
 				position: fixed;
 				top: auto;
 				bottom: 0;
-				left: 50%;
-				transform: translate(-50%, 100%);
-				width: 95%;
-				max-width: 500px;
-				height: 80%;
-				border-radius: 20px 20px 0 0;
-				transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+				left: 0;
+				right: 0;
+				transform: translateY(100%);
+				width: 100%;
+				max-width: none;
+				max-height: 80vh;
+				border-radius: 12px 12px 0 0;
+				transition: transform 0.15s ease-out;
 			}
 
-			#detailDialog.active {
-				transform: translate(-50%, 0);
-				opacity: 1;
+			#detailDialog.bottom-sheet.active {
+				transform: translateY(0);
 			}
 
 			#detailContent {
@@ -1186,7 +1186,7 @@
 			
 			// 藏历信息
 			html += `<div class="detail-section">`;
-			html += `<h4>📅 ${trans('藏历信息')}</h4>`;
+			html += `<h4>📖 ${trans('藏历信息')}</h4>`;
 			html += `<p><strong>${trans('藏历日期：')}</strong>${z.value}</p>`;
 			if (z.monthLeap) html += `<p><small>🔸 ${trans('闰月')}</small></p>`;
 			if (z.dayLeap) html += `<p><small>🔸 ${trans('闰日')}</small></p>`;

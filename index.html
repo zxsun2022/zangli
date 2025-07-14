@@ -741,11 +741,12 @@
                         #detailDialog.bottom-sheet {
                                 position: fixed;
                                 top: auto;
-                                left: 50%;
-                                transform: translate(-50%, 100%);
+                                left: 0;
+                                right: 0;
                                 bottom: 0;
-                                width: 95%;
-                                max-width: 500px;
+                                transform: translateY(100%);
+                                width: 100%;
+                                max-width: none;
                                 max-height: 80vh;
                                 overflow-y: auto;
                                 border-radius: 12px 12px 0 0;
@@ -753,7 +754,7 @@
                         }
 
                         #detailDialog.bottom-sheet.active {
-                                transform: translate(-50%, 0);
+                                transform: translateY(0);
                         }
 
                         #detailDialog .close-btn {
@@ -1304,7 +1305,7 @@ const changeMonth = direction => {
                        
                        // 藏历信息
                        html += `<div class="detail-section">`;
-                       html += `<h4>📅 藏历信息</h4>`;
+                       html += `<h4>📖 藏历信息</h4>`;
                        html += `<p><strong>藏历日期：</strong>${z.value}</p>`;
                        if (z.monthLeap) html += `<p><small>🔸 闰月</small></p>`;
                        if (z.dayLeap) html += `<p><small>🔸 闰日</small></p>`;
