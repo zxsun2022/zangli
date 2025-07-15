@@ -248,4 +248,4 @@ function getZangli(p) {
 
 if (typeof zangli_callback === "function") {
 	zangli_callback();
-}
+} 
