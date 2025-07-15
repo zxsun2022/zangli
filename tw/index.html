@@ -1369,6 +1369,58 @@
 			detailContent = document.getElementById('detailContent');
 		}
 
+		function showFestivalTooltip(cell) {
+			hideFestivalTooltip();
+			const title = cell.title || "";
+			let festivalInfo = "";
+			try {
+				const extraInfoDiv = cell.querySelector('.extra-info');
+				if (extraInfoDiv && extraInfoDiv.innerHTML && extraInfoDiv.innerHTML.trim() !== "&nbsp;" && extraInfoDiv.innerHTML.trim() !== "") {
+					festivalInfo = extraInfoDiv.innerHTML.replace(/<br>/g, " ");
+				}
+				if (!festivalInfo && title.includes("，")) {
+					const parts = title.split("，");
+					for (let i = 1; i < parts.length; i++) {
+						if (parts[i].includes("節日") || parts[i].includes("佛") || parts[i].includes("菩薩") || parts[i].includes("薈供")) {
+							festivalInfo = parts[i];
+							break;
+						}
+					}
+				}
+			} catch (err) {
+				console.log("提取節日信息時出錯:", err);
+			}
+			if (festivalInfo) {
+				const tooltip = document.createElement('div');
+				tooltip.className = 'festival-tooltip';
+				tooltip.id = 'festivalTooltip';
+				tooltip.innerHTML = `${festivalInfo}<button class="close-btn" onclick="hideFestivalTooltip()">×</button>`;
+				document.body.appendChild(tooltip);
+				const rect = cell.getBoundingClientRect();
+				const tooltipRect = tooltip.getBoundingClientRect();
+				let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+				let top = rect.top - tooltipRect.height - 10;
+				if (left < 10) left = 10;
+				if (left + tooltipRect.width > window.innerWidth - 10) {
+					left = window.innerWidth - tooltipRect.width - 10;
+				}
+				if (top < 10) {
+					top = rect.bottom + 10;
+				}
+				tooltip.style.left = `${left}px`;
+				tooltip.style.top = `${top}px`;
+				tooltip.style.display = 'block';
+				setTimeout(hideFestivalTooltip, 3000);
+			}
+		}
+
+		function hideFestivalTooltip() {
+			const tooltip = document.getElementById('festivalTooltip');
+			if (tooltip) {
+				tooltip.remove();
+			}
+		}
+
 			const pad = n => n.toString().padStart(2, '0');
 	
 	function changeDate(code) {
