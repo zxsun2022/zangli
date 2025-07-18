@@ -10,12 +10,21 @@
 		<meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
 		<meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
 		
+		<!-- 额外的SEO标签 -->
+		<meta name="theme-color" content="#8B4513">
+		<meta name="msapplication-TileColor" content="#8B4513">
+		<meta name="msapplication-TileImage" content="/apple-touch-icon.png">
+		<link rel="canonical" href="https://zangli.org/">
+		
 			<!-- Open Graph 标签 -->
 	<meta property="og:title" content="百年藏历 - 在线藏历查询工具">
 	<meta property="og:description" content="提供1951年-2051年公历藏历对照查询，包含藏历节日、日月食信息等详细信息。">
 	<meta property="og:type" content="website">
 	<meta property="og:url" content="https://zangli.org/">
-	<meta property="og:image" content="https://zangli.org/favicon.ico">
+	<meta property="og:image" content="https://zangli.org/logo-250x250.png">
+	<meta property="og:image:width" content="250">
+	<meta property="og:image:height" content="250">
+	<meta property="og:image:type" content="image/png">
 	<meta property="og:site_name" content="百年藏历">
 	<meta property="og:locale" content="zh_CN">
 	<meta property="og:locale:alternate" content="zh_TW">
@@ -24,7 +33,7 @@
 	<meta name="twitter:card" content="summary_large_image">
 	<meta name="twitter:title" content="百年藏历 - 在线藏历查询工具">
 	<meta name="twitter:description" content="提供1951年-2051年公历藏历对照查询，包含藏历节日、日月食信息等详细信息。">
-	<meta name="twitter:image" content="https://zangli.org/favicon.ico">
+	<meta name="twitter:image" content="https://zangli.org/logo-250x250.png">
 		
 			<!-- 网站图标 -->
 	<link rel="icon" href="/favicon.ico" type="image/x-icon">
@@ -32,6 +41,7 @@
 	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="manifest" href="/manifest.json">
 		
 		<title>百年藏历 - 在线藏历查询工具 | 公历藏历对照 | 藏历节日查询</title>
 		
@@ -48,22 +58,29 @@
 		"name": "百年藏历",
 		"url": "https://zangli.org/",
 		"description": "提供1951年-2051年公历藏历对照查询，包含藏历节日、日月食信息等详细信息",
-			"applicationCategory": "Calendar",
-			"operatingSystem": "All",
-			"offers": {
-				"@type": "Offer",
-				"price": "0",
-				"priceCurrency": "CNY"
-			},
-			"author": {
-				"@type": "Person",
-				"name": "Stone Huang"
-			},
-			"datePublished": "2024-01-01",
-			"inLanguage": ["zh-CN", "zh-TW"],
-			"keywords": "藏历,百年藏历,藏历查询,公历藏历对照,藏历节日,佛教节日,日月食,万年历"
-		}
-		</script>
+		"applicationCategory": "Calendar",
+		"operatingSystem": "All",
+		"logo": {
+			"@type": "ImageObject",
+			"url": "https://zangli.org/logo-250x250.png",
+			"width": 250,
+			"height": 250
+		},
+		"image": "https://zangli.org/logo-250x250.png",
+		"offers": {
+			"@type": "Offer",
+			"price": "0",
+			"priceCurrency": "CNY"
+		},
+		"author": {
+			"@type": "Person",
+			"name": "Stone Huang"
+		},
+		"datePublished": "2024-01-01",
+		"inLanguage": ["zh-CN", "zh-TW"],
+		"keywords": "藏历,百年藏历,藏历查询,公历藏历对照,藏历节日,佛教节日,日月食,万年历"
+	}
+	</script>
 		
 		<script src="js/langDetect.js"></script>
 

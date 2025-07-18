@@ -1,0 +1,39 @@
+{
+  "name": "百年藏历 - 在线藏历查询工具",
+  "short_name": "百年藏历",
+  "description": "提供1951年-2051年公历藏历对照查询，包含藏历节日、日月食信息等详细信息",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFF8F0",
+  "theme_color": "#8B4513",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo-250x250.png",
+      "sizes": "250x250",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "lifestyle", "education"],
+  "lang": "zh-CN",
+  "scope": "/",
+  "screenshots": [
+    {
+      "src": "/logo-250x250.png",
+      "sizes": "250x250",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ]
+}
