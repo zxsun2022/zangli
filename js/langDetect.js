@@ -15,24 +15,41 @@
   }
 
   const inTwSubPath = pathname.startsWith(basePath + 'tw/');
+  
+  // Check if user has manually visited a specific language version
+  // by checking if there's a language preference stored or if they came from a direct link
+  const hasLanguagePreference = sessionStorage.getItem('userLanguageChoice');
+  const isDirectAccess = document.referrer === '' || !document.referrer.includes(location.hostname);
 
   // Function to build the final URL, preserving query parameters and hash.
   function buildRedirectUrl(newPath) {
     return newPath + search + hash;
   }
 
-  if (isTwLocale) {
-    // If browser locale is TW/HK/MO, but we are not on the 'tw' path, redirect.
-    if (!inTwSubPath) {
-      const relativePath = pathname.substring(basePath.length);
-      const newPath = (basePath + 'tw/' + relativePath).replace(/\/\//g, '/');
+  // Handle /zh-tw URL redirect to /tw/
+  if (pathname.includes('/zh-tw')) {
+    const newPath = pathname.replace('/zh-tw', '/tw');
+    sessionStorage.setItem('userLanguageChoice', 'manual-tw');
+    location.replace(buildRedirectUrl(newPath));
+    return;
+  }
+
+  // Only auto-redirect based on browser language if:
+  // 1. User hasn't made a manual language choice in this session
+  // 2. User is accessing the root page (not a specific language version)
+  if (!hasLanguagePreference && (pathname === basePath || pathname === basePath + 'index.html')) {
+    if (isTwLocale && !inTwSubPath) {
+      // Redirect to traditional Chinese version
+      const newPath = basePath + 'tw/';
+      sessionStorage.setItem('userLanguageChoice', 'auto-tw');
       location.replace(buildRedirectUrl(newPath));
     }
-  } else {
-    // If browser locale is not TW/HK/MO, but we are on the 'tw' path, redirect back.
-    if (inTwSubPath) {
-      const newPath = pathname.replace(basePath + 'tw/', basePath).replace(/\/\//g, '/');
-      location.replace(buildRedirectUrl(newPath));
-    }
+  }
+  
+  // Store user's language choice when they visit a specific language version
+  if (inTwSubPath && !hasLanguagePreference) {
+    sessionStorage.setItem('userLanguageChoice', 'manual-tw');
+  } else if (!inTwSubPath && pathname !== basePath && pathname !== basePath + 'index.html' && !hasLanguagePreference) {
+    sessionStorage.setItem('userLanguageChoice', 'manual-cn');
   }
 })(); 
