@@ -1,4 +1,10 @@
 (function () {
+  // Early exit if we're already being redirected or if document is not ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', arguments.callee);
+    return;
+  }
+
   // Use navigator.languages for more robust detection, with fallback.
   // The regex covers zh-TW, zh-HK, zh-MO, and the generic zh-Hant.
   const userLanguages = navigator.languages || [navigator.language || navigator.userLanguage];
@@ -19,19 +25,35 @@
   // Check if user has manually visited a specific language version
   // by checking if there's a language preference stored or if they came from a direct link
   const hasLanguagePreference = sessionStorage.getItem('userLanguageChoice');
-  const isDirectAccess = document.referrer === '' || !document.referrer.includes(location.hostname);
 
   // Function to build the final URL, preserving query parameters and hash.
   function buildRedirectUrl(newPath) {
     return newPath + search + hash;
   }
 
-  // Handle /zh-tw URL redirect to /tw/
+  // Handle /zh-tw URL redirect to /tw/ with immediate execution
   if (pathname.includes('/zh-tw')) {
     const newPath = pathname.replace('/zh-tw', '/tw');
     sessionStorage.setItem('userLanguageChoice', 'manual-tw');
-    location.replace(buildRedirectUrl(newPath));
-    return;
+    
+    // Immediate redirect to prevent any script loading issues
+    const redirectUrl = buildRedirectUrl(newPath);
+    
+    // Stop any further script execution
+    document.addEventListener('DOMContentLoaded', function(e) {
+      e.stopImmediatePropagation();
+    });
+    
+    // Multiple redirect methods for maximum compatibility
+    if (history.replaceState) {
+      history.replaceState(null, null, redirectUrl);
+      location.reload();
+    } else {
+      location.replace(redirectUrl);
+    }
+    
+    // Prevent any further execution
+    throw new Error('Redirecting to ' + redirectUrl);
   }
 
   // Only auto-redirect based on browser language if:
