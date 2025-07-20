@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>百年藏曆 - 線上藏曆查詢工具 | 公曆藏曆對照 | 藏曆節日查詢 | 佛教殊勝日</title>
+    
+    <!-- 立即重定向到正确的繁体中文页面 -->
+    <meta http-equiv="refresh" content="0; url=../tw/">
+    <link rel="canonical" href="https://zangli.org/tw/">
+    
+    <!-- SEO标签 -->
+    <meta name="description" content="百年藏曆線上查詢工具，提供1951年-2051年公曆藏曆對照查詢，包含藏曆節日、佛教殊勝日、日月食資訊等詳細資訊。">
+    <meta name="keywords" content="藏曆,百年藏曆,藏曆查詢,公曆藏曆對照,藏曆節日,佛教節日,殊勝日,佛教殊勝日,蓮師薈供日,神變節,釋迦牟尼佛節日,觀音菩薩節日">
+    
+    <!-- Open Graph 標籤 -->
+    <meta property="og:title" content="百年藏曆 - 線上藏曆查詢工具">
+    <meta property="og:description" content="提供1951年-2051年公曆藏曆對照查詢，包含藏曆節日、佛教殊勝日、日月食資訊等詳細資訊。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://zangli.org/tw/">
+    <meta property="og:image" content="https://zangli.org/logo-250x250-circle.png">
+    
+    <!-- 立即执行的JavaScript重定向作为备份 -->
+    <script>
+        // 立即重定向，不等待任何资源加载
+        (function() {
+            try {
+                // 记录用户选择
+                if (typeof(Storage) !== "undefined") {
+                    sessionStorage.setItem('userLanguageChoice', 'manual-tw');
+                }
+                // 立即重定向
+                window.location.replace('../tw/' + window.location.search + window.location.hash);
+            } catch (e) {
+                // 如果JavaScript失败，meta refresh会处理重定向
+                console.log('JavaScript redirect failed, using meta refresh');
+            }
+        })();
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background: linear-gradient(135deg, #FFF8F0 0%, #F5E6D3 100%);
+            color: #8B4513;
+        }
+        .redirect-message {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(139, 69, 19, 0.1);
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #8B4513;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .manual-link {
+            margin-top: 20px;
+        }
+        .manual-link a {
+            color: #8B4513;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 10px 20px;
+            border: 2px solid #8B4513;
+            border-radius: 8px;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        .manual-link a:hover {
+            background: #8B4513;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="redirect-message">
+        <h1>🔄 正在跳轉到繁體中文版本</h1>
+        <p><span class="loading"></span>請稍候，正在為您跳轉到正確的頁面...</p>
+        <p>如果頁面沒有自動跳轉，請點擊下方連結：</p>
+        <div class="manual-link">
+            <a href="../tw/">前往百年藏曆繁體中文版</a>
+        </div>
+        <hr style="margin: 30px 0; border: 1px solid #E5D5C8;">
+        <p style="font-size: 0.9em; color: #666;">
+            百年藏曆提供1951年-2051年公曆藏曆對照查詢<br>
+            包含藏曆節日、佛教殊勝日、日月食資訊等詳細資訊
+        </p>
+    </div>
+</body>
+</html>

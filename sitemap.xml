@@ -28,6 +28,17 @@
     <image:caption>百年藏曆應用圖標</image:caption>
   </image:image>
 </url>
+<url>
+  <loc>https://zangli.org/zh-tw/</loc>
+  <lastmod>2025-07-17T08:00:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.70</priority>
+  <image:image>
+    <image:loc>https://zangli.org/logo-250x250-circle.png</image:loc>
+    <image:title>百年藏曆 - 線上藏曆查詢工具</image:title>
+    <image:caption>百年藏曆應用圖標</image:caption>
+  </image:image>
+</url>
 
 
 </urlset>

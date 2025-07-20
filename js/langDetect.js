@@ -21,7 +21,7 @@
   }
 
   const inTwSubPath = pathname.startsWith(basePath + 'tw/');
-  
+
   // Check if user has manually visited a specific language version
   // by checking if there's a language preference stored or if they came from a direct link
   const hasLanguagePreference = sessionStorage.getItem('userLanguageChoice');
@@ -35,15 +35,15 @@
   if (pathname.includes('/zh-tw')) {
     const newPath = pathname.replace('/zh-tw', '/tw');
     sessionStorage.setItem('userLanguageChoice', 'manual-tw');
-    
+
     // Immediate redirect to prevent any script loading issues
     const redirectUrl = buildRedirectUrl(newPath);
-    
+
     // Stop any further script execution
-    document.addEventListener('DOMContentLoaded', function(e) {
+    document.addEventListener('DOMContentLoaded', function (e) {
       e.stopImmediatePropagation();
     });
-    
+
     // Multiple redirect methods for maximum compatibility
     if (history.replaceState) {
       history.replaceState(null, null, redirectUrl);
@@ -51,7 +51,7 @@
     } else {
       location.replace(redirectUrl);
     }
-    
+
     // Prevent any further execution
     throw new Error('Redirecting to ' + redirectUrl);
   }
@@ -67,7 +67,7 @@
       location.replace(buildRedirectUrl(newPath));
     }
   }
-  
+
   // Store user's language choice when they visit a specific language version
   if (inTwSubPath && !hasLanguagePreference) {
     sessionStorage.setItem('userLanguageChoice', 'manual-tw');
