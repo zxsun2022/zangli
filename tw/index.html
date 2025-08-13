@@ -1033,14 +1033,10 @@
 			}
 		</style>
 
-			<script>
-	// 检测基路径以支持子目录部署
-	const { pathname } = location;
-	let basePath = '/';
-	const subdirMatch = pathname.match(/^(\/[^/]+\/)(tw\/)?/);
-	if (subdirMatch && subdirMatch[1] !== '/tw/') {
-		basePath = subdirMatch[1];
-	}
+		<script>
+		// 语言专属基路径：繁体页面固定使用 /tw/ 作为基路径
+		const { pathname } = location;
+		let basePath = pathname.startsWith('/tw/') ? '/tw/' : '/';
 	
 	const $ = id => document.getElementById(id);
 		let $m, $y;
