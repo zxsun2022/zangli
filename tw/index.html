@@ -37,16 +37,19 @@
 		
 			<!-- 網站圖標 -->
 	<script>
-		// 早期基路径检测用于favicon
+		// 安全注入 favicon，支持根域名和项目子目录
 		(function() {
-			const pathname = location.pathname;
-			let faviconBasePath = '/';
-			const subdirMatch = pathname.match(/^(\/[^/]+\/)(tw\/)?/);
-			if (subdirMatch && subdirMatch[1] !== '/tw/') {
-				faviconBasePath = subdirMatch[1];
-			}
-			document.write('<link rel="icon" href="' + faviconBasePath + 'favicon.ico" type="image/x-icon">');
-			document.write('<link rel="shortcut icon" href="' + faviconBasePath + 'favicon.ico" type="image/x-icon">');
+			const segs = location.pathname.split('/').filter(Boolean);
+			const firstSeg = segs[0] || '';
+			const siteRoot = /^tw$/i.test(firstSeg) ? '/' : (firstSeg ? `/${firstSeg}/` : '/');
+			const href = siteRoot + 'favicon.ico';
+			['icon','shortcut icon'].forEach(rel => {
+				const link = document.createElement('link');
+				link.rel = rel;
+				link.type = 'image/x-icon';
+				link.href = href;
+				document.head.appendChild(link);
+			});
 		})();
 	</script>
 		
@@ -1034,13 +1037,13 @@
 		</style>
 
 			<script>
-	// 检测基路径以支持子目录部署
+	// 统一基路径与繁中子路径判断，支持根域名与项目子目录
 	const { pathname } = location;
-	let basePath = '/';
-	const subdirMatch = pathname.match(/^(\/[^/]+\/)(tw\/)?/);
-	if (subdirMatch && subdirMatch[1] !== '/tw/') {
-		basePath = subdirMatch[1];
-	}
+	const segs = pathname.split('/').filter(Boolean);
+	const firstSeg = segs[0] || '';
+	const inTw = segs.includes('tw');
+	const siteRoot = /^tw$/i.test(firstSeg) ? '/' : (firstSeg ? `/${firstSeg}/` : '/');
+	const basePath = inTw ? siteRoot + 'tw/' : siteRoot;
 	
 	const $ = id => document.getElementById(id);
 		let $m, $y;
