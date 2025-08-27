@@ -8,15 +8,7 @@ RewriteEngine On
 # This handles the redirect at server level, preventing MIME type issues
 RewriteRule ^zh-tw/?(.*)$ /tw/$1 [R=301,L]
 
-# Ensure proper MIME types for JavaScript files
-<FilesMatch "\.(js)$">
-    Header set Content-Type "application/javascript; charset=utf-8"
-</FilesMatch>
-
-# Ensure proper MIME types for CSS files
-<FilesMatch "\.(css)$">
-    Header set Content-Type "text/css; charset=utf-8"
-</FilesMatch>
+# 依赖服务器默认/已配置的 MIME 类型映射，无需强制覆盖
 
 # Cache control for static assets
 <FilesMatch "\.(js|css|png|jpg|jpeg|gif|ico|svg)$">
@@ -26,7 +18,8 @@ RewriteRule ^zh-tw/?(.*)$ /tw/$1 [R=301,L]
 # Security headers
 Header always set X-Content-Type-Options nosniff
 Header always set X-Frame-Options DENY
-Header always set X-XSS-Protection "1; mode=block"
+# X-XSS-Protection 已废弃；如需可添加 CSP（按需放开源）
+# Header always set Content-Security-Policy "default-src 'self'"
 
 # Compress text files
 <IfModule mod_deflate.c>

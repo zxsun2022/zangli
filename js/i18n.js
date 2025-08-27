@@ -1,5 +1,6 @@
 // ① 引入 OpenCC，CDN 版本示例：<script src="https://cdn.jsdelivr.net/npm/opencc-js@1.0.4/dist/umd/opencc.min.js"></script>
-const isTrad = /^\/tw(\/|$)/i.test(location.pathname);
+// 支持根域名和项目子目录下的 /tw/ 路径
+const isTrad = /(?:^|\/)tw(\/|$)/i.test(location.pathname);
 let converter = null;
 
 if (isTrad) {
