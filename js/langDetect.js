@@ -1,10 +1,4 @@
 (function () {
-  // Early exit if we're already being redirected or if document is not ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', arguments.callee);
-    return;
-  }
-
   // Use navigator.languages for more robust detection, with fallback.
   // The regex covers zh-TW, zh-HK, zh-MO, and the generic zh-Hant.
   const userLanguages = navigator.languages || [navigator.language || navigator.userLanguage];
@@ -12,66 +6,44 @@
 
   const { pathname, search, hash } = location;
 
-  // Detect if the site is running in a subdirectory (like GitHub Pages)
-  // and determine the correct base path.
-  let basePath = '/';
-  const subdirMatch = pathname.match(/^(\/[^/]+\/)(tw\/)?/);
-  if (subdirMatch && subdirMatch[1] !== '/tw/') {
-    basePath = subdirMatch[1];
-  }
-
-  const inTwSubPath = pathname.startsWith(basePath + 'tw/');
+  // Compute if in tw subpath and determine site root for project pages
+  const pathSegs = pathname.split('/').filter(Boolean);
+  const first = pathSegs[0] || '';
+  const inTwSubPath = pathSegs.includes('tw');
+  const siteRoot = /^tw$/i.test(first) ? '/' : (first ? `/${first}/` : '/');
 
   // Check if user has manually visited a specific language version
-  // by checking if there's a language preference stored or if they came from a direct link
-  const hasLanguagePreference = sessionStorage.getItem('userLanguageChoice');
+  const hasLanguagePreference = (typeof sessionStorage !== 'undefined') && sessionStorage.getItem('userLanguageChoice');
 
-  // Function to build the final URL, preserving query parameters and hash.
+  // Helper to build redirect URL, preserving query and hash
   function buildRedirectUrl(newPath) {
     return newPath + search + hash;
   }
 
-  // Handle /zh-tw URL redirect to /tw/ with immediate execution
-  if (pathname.includes('/zh-tw')) {
-    const newPath = pathname.replace('/zh-tw', '/tw');
-    sessionStorage.setItem('userLanguageChoice', 'manual-tw');
-
-    // Immediate redirect to prevent any script loading issues
-    const redirectUrl = buildRedirectUrl(newPath);
-
-    // Stop any further script execution
-    document.addEventListener('DOMContentLoaded', function (e) {
-      e.stopImmediatePropagation();
-    });
-
-    // Multiple redirect methods for maximum compatibility
-    if (history.replaceState) {
-      history.replaceState(null, null, redirectUrl);
-      location.reload();
-    } else {
-      location.replace(redirectUrl);
-    }
-
-    // Prevent any further execution by returning early
+  // Normalize legacy /zh-tw to /tw/
+  if (/\/zh-tw(\/|$)/i.test(pathname)) {
+    const newPath = pathname.replace(/\/zh-tw/ig, '/tw');
+    try { sessionStorage.setItem('userLanguageChoice', 'manual-tw'); } catch (e) {}
+    location.replace(buildRedirectUrl(newPath));
     return;
   }
 
-  // Only auto-redirect based on browser language if:
-  // 1. User hasn't made a manual language choice in this session
-  // 2. User is accessing the root page (not a specific language version)
-  if (!hasLanguagePreference && (pathname === basePath || pathname === basePath + 'index.html')) {
+  // Only auto-redirect from root/index.html and when no manual choice exists
+  const isRoot = pathname === siteRoot || pathname === siteRoot + 'index.html';
+  if (!hasLanguagePreference && isRoot) {
     if (isTwLocale && !inTwSubPath) {
-      // Redirect to traditional Chinese version
-      const newPath = basePath + 'tw/';
-      sessionStorage.setItem('userLanguageChoice', 'auto-tw');
+      const newPath = siteRoot + 'tw/';
+      try { sessionStorage.setItem('userLanguageChoice', 'auto-tw'); } catch (e) {}
       location.replace(buildRedirectUrl(newPath));
+      return;
     }
   }
 
-  // Store user's language choice when they visit a specific language version
-  if (inTwSubPath && !hasLanguagePreference) {
-    sessionStorage.setItem('userLanguageChoice', 'manual-tw');
-  } else if (!inTwSubPath && pathname !== basePath && pathname !== basePath + 'index.html' && !hasLanguagePreference) {
-    sessionStorage.setItem('userLanguageChoice', 'manual-cn');
+  // Persist user's language choice when they land on a language-specific path
+  if (!hasLanguagePreference) {
+    try {
+      if (inTwSubPath) sessionStorage.setItem('userLanguageChoice', 'manual-tw');
+      else if (!isRoot) sessionStorage.setItem('userLanguageChoice', 'manual-cn');
+    } catch (e) {}
   }
-})(); 
+})();

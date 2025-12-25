@@ -36,6 +36,46 @@
 	<meta name="twitter:image" content="https://zangli.org/logo-250x250-circle.png">
 		
 			<!-- 網站圖標 -->
+	<script>
+		// 安全注入 favicon 和相关资源，支持根域名和项目子目录
+		(function() {
+			const segs = location.pathname.split('/').filter(Boolean);
+			const firstSeg = segs[0] || '';
+			const siteRoot = /^tw$/i.test(firstSeg) ? '/' : (firstSeg ? `/${firstSeg}/` : '/');
+			
+			// 注入 favicon.ico
+			['icon','shortcut icon'].forEach(rel => {
+				const link = document.createElement('link');
+				link.rel = rel;
+				link.type = 'image/x-icon';
+				link.href = siteRoot + 'favicon.ico';
+				document.head.appendChild(link);
+			});
+			
+			// 注入 PNG 图标
+			[{sizes: '32x32', file: 'favicon-32x32.png'}, {sizes: '16x16', file: 'favicon-16x16.png'}].forEach(icon => {
+				const link = document.createElement('link');
+				link.rel = 'icon';
+				link.type = 'image/png';
+				link.sizes = icon.sizes;
+				link.href = siteRoot + icon.file;
+				document.head.appendChild(link);
+			});
+			
+			// 注入 apple-touch-icon
+			const appleIcon = document.createElement('link');
+			appleIcon.rel = 'apple-touch-icon';
+			appleIcon.sizes = '180x180';
+			appleIcon.href = siteRoot + 'apple-touch-icon.png';
+			document.head.appendChild(appleIcon);
+			
+			// 注入 manifest
+			const manifest = document.createElement('link');
+			manifest.rel = 'manifest';
+			manifest.href = siteRoot + 'manifest.json';
+			document.head.appendChild(manifest);
+		})();
+	</script>
 		
 		<title>百年藏曆 - 線上藏曆查詢工具 | 公曆藏曆對照 | 藏曆節日查詢 | 佛教殊勝日</title>
 		
@@ -77,12 +117,6 @@
 	</script>
 		
 		<script src="../js/langDetect.js"></script>
-		
-		<!-- 網站圖標 -->
-		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-		<link rel="manifest" href="/manifest.json">
 		<style>
 			:root {
 				--primary-color: #8B4513;
@@ -1026,10 +1060,14 @@
 			}
 		</style>
 
-		<script>
-		// 语言专属基路径：繁体页面固定使用 /tw/ 作为基路径
-		const { pathname } = location;
-		let basePath = pathname.startsWith('/tw/') ? '/tw/' : '/';
+			<script>
+	// 统一基路径与繁中子路径判断，支持根域名与项目子目录
+	const { pathname } = location;
+	const segs = pathname.split('/').filter(Boolean);
+	const firstSeg = segs[0] || '';
+	const inTw = segs.includes('tw');
+	const siteRoot = /^tw$/i.test(firstSeg) ? '/' : (firstSeg ? `/${firstSeg}/` : '/');
+	const basePath = inTw ? siteRoot + 'tw/' : siteRoot;
 	
 	const $ = id => document.getElementById(id);
 		let $m, $y;
