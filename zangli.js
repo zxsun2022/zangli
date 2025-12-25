@@ -117,8 +117,9 @@ const specialDays = [
 	[[-30],[13,-24],[-28],[7,-21],[-24],[4,-17],[-19,30],[-12],[-16,25],[-10,29],[-3],[-8,12]]
 ];
 
-const startDate = new Date("1951/1/8");
-const endDate = new Date("2051/2/11");
+// 使用中午12点来避免时区和夏令时问题，确保日期计算精确
+const startDate = new Date(1951, 0, 8, 12, 0, 0);  // 1951/1/8 12:00
+const endDate = new Date(2051, 1, 11, 12, 0, 0);   // 2051/2/11 12:00
 
 /*方法说明
  *@method getZangli
@@ -162,8 +163,9 @@ function getZangli(p) {
 		console.error(trans(`错误:不能转换晚于${endDate.getFullYear()}年${endDate.getMonth() + 1}月${endDate.getDate()}日的日期`));
 		return { value: "error" };
 	}
-	// 将输入时间标准化为当天中午12点，避免时间影响日期计算
+	// 将输入时间标准化为当天中午12点，与 startDate 一致，避免时区和夏令时影响
 	const standardizedDate = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0);
+	// 由于两个日期都在中午12点，差值应该是精确的整数天
 	const days = Math.round((standardizedDate - startDate) / 86400 / 1000);
 	let countingDays = 0;
 	for (let years = 0; years < specialDays.length; years++) {
