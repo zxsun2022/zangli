@@ -36,19 +36,6 @@
 	<meta name="twitter:image" content="https://zangli.org/logo-250x250-circle.png">
 		
 			<!-- 網站圖標 -->
-	<script>
-		// 早期基路径检测用于favicon
-		(function() {
-			const pathname = location.pathname;
-			let faviconBasePath = '/';
-			const subdirMatch = pathname.match(/^(\/[^/]+\/)(tw\/)?/);
-			if (subdirMatch && subdirMatch[1] !== '/tw/') {
-				faviconBasePath = subdirMatch[1];
-			}
-			document.write('<link rel="icon" href="' + faviconBasePath + 'favicon.ico" type="image/x-icon">');
-			document.write('<link rel="shortcut icon" href="' + faviconBasePath + 'favicon.ico" type="image/x-icon">');
-		})();
-	</script>
 		
 		<title>百年藏曆 - 線上藏曆查詢工具 | 公曆藏曆對照 | 藏曆節日查詢 | 佛教殊勝日</title>
 		
@@ -90,6 +77,12 @@
 	</script>
 		
 		<script src="../js/langDetect.js"></script>
+		
+		<!-- 網站圖標 -->
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+		<link rel="manifest" href="/manifest.json">
 		<style>
 			:root {
 				--primary-color: #8B4513;
@@ -1040,7 +1033,8 @@
 	
 	const $ = id => document.getElementById(id);
 		let $m, $y;
-		const today = new Date();
+		const today_raw = new Date();
+		const today = new Date(today_raw.getFullYear(), today_raw.getMonth(), today_raw.getDate());
 		let selectedCell = null;
 		function zangli_callback() {
 			// 确保DOM已经加载完成
@@ -1260,7 +1254,6 @@
 				requestAnimationFrame(() => detailDialog.classList.add('active'));
 			}
 					detailDialog.querySelector('.close-btn').focus();
-		const pad = n => n.toString().padStart(2, '0');
 		history.pushState({}, '', `${basePath}date/${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`);
 	}
 
@@ -1504,6 +1497,28 @@
 		location.replace(`${location.pathname}#${newYear}/${newMonth}/1`);
 		window.scrollTo(0, 0);
 	};
+
+	function checkDeepLink() {
+		const m = location.pathname.match(/\/date\/(\d{4}-\d{2}-\d{2})/);
+		if (m) {
+			const d = new Date(m[1]);
+			if (!isNaN(d) && d >= startDate && d <= endDate) {
+				// 首先确保日历显示正确的月份
+				location.hash = `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
+				setTimeout(() => {
+					const tbody = document.querySelector('.calendar-table tbody');
+					const cells = tbody.getElementsByTagName('td');
+					for (let td of cells) {
+						if (td.title && td.title.includes(`${d.getFullYear()}${trans('年')}${d.getMonth()+1}${trans('月')}${d.getDate()}${trans('日')}`)) {
+							showDay(td);
+							openDetail(d, td);
+							break;
+						}
+					}
+				}, 100);
+			}
+		}
+	}
 	</script>
 	<script src="https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/full.min.js"></script>
 		<script src="../js/i18n.js"></script>
@@ -1515,6 +1530,7 @@
 		<script>
 		window.addEventListener('load', () => {
 			zangli_callback();
+			checkDeepLink();
 		});
 
 		document.addEventListener('keydown', e => {

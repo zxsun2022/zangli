@@ -52,8 +52,8 @@
       location.replace(redirectUrl);
     }
 
-    // Prevent any further execution
-    throw new Error('Redirecting to ' + redirectUrl);
+    // Prevent any further execution by returning early
+    return;
   }
 
   // Only auto-redirect based on browser language if:
