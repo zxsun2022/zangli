@@ -1,56 +1,98 @@
 const $ = id => document.getElementById(id);
 const pad = value => String(value).padStart(2, '0');
-const inTw = /(?:^|\/)tw(?:\/|$)/i.test(location.pathname);
-const basePath = inTw ? '/tw/' : '/';
+const locale = window.ZANGLI_LOCALE || 'zh-cn';
+const routeLocale = locale === 'zh-cn' ? '' : locale;
+const basePath = routeLocale ? `/${routeLocale}/` : '/';
+const intlLocale = { 'zh-cn': 'zh-CN', tw: 'zh-TW', en: 'en-CA', bo: 'bo' }[locale];
+const deviceTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+const BEIJING_TIME_ZONE = 'Asia/Shanghai';
 
-let $m;
-let $y;
-let selectedCell = null;
-let detailMask;
-let detailDialog;
-let detailContent;
-let activeDate;
-let previouslyFocusedElement;
-let focusCalendarAfterRender = false;
-let detailHideTimer;
-let historySyncFrame;
-let lastHistoryLocation = `${location.pathname}${location.search}${location.hash}`;
+const messages = {
+	selectedDate: '所选日期', localBasis: '设备本地日期', beijingBasis: '北京时间日期',
+	lookupNote: '查询《百年历书》的公历日期', deviceZone: '设备时区',
+	discrepancy: '此刻本地是 {local}，北京是 {beijing}。页面按“{basis}”显示。',
+	nextIn: '{days} 天后', nextToday: '就是今天', noNext: '支持范围内没有找到下一殊胜日',
+	viewDate: '查看日期', events: '{year} 年共 {count} 个匹配日期', noEvents: '这个筛选条件下没有日期。',
+	reverseFound: '找到 {count} 个对应日期', reverseNone: '没有找到对应日期；藏历可能有缺日，或结果位于所选公历年份之外。',
+	repeated: '闰日', skipped: '缺日', leapMonth: '闰月', localEclipse: '你的时区', beijingEclipse: '北京时区',
+	eclipseArchive: '日月食按北京时间日期归档；能否看到以及当地接触时刻取决于地理位置。',
+	calendarExported: '日历文件已生成', reminderExported: '提醒文件已生成，可导入系统日历',
+	installUnavailable: '可通过浏览器菜单将页面安装到桌面。', offlineReady: '页面已可离线使用',
+	copied: '日期信息已复制', linkCopied: '分享链接已复制',
+	festival: '节日', multiplier: '功德增广日', eclipse: '日月食', all: '全部',
+	gregorian: '公历', tibetan: '藏历', sourceBadge: '历书对照', dateBasis: '日期口径',
+	yearSuffix: '年', monthSuffix: '月', daySuffix: '日', weekdayPrefix: '周',
+	monthTitle: '{year} 年 {month} 月', monthShort: '{month}月', dayShort: '初{day}',
+	viewDetails: '查看详情', observance: '殊胜日', source: '来源与口径',
+	localModeDetail: '“本地”只决定今天查哪一个公历日期，不会重新计算所在地的藏历天文参数。',
+	icsDescription: '百年藏历：{tibetan}。{detail}',
+	openSource: '数据开源', copiedTitle: '百年藏历',
+	install: '安装', themeDark: '切换到深色模式', themeLight: '切换到浅色模式'
+};
 
-function getLocalToday() {
-	const now = new Date();
-	return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0);
+const englishMessages = {
+	selectedDate:'Selected date',localBasis:'Device-local date',beijingBasis:'Beijing date',lookupNote:'Gregorian date used to query the published crosswalk',deviceZone:'Device time zone',
+	discrepancy:'It is {local} locally and {beijing} in Beijing. This page is using “{basis}.”',nextIn:'In {days} days',nextToday:'Today',noNext:'No later observance was found in the supported range',viewDate:'View date',events:'{count} matching dates in {year}',noEvents:'No dates match this filter.',reverseFound:'Found {count} matching dates',reverseNone:'No date was found. The Tibetan day may be skipped or outside the selected Gregorian year.',repeated:'Repeated day',skipped:'Skipped day',leapMonth:'Leap month',localEclipse:'Your time zone',beijingEclipse:'Beijing time',eclipseArchive:'Eclipses are filed by Beijing date. Visibility and local contact times depend on location.',calendarExported:'Calendar file created',reminderExported:'Reminder file created; import it into your calendar',installUnavailable:'Use your browser menu to install this page.',offlineReady:'Offline access is ready',copied:'Date details copied',linkCopied:'Share link copied',festival:'Observance',multiplier:'Multiplier day',eclipse:'Eclipse',all:'All',gregorian:'Gregorian',tibetan:'Tibetan',sourceBadge:'Published crosswalk',dateBasis:'Date basis',yearSuffix:'',monthSuffix:'',daySuffix:'',weekdayPrefix:'',monthTitle:'{month} {year}',monthShort:'Month {month}',dayShort:'Day {day}',viewDetails:'View details',observance:'Observance',source:'Source & method',localModeDetail:'“Local” only decides which Gregorian day to look up. It does not recalculate local Tibetan astronomical parameters.',icsDescription:'Tibetan calendar: {tibetan}. {detail}',openSource:'Open-source data',copiedTitle:'Tibetan Calendar',install:'Install',themeDark:'Switch to dark mode',themeLight:'Switch to light mode'
+};
+
+const tibetanMessages = {
+	selectedDate:'བདམས་པའི་ཚེས།',localBasis:'ས་གནས་ཀྱི་ཚེས།',beijingBasis:'པེ་ཅིང་གི་ཚེས།',nextToday:'དེ་རིང་།',viewDate:'ཚེས་ལ་བལྟ་བ།',festival:'དུས་ཆེན།',multiplier:'དགེ་བ་འཕེལ་བའི་ཉིན།',eclipse:'ཉི་ཟླ་འཛིན་པ།',gregorian:'སྤྱི་ལོ།',tibetan:'བོད་ཟླ།',dateBasis:'ཚེས་གྲངས་ཀྱི་གཞི།',monthShort:'ཟླ་ {month}',dayShort:'ཚེས་ {day}',viewDetails:'ཞིབ་ཕྲ།',observance:'དུས་ཆེན།',install:'Install'
+};
+
+function msg(key, values = {}) {
+	let value = locale === 'en' ? (englishMessages[key] || messages[key] || key)
+		: locale === 'bo' ? (tibetanMessages[key] || englishMessages[key] || messages[key] || key)
+		: trans(messages[key] || key);
+	for (const [name, replacement] of Object.entries(values)) value = value.replaceAll(`{${name}}`, replacement);
+	return value;
+}
+
+const state = {
+	basis: localStorage.getItem('zangli-date-basis') === 'beijing' ? 'beijing' : 'local',
+	theme: localStorage.getItem('zangli-theme') || 'system',
+	selectedCell: null,
+	activeDate: null,
+	previousFocus: null,
+	annualEvents: [],
+	deferredInstallPrompt: null,
+	historyLocation: `${location.pathname}${location.search}${location.hash}`
+};
+
+function escapeHTML(value) {
+	return String(value).replace(/[&<>'"]/g, character => ({ '&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;' })[character]);
+}
+
+function stripHTML(value) {
+	const container = document.createElement('div');
+	container.innerHTML = value || '';
+	return container.textContent.trim();
 }
 
 function createLocalDate(year, month, day) {
 	const date = new Date(year, month - 1, day, 12, 0, 0);
-	if (
-		date.getFullYear() !== year ||
-		date.getMonth() !== month - 1 ||
-		date.getDate() !== day
-	) {
-		return null;
-	}
-	return date;
+	return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day ? date : null;
+}
+
+function addDays(date, days) {
+	return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days, 12, 0, 0);
 }
 
 function formatDate(date) {
 	return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
-function matchDeepLinkRoute() {
-	return location.pathname.match(/\/date\/(\d{4})-(\d{2})-(\d{2})\/?$/);
+function dateInTimeZone(now, timeZone) {
+	const parts = new Intl.DateTimeFormat('en-CA', { timeZone, year:'numeric', month:'2-digit', day:'2-digit' }).formatToParts(now);
+	const values = Object.fromEntries(parts.filter(part => part.type !== 'literal').map(part => [part.type, Number(part.value)]));
+	return createLocalDate(values.year, values.month, values.day);
 }
 
-function parseDeepLinkDate() {
-	const match = matchDeepLinkRoute();
-	if (!match) return null;
-	return createLocalDate(Number(match[1]), Number(match[2]), Number(match[3]));
+function getBasisTimeZone() {
+	return state.basis === 'beijing' ? BEIJING_TIME_ZONE : deviceTimeZone;
 }
 
-function parseHashDate() {
-	const match = location.hash.match(/^#(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
-	if (!match) return null;
-	return createLocalDate(Number(match[1]), Number(match[2]), Number(match[3]));
+function getToday() {
+	return dateInTimeZone(new Date(), getBasisTimeZone());
 }
 
 function isSupportedDate(date) {
@@ -58,608 +100,468 @@ function isSupportedDate(date) {
 }
 
 function clampDate(date) {
-	if (!date || Number.isNaN(date.getTime())) return getLocalToday();
-	if (date < startDate) return startDate;
-	if (date > endDate) return endDate;
+	if (!date || Number.isNaN(date.getTime())) return getToday();
+	if (date < startDate) return new Date(startDate);
+	if (date > endDate) return new Date(endDate);
 	return date;
 }
 
 function isSameDate(first, second) {
-	return first.getFullYear() === second.getFullYear() &&
-		first.getMonth() === second.getMonth() &&
-		first.getDate() === second.getDate();
+	return Boolean(first && second) && formatDate(first) === formatDate(second);
 }
 
-function rememberHistoryLocation() {
-	lastHistoryLocation = `${location.pathname}${location.search}${location.hash}`;
+function parseRouteDate() {
+	const match = location.pathname.match(/\/date\/(\d{4})-(\d{2})-(\d{2})\/?$/);
+	return match ? createLocalDate(Number(match[1]), Number(match[2]), Number(match[3])) : null;
+}
+
+function parseHashDate() {
+	const match = location.hash.match(/^#(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
+	return match ? createLocalDate(Number(match[1]), Number(match[2]), Number(match[3])) : null;
 }
 
 function getRequestedDate() {
-	const deepLinkMatch = matchDeepLinkRoute();
-	if (deepLinkMatch) {
-		const deepLinkDate = parseDeepLinkDate();
-		if (!deepLinkDate) {
-			history.replaceState({}, '', basePath);
-			rememberHistoryLocation();
-			return clampDate(getLocalToday());
-		}
-		const date = clampDate(deepLinkDate);
-		if (!isSameDate(deepLinkDate, date) || location.hash) {
-			history.replaceState(history.state, '', `${basePath}date/${formatDate(date)}`);
-			rememberHistoryLocation();
-		}
-		return date;
-	}
-
-	const hashDate = parseHashDate();
-	if (hashDate) {
-		const date = clampDate(hashDate);
-		if (!isSameDate(hashDate, date)) {
-			history.replaceState(history.state, '', `${basePath}#${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`);
-			rememberHistoryLocation();
-		}
-		return date;
-	}
-	if (/^#\d{4}\/\d{1,2}\/\d{1,2}$/.test(location.hash)) {
-		history.replaceState(history.state, '', basePath);
-		rememberHistoryLocation();
-	}
-
-	return clampDate(getLocalToday());
+	return clampDate(parseRouteDate() || parseHashDate() || getToday());
 }
 
-function zangli_callback() {
-	if (!document.body || !$("selectedDay") || !$("selectedDayBottom")) return;
-
-	$m = $("month");
-	$y = $("year");
-	const date = getRequestedDate();
-	const currentToday = getLocalToday();
-
-	updateSelectedDayDisplay(date);
-	selectedCell = null;
-	hideFestivalTooltip();
-
-	$y.options.length = 0;
-	for (let year = 1951; year < 2052; year++) {
-		$y.appendChild(new Option(year));
+function getYearLabel(zangli) {
+	if (locale === 'en') {
+		const elements = ['Iron','Water','Wood','Fire','Earth'];
+		const animals = ['Tiger','Rabbit','Dragon','Snake','Horse','Sheep','Monkey','Bird','Dog','Pig','Mouse','Ox'];
+		return `${elements[zangli.elementIndex]} ${animals[zangli.animalIndex]}`;
 	}
-
-	$m.options.length = 0;
-	for (let month = 1; month < 13; month++) {
-		if (!(date.getFullYear() === 2051 && month > 2)) {
-			$m.appendChild(new Option(month));
-		}
+	if (locale === 'bo') {
+		const elements = ['ལྕགས','ཆུ','ཤིང','མེ','ས'];
+		const animals = ['སྟག','ཡོས','འབྲུག','སྦྲུལ','རྟ','ལུག','སྤྲེལ','བྱ','ཁྱི','ཕག','བྱི','གླང'];
+		return `${elements[zangli.elementIndex]} ${animals[zangli.animalIndex]}`;
 	}
-	$y.value = date.getFullYear();
-	$m.value = date.getMonth() + 1;
+	return trans(zangli.year);
+}
 
+function formatTibetanDate(zangli, compact = false) {
+	const leapMonth = zangli.monthLeap ? (locale === 'en' ? 'Leap ' : locale === 'bo' ? 'ཟླ་བཤོལ་ ' : trans('闰')) : '';
+	const repeated = zangli.dayLeap ? (locale === 'en' ? 'Repeated ' : locale === 'bo' ? 'ཚེས་ལྷག་ ' : trans('闰')) : '';
+	if (locale === 'en') return `${compact ? '' : `${getYearLabel(zangli)} · `}${leapMonth}Month ${zangli.monthNumber}, ${repeated}Day ${zangli.dayNumber}`;
+	if (locale === 'bo') return `${compact ? '' : `${getYearLabel(zangli)} · `}${leapMonth}ཟླ་ ${zangli.monthNumber} · ${repeated}ཚེས་ ${zangli.dayNumber}`;
+	const year = compact ? '' : `${getYearLabel(zangli)}${trans('年')}`;
+	return `${year}${leapMonth}${zangli.monthNumber}${trans('月')}${repeated}${zangli.dayNumber}${trans('日')}`;
+}
+
+function formatGregorian(date, options = {}) {
+	return new Intl.DateTimeFormat(intlLocale, { year:'numeric', month: options.short ? 'short' : 'long', day:'numeric', ...(options.weekday ? { weekday:'long' } : {}) }).format(date);
+}
+
+function formatMonthTitle(date) {
+	if (locale === 'en') return new Intl.DateTimeFormat('en-CA', { year:'numeric', month:'long' }).format(date);
+	if (locale === 'bo') return `${date.getFullYear()} · ཟླ་ ${date.getMonth() + 1}`;
+	return msg('monthTitle', { year: String(date.getFullYear()), month: String(date.getMonth() + 1) });
+}
+
+function formatZoneName(timeZone) {
+	const city = timeZone.split('/').pop().replaceAll('_', ' ');
+	try {
+		const zone = new Intl.DateTimeFormat(intlLocale, { timeZone, timeZoneName:'short' }).formatToParts(new Date()).find(part => part.type === 'timeZoneName');
+		return `${city} · ${zone ? zone.value : timeZone}`;
+	} catch (error) { return timeZone; }
+}
+
+function cleanInfo(value) {
+	return stripHTML(value || '').replace(/\s+/g, ' ');
+}
+
+function eventTypes(zangli, eclipse) {
+	const types = [];
+	if (cleanInfo(zangli.extraInfo)) types.push('festival');
+	if (cleanInfo(zangli.extraInfo2)) types.push('multiplier');
+	if (eclipse.value) types.push('eclipse');
+	return types;
+}
+
+function eventTitle(event, fallback = true) {
+	const titles = [];
+	if (cleanInfo(event.zangli.extraInfo)) titles.push(cleanInfo(event.zangli.extraInfo));
+	if (!titles.length && cleanInfo(event.zangli.extraInfo2)) titles.push(cleanInfo(event.zangli.extraInfo2));
+	if (event.eclipse.value) titles.push(event.eclipse.value);
+	return titles.join(' · ') || (fallback ? msg('observance') : '');
+}
+
+function scanEvents(from, to) {
+	const events = [];
+	for (let date = new Date(from); date <= to && date <= endDate; date = addDays(date, 1)) {
+		if (!isSupportedDate(date)) continue;
+		const zangli = getZangli(date);
+		const eclipse = getEclipse(date);
+		const types = eventTypes(zangli, eclipse);
+		if (types.length) events.push({ date: new Date(date), zangli, eclipse, types });
+	}
+	return events;
+}
+
+function renderBasis() {
+	const localToday = dateInTimeZone(new Date(), deviceTimeZone);
+	const beijingToday = dateInTimeZone(new Date(), BEIJING_TIME_ZONE);
+	const basisText = state.basis === 'beijing' ? msg('beijingBasis') : msg('localBasis');
+	$('basisLabel').textContent = `${basisText} · ${formatZoneName(getBasisTimeZone())}`;
+	$('basisButton').title = `${msg('lookupNote')} · ${formatZoneName(getBasisTimeZone())}`;
+	const notice = $('dateDiscrepancy');
+	if (!isSameDate(localToday, beijingToday)) {
+		notice.textContent = msg('discrepancy', { local: formatGregorian(localToday), beijing: formatGregorian(beijingToday), basis: basisText });
+		notice.hidden = false;
+	} else notice.hidden = true;
+	document.querySelectorAll('input[name="dateBasis"]').forEach(input => { input.checked = input.value === state.basis; });
+}
+
+function renderSelectedDay(date) {
+	const zangli = getZangli(date);
+	const festival = cleanInfo(zangli.extraInfo);
+	const multiplier = cleanInfo(zangli.extraInfo2);
+	$('selectedDay').innerHTML = `<p class="section-kicker">${escapeHTML(msg('selectedDate'))}</p><p class="gregorian-date">${escapeHTML(formatGregorian(date, { weekday:true }))}</p><p class="tibetan-date">${escapeHTML(formatTibetanDate(zangli))}</p>${festival ? `<p class="selected-event">${escapeHTML(festival)}</p>` : ''}${multiplier ? `<p class="selected-multiplier">${escapeHTML(multiplier)}</p>` : ''}`;
+}
+
+function renderNextEvent() {
+	const today = clampDate(getToday());
+	const events = scanEvents(today, addDays(today, 370));
+	const event = events[0];
+	if (!event) {
+		$('nextSpecialDay').innerHTML = `<p class="section-kicker">${escapeHTML(msg('observance'))}</p><p>${escapeHTML(msg('noNext'))}</p>`;
+		return;
+	}
+	const days = Math.round((event.date - today) / 86400000);
+	const distance = days === 0 ? msg('nextToday') : msg('nextIn', { days: String(days) });
+	$('nextSpecialDay').innerHTML = `<p class="section-kicker">${escapeHTML(distance)}</p><h2>${escapeHTML(eventTitle(event))}</h2><p>${escapeHTML(formatGregorian(event.date, { weekday:true }))}</p><p class="muted">${escapeHTML(formatTibetanDate(event.zangli, true))}</p><button class="inline-link" type="button" data-open-date="${formatDate(event.date)}">${escapeHTML(msg('viewDate'))} →</button>`;
+}
+
+function populatePeriodSelects(date) {
+	const yearSelect = $('year');
+	if (!yearSelect.options.length) {
+		for (let year = 1951; year <= 2051; year++) yearSelect.appendChild(new Option(year, year));
+		for (let year = 1951; year <= 2051; year++) $('reverseYear').appendChild(new Option(year, year));
+	}
+	const monthSelect = $('month');
+	monthSelect.options.length = 0;
+	for (let month = 1; month <= 12; month++) monthSelect.appendChild(new Option(month, month));
+	yearSelect.value = date.getFullYear();
+	monthSelect.value = date.getMonth() + 1;
+	$('reverseYear').value = date.getFullYear();
+}
+
+function renderCalendar(date) {
 	const tbody = document.querySelector('.calendar-table tbody');
-	while (tbody.rows.length > 1) {
-		tbody.deleteRow(tbody.rows.length - 1);
-	}
-
-	const firstDay = new Date(date.getFullYear(), date.getMonth(), 1, 12, 0, 0);
-	const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0, 12, 0, 0);
+	tbody.replaceChildren();
+	const firstDay = createLocalDate(date.getFullYear(), date.getMonth() + 1, 1);
+	const lastDay = createLocalDate(date.getFullYear(), date.getMonth() + 2, 0) || new Date(date.getFullYear(), date.getMonth() + 1, 0, 12);
+	const today = getToday();
 	let row = tbody.insertRow();
-	for (let blank = 0; blank < firstDay.getDay(); blank++) {
-		row.insertCell();
-	}
-
-	let calendarDate = firstDay;
+	for (let index = 0; index < firstDay.getDay(); index++) row.insertCell().className = 'empty-cell';
 	for (let day = 1; day <= lastDay.getDate(); day++) {
-		calendarDate = new Date(date.getFullYear(), date.getMonth(), day, 12, 0, 0);
-		if (calendarDate.getDay() === 0 && day !== 1) {
-			row = tbody.insertRow();
-		}
-		if (!isSupportedDate(calendarDate)) {
-			const cell = row.insertCell();
-			cell.className = 'out-of-range';
-			cell.innerHTML = `<div class="day-number">${day}</div>`;
-			cell.setAttribute('aria-disabled', 'true');
-			continue;
-		}
-
-		const zangli = getZangli(calendarDate);
-		const eclipse = getEclipse(calendarDate);
-		const isToday =
-			calendarDate.getFullYear() === currentToday.getFullYear() &&
-			calendarDate.getMonth() === currentToday.getMonth() &&
-			calendarDate.getDate() === currentToday.getDate();
-		const isFestival = Boolean(
-			zangli.extraInfo &&
-			zangli.extraInfo.trim() !== '' &&
-			zangli.extraInfo !== '&nbsp;'
-		);
-		const festivalClass = isFestival ? ' festival' : '';
-		const parts = [];
-
-		if (day === 1) {
-			parts.push(trans(`<div class="day-number first-day"><span class="wide">${date.getFullYear()}年${date.getMonth() + 1}月1日</span><span class="narrow">${day}</span>`));
-		} else {
-			parts.push(`<div class="day-number">${day}`);
-		}
-
-		parts.push(`</div><div class="lunar-date${festivalClass}">`);
-		if (zangli.day === trans('初一') || (zangli.day === trans('初二') && zangli.dayMiss)) {
-			const yearPrefix = zangli.month === trans('正') && !zangli.monthLeap
-				? `${zangli.year}${trans('年')}<br>`
-				: '';
-			parts.push(`<span class="lunar-month">${yearPrefix}${zangli.month}${trans('月')}</span><br>${zangli.day}`);
-		} else if (zangli.value !== 'error') {
-			parts.push(zangli.day);
-		}
-		parts.push('</div><div class="extra-info wide">');
-		parts.push(zangli.extraInfo || '&nbsp;');
-		parts.push('</div><div class="eclipse-info wide">');
-		parts.push(
-			eclipse.value
-				? `${eclipse.value},${eclipse.extraInfo.replace(/，/, ',<br>')}`
-				: (zangli.extraInfo2 || '&nbsp;')
-		);
-		parts.push('</div>');
-
+		const current = createLocalDate(date.getFullYear(), date.getMonth() + 1, day);
+		if (current.getDay() === 0 && day !== 1) row = tbody.insertRow();
 		const cell = row.insertCell();
-		cell.innerHTML = parts.join('');
-		cell.dataset.date = formatDate(calendarDate);
+		if (!isSupportedDate(current)) {
+			cell.className = 'out-of-range'; cell.innerHTML = `<span class="day-number">${day}</span>`; continue;
+		}
+		const zangli = getZangli(current);
+		const eclipse = getEclipse(current);
+		const types = eventTypes(zangli, eclipse);
+		cell.dataset.date = formatDate(current);
 		cell.tabIndex = 0;
 		cell.setAttribute('role', 'button');
-
-		if (isToday) cell.classList.add('today');
-		if (zangli.value !== 'error') {
-			cell.title = trans(`公历${calendarDate.getFullYear()}年${calendarDate.getMonth() + 1}月${calendarDate.getDate()}日，藏历${zangli.value}`);
-		}
-		if (eclipse.value) {
-			cell.title = trans(`${cell.title},${eclipse.value}`);
-			cell.classList.add(/日/.test(eclipse.value) ? 'solareclipse' : 'lunareclipse');
-		}
-		if (eclipse.extraInfo) {
-			cell.title = trans(`${cell.title},${eclipse.extraInfo}`);
-		}
-		cell.setAttribute('aria-label', cell.title);
+		cell.classList.toggle('today', isSameDate(current, today));
+		cell.classList.toggle('selected', state.activeDate && isSameDate(current, state.activeDate));
+		for (const type of types) cell.classList.add(`has-${type}`);
+		const shortTibetan = zangli.dayNumber === 1 || (zangli.dayNumber === 2 && zangli.dayMiss)
+			? msg('monthShort', { month: `${zangli.monthLeap ? trans('闰') : ''}${zangli.monthNumber}` })
+			: msg('dayShort', { day: String(zangli.dayNumber) });
+		const eventLabel = eventTitle({ zangli, eclipse }, false);
+		const label = `${formatGregorian(current, { weekday:true })}. ${formatTibetanDate(zangli)}${eventLabel ? `. ${eventLabel}` : ''}`;
+		cell.setAttribute('aria-label', label);
+		cell.title = label;
+		cell.innerHTML = `<span class="day-number">${day}</span><span class="lunar-date">${escapeHTML(shortTibetan)}</span><span class="cell-markers" aria-hidden="true">${types.map(type => `<i class="${type}-marker"></i>`).join('')}</span><span class="cell-event wide">${escapeHTML(cleanInfo(zangli.extraInfo) || eclipse.value || '')}</span>`;
 	}
+	while (row.cells.length < 7) row.insertCell().className = 'empty-cell';
+}
 
-	for (let blank = calendarDate.getDay(); blank < 6; blank++) {
-		row.insertCell();
+function renderAnnualList() {
+	const year = Number($('year').value);
+	const from = createLocalDate(year, 1, 1) < startDate ? startDate : createLocalDate(year, 1, 1);
+	const to = createLocalDate(year, 12, 31) > endDate ? endDate : createLocalDate(year, 12, 31);
+	state.annualEvents = scanEvents(from, to);
+	const filter = $('annualFilter').value;
+	const events = state.annualEvents.filter(event => filter === 'all' || event.types.includes(filter));
+	$('annualSummary').textContent = msg('events', { year: String(year), count: String(events.length) });
+	const list = $('annualList');
+	list.replaceChildren();
+	if (!events.length) {
+		list.innerHTML = `<li class="empty-state">${escapeHTML(msg('noEvents'))}</li>`;
+		return;
 	}
-	if (focusCalendarAfterRender) {
-		const focusTarget = tbody.querySelector(`td[data-date="${formatDate(date)}"]`) ||
-			tbody.querySelector('td[role="button"]');
-		focusCalendarAfterRender = false;
-		if (focusTarget) focusTarget.focus();
+	for (const event of events) {
+		const item = document.createElement('li');
+		item.className = 'event-row';
+		item.innerHTML = `<button type="button" data-open-date="${formatDate(event.date)}"><time datetime="${formatDate(event.date)}"><strong>${escapeHTML(new Intl.DateTimeFormat(intlLocale, { month:'short', day:'numeric' }).format(event.date))}</strong><span>${escapeHTML(formatTibetanDate(event.zangli, true))}</span></time><span class="event-copy"><strong>${escapeHTML(eventTitle(event))}</strong><span>${event.types.map(type => `<i class="type-pill ${type}">${escapeHTML(msg(type))}</i>`).join('')}</span></span><span aria-hidden="true">→</span></button>`;
+		list.appendChild(item);
 	}
 }
 
-function updateSelectedDayDisplay(date) {
-	const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0);
-	const zangli = getZangli(normalizedDate);
-	const dateText = trans(`公历${normalizedDate.getFullYear()}年${normalizedDate.getMonth() + 1}月${normalizedDate.getDate()}日，藏历${zangli.value}`);
-	let festivalInfo = '';
-
-	if (zangli.extraInfo && zangli.extraInfo.trim() !== '' && zangli.extraInfo !== '&nbsp;') {
-		festivalInfo = zangli.extraInfo.replace(/<br>/g, ' ');
-		if (zangli.extraInfo2 && zangli.extraInfo2.trim() !== '' && zangli.extraInfo2 !== '&nbsp;') {
-			festivalInfo += `, ${zangli.extraInfo2}`;
-		}
-	}
-
-	const festivalHtml = festivalInfo
-		? `<div class="festival-info">${festivalInfo}</div>`
-		: '';
-	$("selectedDay").innerHTML = dateText + festivalHtml;
-	$("selectedDayBottom").innerHTML = dateText + festivalHtml;
-}
-
-function getCalendarCell(target) {
-	if (!target) return null;
-	const cell = target.closest ? target.closest('td') : target;
-	return cell && cell.dataset && cell.dataset.date ? cell : null;
-}
-
-function showDay(target) {
-	const cell = getCalendarCell(target);
-	if (!cell) return;
-
-	if (selectedCell) selectedCell.classList.remove('selected');
-	selectedCell = cell;
-	cell.classList.add('selected');
-
-	const match = cell.dataset.date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-	if (!match) return;
-	const selectedDate = createLocalDate(Number(match[1]), Number(match[2]), Number(match[3]));
-	if (!selectedDate) return;
-
-	updateSelectedDayDisplay(selectedDate);
-	openDetail(selectedDate, cell);
-}
-
-function handleCalendarKeydown(event) {
-	if (event.key !== 'Enter' && event.key !== ' ') return;
-	const cell = getCalendarCell(event.target);
-	if (!cell) return;
-	event.preventDefault();
-	showDay(cell);
-}
-
-function showFestivalTooltip(cell) {
-	hideFestivalTooltip();
-	const info = cell.querySelector('.extra-info');
-	if (!info || !info.textContent.trim()) return;
-
-	const tooltip = document.createElement('div');
-	tooltip.className = 'festival-tooltip';
-	tooltip.id = 'festivalTooltip';
-	tooltip.innerHTML = `${info.innerHTML.replace(/<br>/g, ' ')}<button class="close-btn" type="button" aria-label="${trans('关闭')}">×</button>`;
-	tooltip.querySelector('button').addEventListener('click', hideFestivalTooltip);
-	document.body.appendChild(tooltip);
-
-	const cellRect = cell.getBoundingClientRect();
-	const tooltipRect = tooltip.getBoundingClientRect();
-	let left = cellRect.left + (cellRect.width - tooltipRect.width) / 2;
-	let top = cellRect.top - tooltipRect.height - 10;
-	left = Math.max(10, Math.min(left, window.innerWidth - tooltipRect.width - 10));
-	if (top < 10) top = cellRect.bottom + 10;
-	tooltip.style.left = `${left}px`;
-	tooltip.style.top = `${top}px`;
-	tooltip.style.display = 'block';
-	setTimeout(hideFestivalTooltip, 3000);
-}
-
-function hideFestivalTooltip() {
-	const tooltip = $('festivalTooltip');
-	if (tooltip) tooltip.remove();
+function renderApp(date = getRequestedDate()) {
+	date = clampDate(date);
+	populatePeriodSelects(date);
+	$('year').value = date.getFullYear();
+	$('month').value = date.getMonth() + 1;
+	$('monthTitle').textContent = formatMonthTitle(date);
+	renderBasis();
+	renderSelectedDay(date);
+	renderCalendar(date);
+	renderNextEvent();
+	renderAnnualList();
 }
 
 function navigateTo(year, month, day = 1) {
-	const candidate = new Date(year, month - 1, day, 12, 0, 0);
-	const date = clampDate(candidate);
-	const hash = `#${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
-
-	if (location.pathname !== basePath) {
-		history.replaceState({}, '', `${basePath}${hash}`);
-		rememberHistoryLocation();
-		zangli_callback();
-	} else if (location.hash === hash) {
-		zangli_callback();
-	} else {
-		location.hash = hash;
-	}
-	window.scrollTo(0, 0);
+	const target = clampDate(new Date(year, month - 1, day, 12, 0, 0));
+	const hash = `#${target.getFullYear()}/${target.getMonth() + 1}/${target.getDate()}`;
+	if (location.pathname !== basePath) history.replaceState({}, '', `${basePath}${hash}`);
+	else if (location.hash !== hash) history.pushState({}, '', hash);
+	renderApp(target);
+	$('calendarWorkspace').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start' });
 }
 
-function changeDate(code) {
-	if (!$m || !$y) return;
-	let month = Number($m.value);
-	let year = Number($y.value);
+function changeMonth(delta) { navigateTo(Number($('year').value), Number($('month').value) + delta); }
+function changeYear(delta) { navigateTo(Number($('year').value) + delta, Number($('month').value)); }
+function goToToday() { const today = getToday(); navigateTo(today.getFullYear(), today.getMonth() + 1, today.getDate()); }
 
-	if (code === 37) month--;
-	else if (code === 38) year--;
-	else if (code === 39) month++;
-	else if (code === 40) year++;
-	else if (code !== 'year' && code !== 'month') return;
-
-	navigateTo(year, month);
+function parseDataDate(value) {
+	const match = String(value).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+	return match ? createLocalDate(Number(match[1]), Number(match[2]), Number(match[3])) : null;
 }
 
-function goToToday() {
-	const currentToday = getLocalToday();
-	const alreadyToday =
-		Number($y.value) === currentToday.getFullYear() &&
-		Number($m.value) === currentToday.getMonth() + 1;
-	navigateTo(currentToday.getFullYear(), currentToday.getMonth() + 1, currentToday.getDate());
-	if (alreadyToday) {
-		const todayCell = document.querySelector('.calendar-table td.today');
-		if (todayCell) showDay(todayCell);
-	}
-}
-
-function changeYear(direction) {
-	navigateTo(Number($y.value) + direction, Number($m.value));
-}
-
-function changeMonth(direction) {
-	navigateTo(Number($y.value), Number($m.value) + direction);
-}
-
-function initDetailElements() {
-	detailMask = $('detailMask');
-	detailDialog = $('detailDialog');
-	detailContent = $('detailContent');
-}
-
-function setBackgroundInert(disabled) {
-	const container = document.querySelector('.container');
-	if (!container) return;
-	container.inert = disabled;
-	if (disabled) container.setAttribute('aria-hidden', 'true');
-	else container.removeAttribute('aria-hidden');
+function eclipseTime(timestamp, timeZone) {
+	return new Intl.DateTimeFormat(intlLocale, { timeZone, year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', hour12:false }).format(new Date(timestamp));
 }
 
 function buildDetailHTML(date) {
 	const zangli = getZangli(date);
 	const eclipse = getEclipse(date);
-	const weekDays = ['日', '一', '二', '三', '四', '五', '六'].map(trans);
-	let html = `<h3 id="detailTitle">${date.getFullYear()}${trans('年')}${date.getMonth() + 1}${trans('月')}${date.getDate()}${trans('日 周')}${weekDays[date.getDay()]}</h3>`;
-
-	html += '<div class="detail-section">';
-	html += `<h4>📖 ${trans('藏历信息')}</h4>`;
-	html += `<p><strong>${trans('藏历日期：')}</strong>${zangli.value}</p>`;
-	if (zangli.monthLeap) html += `<p><small>🔸 ${trans('闰月')}</small></p>`;
-	if (zangli.dayLeap) html += `<p><small>🔸 ${trans('闰日')}</small></p>`;
-	if (zangli.dayMiss) html += `<p><small>🔸 ${trans('缺日')}</small></p>`;
-	html += '</div>';
-
-	if (zangli.extraInfo && zangli.extraInfo.trim() !== '' && zangli.extraInfo !== '&nbsp;') {
-		html += '<div class="detail-section festival-section">';
-		html += `<h4>🎊 ${trans('节日庆典')}</h4>`;
-		html += `<p class="festival-info">${zangli.extraInfo}</p>`;
-		if (zangli.extraInfo2 && zangli.extraInfo2.trim() !== '' && zangli.extraInfo2 !== '&nbsp;') {
-			html += `<p class="festival-desc">${zangli.extraInfo2}</p>`;
-		}
-		html += '</div>';
-	}
-
+	let html = `<p class="section-kicker">${escapeHTML(msg('selectedDate'))}</p><h2 id="detailTitle">${escapeHTML(formatGregorian(date, { weekday:true }))}</h2><section class="detail-section"><h3>${escapeHTML(msg('tibetan'))}</h3><p class="detail-tibetan">${escapeHTML(formatTibetanDate(zangli))}</p><div class="status-row">${zangli.monthLeap ? `<span>${escapeHTML(msg('leapMonth'))}</span>` : ''}${zangli.dayLeap ? `<span>${escapeHTML(msg('repeated'))}</span>` : ''}${zangli.dayMiss ? `<span>${escapeHTML(msg('skipped'))}</span>` : ''}</div></section>`;
+	if (cleanInfo(zangli.extraInfo) || cleanInfo(zangli.extraInfo2)) html += `<section class="detail-section accent-section"><h3>${escapeHTML(msg('observance'))}</h3>${cleanInfo(zangli.extraInfo) ? `<p class="detail-event">${escapeHTML(cleanInfo(zangli.extraInfo))}</p>` : ''}${cleanInfo(zangli.extraInfo2) ? `<p>${escapeHTML(cleanInfo(zangli.extraInfo2))}</p>` : ''}</section>`;
 	if (eclipse.value) {
-		html += '<div class="detail-section eclipse-section">';
-		html += `<h4>🌙 ${trans('天象信息')}</h4>`;
-		html += `<p><strong>${eclipse.value}</strong></p>`;
-		if (eclipse.extraInfo) html += `<p>${eclipse.extraInfo}</p>`;
-		if (eclipse.extraInfo2) html += `<p>${eclipse.extraInfo2}</p>`;
-		html += '</div>';
+		html += `<section class="detail-section eclipse-section"><h3>${escapeHTML(msg('eclipse'))}</h3><p class="detail-event">${escapeHTML(eclipse.value)}</p>`;
+		if (eclipse.maximumTimestamp) html += `<dl class="time-grid"><div><dt>${escapeHTML(msg('localEclipse'))}</dt><dd>${escapeHTML(eclipseTime(eclipse.maximumTimestamp, deviceTimeZone))}</dd></div><div><dt>${escapeHTML(msg('beijingEclipse'))}</dt><dd>${escapeHTML(eclipseTime(eclipse.maximumTimestamp, BEIJING_TIME_ZONE))}</dd></div></dl>`;
+		html += `<p class="fine-print">${escapeHTML(msg('eclipseArchive'))}</p></section>`;
 	}
-
+	html += `<section class="detail-section source-section"><h3>${escapeHTML(msg('source'))}</h3><p>${escapeHTML(msg('localModeDetail'))}</p></section>`;
 	return html;
 }
 
-function copyWithLegacyFallback(text, successMessage) {
-	const legacyCopy = () => {
-		const textArea = document.createElement('textarea');
-		textArea.value = text;
-		textArea.setAttribute('readonly', '');
-		textArea.style.position = 'fixed';
-		textArea.style.opacity = '0';
-		textArea.style.pointerEvents = 'none';
-		document.body.appendChild(textArea);
-		textArea.select();
-		document.execCommand('copy');
-		textArea.remove();
-		showToast(successMessage);
-	};
-
-	if (navigator.clipboard && window.isSecureContext) {
-		navigator.clipboard.writeText(text).then(
-			() => showToast(successMessage),
-			legacyCopy
-		);
-	} else {
-		legacyCopy();
-	}
-}
-
-function copyDateInfo() {
-	if (!activeDate) return;
-	const zangli = getZangli(activeDate);
-	const eclipse = getEclipse(activeDate);
-	const weekDays = ['日', '一', '二', '三', '四', '五', '六'].map(trans);
-	let text = `${activeDate.getFullYear()}${trans('年')}${activeDate.getMonth() + 1}${trans('月')}${activeDate.getDate()}${trans('日 周')}${weekDays[activeDate.getDay()]}\n`;
-	text += `${trans('藏历：')}${zangli.value}\n`;
-
-	if (zangli.extraInfo && zangli.extraInfo.trim() !== '' && zangli.extraInfo !== '&nbsp;') {
-		text += `${trans('节日：')}${zangli.extraInfo.replace(/<br>/g, ' ')}\n`;
-		if (zangli.extraInfo2 && zangli.extraInfo2.trim() !== '' && zangli.extraInfo2 !== '&nbsp;') {
-			text += `${zangli.extraInfo2}\n`;
-		}
-	}
-	if (eclipse.value) {
-		text += `${trans('天象：')}${eclipse.value}\n`;
-		if (eclipse.extraInfo) text += `${eclipse.extraInfo.replace(/<br>/g, ' ')}\n`;
-	}
-
-	copyWithLegacyFallback(text, trans('日期信息已复制'));
+function setBackgroundInert(value) {
+	const shell = document.querySelector('.site-shell');
+	shell.inert = value;
+	if (value) shell.setAttribute('aria-hidden', 'true'); else shell.removeAttribute('aria-hidden');
 }
 
 function openDetail(date, anchor) {
-	if (!detailDialog) initDetailElements();
-	if (detailHideTimer) {
-		clearTimeout(detailHideTimer);
-		detailHideTimer = undefined;
-	}
-	activeDate = date;
-	previouslyFocusedElement = anchor || document.activeElement;
-	const isMobile = window.innerWidth <= 768;
-	detailDialog.classList.toggle('bottom-sheet', isMobile);
-	detailContent.innerHTML = buildDetailHTML(date);
-	detailMask.style.display = 'block';
-	detailDialog.style.display = 'block';
-	detailDialog.setAttribute('aria-hidden', 'false');
+	if (!isSupportedDate(date)) return;
+	state.activeDate = date;
+	state.previousFocus = anchor || document.activeElement;
+	$('detailContent').innerHTML = buildDetailHTML(date);
+	$('detailMask').style.display = 'block';
+	$('detailDialog').style.display = 'block';
+	$('detailDialog').setAttribute('aria-hidden', 'false');
+	$('detailDialog').classList.toggle('bottom-sheet', innerWidth <= 720);
+	requestAnimationFrame(() => $('detailDialog').classList.add('active'));
 	setBackgroundInert(true);
-	if (isMobile) requestAnimationFrame(() => detailDialog.classList.add('active'));
-	detailDialog.querySelector('.close-btn').focus();
-
+	$('closeDetailButton').focus();
 	const path = `${basePath}date/${formatDate(date)}`;
-	if (location.pathname !== path || location.hash) {
-		history.pushState({ zangliDetail: true }, '', path);
-		rememberHistoryLocation();
-	}
+	if (location.pathname !== path) history.pushState({ detail:true }, '', path);
 }
 
 function closeDetail(updateHistory = true) {
-	if (!detailDialog || detailDialog.style.display !== 'block') return;
-	if (detailHideTimer) {
-		clearTimeout(detailHideTimer);
-		detailHideTimer = undefined;
-	}
-	detailMask.style.display = 'none';
-	detailDialog.setAttribute('aria-hidden', 'true');
+	if ($('detailDialog').style.display !== 'block') return;
+	$('detailMask').style.display = 'none';
+	$('detailDialog').classList.remove('active');
+	$('detailDialog').setAttribute('aria-hidden', 'true');
 	setBackgroundInert(false);
-	if (detailDialog.classList.contains('bottom-sheet')) {
-		detailDialog.classList.remove('active');
-		detailHideTimer = setTimeout(() => {
-			detailDialog.style.display = 'none';
-			detailHideTimer = undefined;
-		}, 150);
-	} else {
-		detailDialog.style.display = 'none';
-	}
-	activeDate = null;
-	if (updateHistory && history.state && history.state.zangliDetail) {
-		focusCalendarAfterRender = true;
-		history.back();
-		return;
-	}
-	if (updateHistory && (location.pathname !== basePath || location.hash)) {
-		history.replaceState({}, '', basePath);
-		rememberHistoryLocation();
-		focusCalendarAfterRender = true;
-		zangli_callback();
-	}
-	if (previouslyFocusedElement && previouslyFocusedElement.isConnected && previouslyFocusedElement.focus) {
-		previouslyFocusedElement.focus();
-	}
+	setTimeout(() => { $('detailDialog').style.display = 'none'; }, 160);
+	if (updateHistory && location.pathname !== basePath) history.replaceState({}, '', `${basePath}#${state.activeDate.getFullYear()}/${state.activeDate.getMonth() + 1}/${state.activeDate.getDate()}`);
+	const previous = state.previousFocus;
+	state.activeDate = null;
+	if (previous && previous.isConnected) previous.focus();
 }
 
-function shareDate() {
-	if (!activeDate) return;
-	const dateText = `${activeDate.getFullYear()}${trans('年')}${activeDate.getMonth() + 1}${trans('月')}${activeDate.getDate()}${trans('日')}`;
-	const url = `${location.origin}${basePath}date/${formatDate(activeDate)}`;
-	const shareData = {
-		title: `${trans('百年藏历')} - ${dateText}`,
-		text: `${trans('查看')}${dateText}${trans('的藏历信息')}`,
-		url
-	};
+function openDateFromElement(element) {
+	const date = parseDataDate(element.dataset.openDate || element.closest('[data-date]')?.dataset.date);
+	if (date) openDetail(date, element);
+}
 
-	if (navigator.share) {
-		navigator.share(shareData).catch(error => {
-			if (error && error.name !== 'AbortError') {
-				copyWithLegacyFallback(url, trans('分享链接已复制'));
-			}
-		});
-	} else {
-		copyWithLegacyFallback(url, trans('分享链接已复制'));
+function copyText(text, success) {
+	const fallback = () => {
+		const area = document.createElement('textarea'); area.value = text; area.style.position = 'fixed'; area.style.opacity = '0'; document.body.appendChild(area); area.select(); document.execCommand('copy'); area.remove(); showToast(success);
+	};
+	if (navigator.clipboard && isSecureContext) navigator.clipboard.writeText(text).then(() => showToast(success), fallback); else fallback();
+}
+
+function activeDateText() {
+	if (!state.activeDate) return '';
+	const zangli = getZangli(state.activeDate); const eclipse = getEclipse(state.activeDate);
+	return [formatGregorian(state.activeDate, { weekday:true }), `${msg('tibetan')}: ${formatTibetanDate(zangli)}`, cleanInfo(zangli.extraInfo), cleanInfo(zangli.extraInfo2), eclipse.value].filter(Boolean).join('\n');
+}
+
+function copyDateInfo() { copyText(activeDateText(), msg('copied')); }
+
+function shareDate() {
+	if (!state.activeDate) return;
+	const url = `${location.origin}${basePath}date/${formatDate(state.activeDate)}`;
+	const data = { title: msg('copiedTitle'), text: activeDateText(), url };
+	if (navigator.share) navigator.share(data).catch(error => { if (error.name !== 'AbortError') copyText(url, msg('linkCopied')); });
+	else copyText(url, msg('linkCopied'));
+}
+
+function escapeIcs(value) { return String(value).replaceAll('\\', '\\\\').replaceAll(';', '\\;').replaceAll(',', '\\,').replaceAll('\n', '\\n'); }
+
+function foldIcsLine(line) {
+	const chunks = [];
+	let chunk = '';
+	for (const character of line) {
+		if (new TextEncoder().encode(chunk + character).length > 70) {
+			const hadTrailingSpace = chunk.endsWith(' ');
+			chunks.push(chunk.trimEnd());
+			chunk = `${hadTrailingSpace ? ' ' : ''}${character}`;
+		} else chunk += character;
 	}
+	chunks.push(chunk);
+	return chunks.join('\r\n ');
+}
+
+function createIcs(events, calendarName) {
+	const lines = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//zangli.org//Tibetan Calendar//EN','CALSCALE:GREGORIAN',`X-WR-CALNAME:${escapeIcs(calendarName)}`];
+	for (const event of events) {
+		const next = addDays(event.date, 1);
+		const detail = [cleanInfo(event.zangli.extraInfo2), event.eclipse.value].filter(Boolean).join(' · ');
+		lines.push('BEGIN:VEVENT',`UID:${formatDate(event.date)}-${event.types.join('-')}@zangli.org`,`DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')}`,`DTSTART;VALUE=DATE:${formatDate(event.date).replaceAll('-', '')}`,`DTEND;VALUE=DATE:${formatDate(next).replaceAll('-', '')}`,`SUMMARY:${escapeIcs(eventTitle(event))}`,`DESCRIPTION:${escapeIcs(msg('icsDescription', { tibetan: formatTibetanDate(event.zangli), detail }))}`,`URL:https://zangli.org${basePath}date/${formatDate(event.date)}`,'BEGIN:VALARM','TRIGGER:-P1D','ACTION:DISPLAY',`DESCRIPTION:${escapeIcs(eventTitle(event))}`,'END:VALARM','END:VEVENT');
+	}
+	lines.push('END:VCALENDAR');
+	return `${lines.map(foldIcsLine).join('\r\n')}\r\n`;
+}
+
+function downloadFile(name, content, type) {
+	const url = URL.createObjectURL(new Blob([content], { type }));
+	const link = document.createElement('a'); link.href = url; link.download = name; document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function addReminder() {
+	if (!state.activeDate) return;
+	const zangli = getZangli(state.activeDate), eclipse = getEclipse(state.activeDate);
+	const event = { date: state.activeDate, zangli, eclipse, types: eventTypes(zangli, eclipse).length ? eventTypes(zangli, eclipse) : ['festival'] };
+	downloadFile(`zangli-${formatDate(state.activeDate)}.ics`, createIcs([event], msg('copiedTitle')), 'text/calendar;charset=utf-8');
+	showToast(msg('reminderExported'));
+}
+
+function exportAnnual() {
+	const filter = $('annualFilter').value;
+	const events = state.annualEvents.filter(event => filter === 'all' || event.types.includes(filter));
+	const year = $('year').value;
+	downloadFile(`zangli-${year}-${filter}.ics`, createIcs(events, `${msg('copiedTitle')} ${year}`), 'text/calendar;charset=utf-8');
+	showToast(msg('calendarExported'));
+}
+
+function runReverseLookup(event) {
+	event.preventDefault();
+	const year = Number($('reverseYear').value), month = Number($('reverseMonth').value), day = Number($('reverseDay').value), includeLeap = $('reverseLeap').checked;
+	const results = [];
+	for (let date = createLocalDate(year, 1, 1); date <= createLocalDate(year, 12, 31); date = addDays(date, 1)) {
+		if (!isSupportedDate(date)) continue;
+		const zangli = getZangli(date);
+		if (zangli.monthNumber === month && zangli.dayNumber === day && (!zangli.monthLeap || includeLeap)) results.push({ date:new Date(date), zangli });
+	}
+	const container = $('reverseResults');
+	if (!results.length) { container.innerHTML = `<p class="empty-state">${escapeHTML(msg('reverseNone'))}</p>`; return; }
+	container.innerHTML = `<p class="panel-summary">${escapeHTML(msg('reverseFound', { count:String(results.length) }))}</p><div class="result-grid">${results.map(result => `<button type="button" data-open-date="${formatDate(result.date)}"><strong>${escapeHTML(formatGregorian(result.date, { weekday:true }))}</strong><span>${escapeHTML(formatTibetanDate(result.zangli))}</span>${result.zangli.dayLeap ? `<i>${escapeHTML(msg('repeated'))}</i>` : ''}${result.zangli.dayMiss ? `<i>${escapeHTML(msg('skipped'))}</i>` : ''}</button>`).join('')}</div>`;
 }
 
 function showToast(message) {
-	const toast = document.createElement('div');
-	toast.textContent = message;
-	toast.style.position = 'fixed';
-	toast.style.bottom = '20px';
-	toast.style.left = '50%';
-	toast.style.transform = 'translateX(-50%)';
-	toast.style.background = 'rgba(0,0,0,0.7)';
-	toast.style.color = '#fff';
-	toast.style.padding = '8px 12px';
-	toast.style.borderRadius = '4px';
-	toast.style.zIndex = '1002';
-	toast.setAttribute('role', 'status');
-	document.body.appendChild(toast);
-	setTimeout(() => toast.remove(), 2000);
+	const toast = document.createElement('div'); toast.className = 'toast'; toast.textContent = message; toast.setAttribute('role', 'status'); document.body.appendChild(toast); requestAnimationFrame(() => toast.classList.add('active')); setTimeout(() => { toast.classList.remove('active'); setTimeout(() => toast.remove(), 180); }, 2200);
 }
 
-function checkDeepLink() {
-	const date = parseDeepLinkDate();
-	if (!isSupportedDate(date)) return;
-	const cell = document.querySelector(`.calendar-table td[data-date="${formatDate(date)}"]`);
-	if (cell) showDay(cell);
+function switchLanguage(value) {
+	try { localStorage.setItem('zangli-language', value === 'zh-cn' ? 'zh-cn' : value); } catch (error) {}
+	const suffix = location.pathname.match(/\/date\/\d{4}-\d{2}-\d{2}\/?$/)?.[0] || '';
+	const prefix = value === 'zh-cn' ? '/' : `/${value}/`;
+	location.href = suffix ? `${prefix}${suffix.replace(/^\//, '')}` : `${prefix}${location.hash}`;
 }
 
-function handleHistoryChange() {
-	const hadDeepLink = Boolean(matchDeepLinkRoute());
-	if (hadDeepLink) zangli_callback();
-	const date = parseDeepLinkDate();
-	if (isSupportedDate(date)) {
-		if (!hadDeepLink) zangli_callback();
-		const cell = document.querySelector(`.calendar-table td[data-date="${formatDate(date)}"]`);
-		if (cell) showDay(cell);
-		return;
-	}
-	const wasDetailOpen = Boolean(
-		detailDialog &&
-		detailDialog.style.display === 'block' &&
-		detailDialog.getAttribute('aria-hidden') === 'false'
-	);
-	if (wasDetailOpen) focusCalendarAfterRender = true;
-	closeDetail(false);
-	zangli_callback();
+function applyTheme(theme = state.theme) {
+	state.theme = theme;
+	const dark = theme === 'dark' || (theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+	document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+	$('themeButton').setAttribute('aria-label', msg(dark ? 'themeLight' : 'themeDark'));
 }
 
-function scheduleHistoryChange() {
-	const locationKey = `${location.pathname}${location.search}${location.hash}`;
-	if (locationKey === lastHistoryLocation) return;
-	lastHistoryLocation = locationKey;
-	if (historySyncFrame) return;
-	historySyncFrame = requestAnimationFrame(() => {
-		historySyncFrame = undefined;
-		handleHistoryChange();
-		lastHistoryLocation = `${location.pathname}${location.search}${location.hash}`;
-	});
+function toggleTheme() {
+	const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+	localStorage.setItem('zangli-theme', next); applyTheme(next);
 }
 
-function trapDialogFocus(event) {
-	if (event.key !== 'Tab') return;
-	const focusable = [...detailDialog.querySelectorAll('button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])')]
-		.filter(element => element.offsetParent !== null);
-	if (!focusable.length) {
-		event.preventDefault();
-		detailDialog.focus();
-		return;
-	}
+function activatePanel(button) {
+	document.querySelectorAll('.tool-tab').forEach(tab => { const active = tab === button; tab.classList.toggle('active', active); tab.setAttribute('aria-selected', active); $(tab.dataset.panel).hidden = !active; });
+}
 
-	const first = focusable[0];
-	const last = focusable[focusable.length - 1];
-	if (!detailDialog.contains(document.activeElement)) {
-		event.preventDefault();
-		first.focus();
-	} else if (event.shiftKey && document.activeElement === first) {
-		event.preventDefault();
-		last.focus();
-	} else if (!event.shiftKey && document.activeElement === last) {
-		event.preventDefault();
-		first.focus();
-	}
+function handleDocumentClick(event) {
+	const openTarget = event.target.closest('[data-open-date], .calendar-table td[data-date]');
+	if (openTarget) { openDateFromElement(openTarget); return; }
+	const tab = event.target.closest('.tool-tab');
+	if (tab) activatePanel(tab);
 }
 
 function handleDocumentKeydown(event) {
-	if (event.key === 'Escape') {
-		closeDetail();
-		return;
-	}
-	if (detailDialog && detailDialog.style.display === 'block') {
-		trapDialogFocus(event);
-		if (event.key.toLowerCase() === 'c' && (event.ctrlKey || event.metaKey)) {
-			event.preventDefault();
-			copyDateInfo();
-		}
-		if (event.key.toLowerCase() === 's' && (event.ctrlKey || event.metaKey)) {
-			event.preventDefault();
-			shareDate();
-		}
-		return;
-	}
+	if (event.key === 'Escape') closeDetail();
+	const cell = event.target.closest?.('.calendar-table td[data-date]');
+	if (cell && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); openDateFromElement(cell); }
+}
 
-	const interactive = /^(A|BUTTON|INPUT|SELECT|TEXTAREA)$/i.test(event.target.tagName);
-	if (!interactive && ['ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown'].includes(event.key)) {
-		event.preventDefault();
-		focusCalendarAfterRender = Boolean(getCalendarCell(event.target));
-		changeDate(event.keyCode);
-	}
+function handleHistory() {
+	const routeDate = parseRouteDate();
+	if (routeDate) { renderApp(routeDate); openDetail(routeDate); }
+	else { closeDetail(false); renderApp(parseHashDate() || getToday()); }
+}
+
+function initSettings() {
+	$('settingsButton').addEventListener('click', () => $('settingsDialog').showModal());
+	$('basisButton').addEventListener('click', () => $('settingsDialog').showModal());
+	document.querySelectorAll('input[name="dateBasis"]').forEach(input => input.addEventListener('change', () => {
+		state.basis = input.value; localStorage.setItem('zangli-date-basis', state.basis); renderApp(getToday());
+	}));
+}
+
+function initPwa() {
+	if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').then(() => console.info(msg('offlineReady'))).catch(() => {});
+	window.addEventListener('beforeinstallprompt', event => { event.preventDefault(); state.deferredInstallPrompt = event; $('installButton').hidden = false; });
+	$('installButton').addEventListener('click', async () => {
+		if (!state.deferredInstallPrompt) { showToast(msg('installUnavailable')); return; }
+		state.deferredInstallPrompt.prompt(); await state.deferredInstallPrompt.userChoice; state.deferredInstallPrompt = null; $('installButton').hidden = true;
+	});
 }
 
 function initApp() {
-	initDetailElements();
-	const calendarBody = document.querySelector('.calendar-table tbody');
-	calendarBody.addEventListener('click', event => showDay(event.target));
-	calendarBody.addEventListener('keydown', handleCalendarKeydown);
-	detailMask.addEventListener('click', () => closeDetail());
+	applyTheme();
+	$('languageSelect').addEventListener('change', event => switchLanguage(event.target.value));
+	$('themeButton').addEventListener('click', toggleTheme);
+	$('prevMonthButton').addEventListener('click', () => changeMonth(-1));
+	$('nextMonthButton').addEventListener('click', () => changeMonth(1));
+	$('prevYearButton').addEventListener('click', () => changeYear(-1));
+	$('nextYearButton').addEventListener('click', () => changeYear(1));
+	$('todayButton').addEventListener('click', goToToday);
+	$('annualFilter').addEventListener('change', renderAnnualList);
+	$('exportYearButton').addEventListener('click', exportAnnual);
+	$('reverseForm').addEventListener('submit', runReverseLookup);
+	$('closeDetailButton').addEventListener('click', () => closeDetail());
+	$('detailMask').addEventListener('click', () => closeDetail());
+	$('copyButton').addEventListener('click', copyDateInfo);
+	$('shareButton').addEventListener('click', shareDate);
+	$('reminderButton').addEventListener('click', addReminder);
+	document.addEventListener('click', handleDocumentClick);
 	document.addEventListener('keydown', handleDocumentKeydown);
-	window.addEventListener('hashchange', scheduleHistoryChange);
-	window.addEventListener('popstate', scheduleHistoryChange);
-	zangli_callback();
-	checkDeepLink();
+	window.addEventListener('popstate', handleHistory);
+	initSettings(); initPwa(); renderApp();
+	const routeDate = parseRouteDate(); if (isSupportedDate(routeDate)) openDetail(routeDate);
 }
 
-if (document.readyState === 'loading') {
-	document.addEventListener('DOMContentLoaded', initApp, { once: true });
-} else {
-	initApp();
-}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initApp, { once:true }); else initApp();

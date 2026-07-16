@@ -1,33 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset
-      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-      xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
-            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-
-<url>
-  <loc>https://zangli.org/</loc>
-  <lastmod>2025-07-17T08:00:00+00:00</lastmod>
-  <changefreq>weekly</changefreq>
-  <priority>1.00</priority>
-  <image:image>
-    <image:loc>https://zangli.org/logo-250x250-circle.png</image:loc>
-    <image:title>百年藏历 - 在线藏历查询工具</image:title>
-    <image:caption>百年藏历应用图标</image:caption>
-  </image:image>
-</url>
-<url>
-  <loc>https://zangli.org/tw/</loc>
-  <lastmod>2025-07-17T08:00:00+00:00</lastmod>
-  <changefreq>weekly</changefreq>
-  <priority>0.90</priority>
-  <image:image>
-    <image:loc>https://zangli.org/logo-250x250-circle.png</image:loc>
-    <image:title>百年藏曆 - 線上藏曆查詢工具</image:title>
-    <image:caption>百年藏曆應用圖標</image:caption>
-  </image:image>
-</url>
-
-
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://zangli.org/</loc><lastmod>2026-07-16</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://zangli.org/tw/</loc><lastmod>2026-07-16</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://zangli.org/en/</loc><lastmod>2026-07-16</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://zangli.org/bo/</loc><lastmod>2026-07-16</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://zangli.org/widget/</loc><lastmod>2026-07-16</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
 </urlset>

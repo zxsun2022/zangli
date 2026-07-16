@@ -1,51 +1,21 @@
 {
-  "name": "百年藏历 - 在线藏历查询工具",
+  "id": "/",
+  "name": "百年藏历 - 现代历书",
   "short_name": "百年藏历",
-  "description": "提供1951年-2051年公历藏历对照查询，包含藏历节日、佛教殊胜日、日月食信息等详细信息",
+  "description": "1951–2051 公历藏历对照、殊胜日、提醒与反查",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#FFF8F0",
-  "theme_color": "#8B4513",
-  "orientation": "portrait-primary",
+  "background_color": "#f3efe5",
+  "theme_color": "#8f2f2c",
   "icons": [
-    {
-      "src": "/favicon-16x16.png",
-      "sizes": "16x16",
-      "type": "image/png"
-    },
-    {
-      "src": "/favicon-32x32.png",
-      "sizes": "32x32",
-      "type": "image/png"
-    },
-    {
-      "src": "/logo-192x192-circle.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/logo-250x250-circle.png",
-      "sizes": "250x250",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/logo-512x512-circle.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
+    { "src": "/logo-192x192-circle.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/logo-512x512-circle.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ],
   "categories": ["utilities", "lifestyle", "education"],
   "lang": "zh-CN",
-  "scope": "/",
-  "screenshots": [
-    {
-      "src": "/logo-250x250-circle.png",
-      "sizes": "250x250",
-      "type": "image/png",
-      "form_factor": "narrow"
-    }
+  "shortcuts": [
+    { "name": "今天", "url": "/", "icons": [{ "src": "/logo-192x192-circle.png", "sizes": "192x192" }] },
+    { "name": "桌面小组件", "url": "/widget/", "icons": [{ "src": "/logo-192x192-circle.png", "sizes": "192x192" }] }
   ]
 }

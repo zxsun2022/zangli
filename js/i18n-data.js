@@ -1,72 +1,22 @@
 (function () {
-  const phrases = [
-    ['复制', '複製'],
-    ['信息', '資訊'],
-    ['链接', '連結'],
-    ['公历', '公曆'],
-    ['藏历', '藏曆']
-  ];
+	const traditionalPhrases = [
+		['复制', '複製'], ['信息', '資訊'], ['链接', '連結'], ['公历', '公曆'], ['藏历', '藏曆']
+	];
+	const traditionalCharacters = {
+		'错':'錯','误':'誤','尝':'嘗','试':'試','数':'數','转':'轉','换':'換','类':'類','标':'標','准':'準','输':'輸','当':'當','于':'於','对':'對','关':'關','铁':'鐵','龙':'龍','马':'馬','鸡':'雞','猪':'豬','闰':'閏','变':'變','萨':'薩','净':'淨','贤':'賢','庄':'莊','严':'嚴','满':'滿','众':'眾','节':'節','禅':'禪','胜':'勝','恶':'惡','释':'釋','诞':'誕','药':'藥','师':'師','莲':'蓮','荟':'薈','弥':'彌','观':'觀','亿':'億','万':'萬','环':'環','点':'點','复':'復','圆':'圓','亏':'虧','两':'兩','后':'後','历':'曆','庆':'慶','闭':'閉','轮':'輪','链':'鏈','制':'製','周':'週','页':'頁','间':'間','显':'顯','设备':'裝置','术':'術','线':'線','择':'擇','览':'覽','导':'導','订':'訂','阅':'閱','设':'設','书':'書','据':'據','样':'樣','农':'農','这':'這','仅':'僅','计':'計','区':'區','异':'異','发':'發','现':'現','开':'開','离':'離','载':'載','应':'應','用':'用','项':'項','实':'實','录':'錄','毕':'畢','与':'與','为':'為','过':'過','见':'見','时':'時','华':'華','语':'語','网':'網','从':'從','属':'屬','气':'氣','张':'張','处':'處','个':'個','并':'並','证':'證','择':'擇'
+	};
 
-  const characters = {
-    '错': '錯',
-    '误': '誤',
-    '尝': '嘗',
-    '试': '試',
-    '数': '數',
-    '转': '轉',
-    '换': '換',
-    '类': '類',
-    '标': '標',
-    '准': '準',
-    '输': '輸',
-    '当': '當',
-    '于': '於',
-    '对': '對',
-    '关': '關',
-    '铁': '鐵',
-    '龙': '龍',
-    '马': '馬',
-    '鸡': '雞',
-    '猪': '豬',
-    '闰': '閏',
-    '变': '變',
-    '萨': '薩',
-    '净': '淨',
-    '贤': '賢',
-    '庄': '莊',
-    '严': '嚴',
-    '满': '滿',
-    '众': '眾',
-    '节': '節',
-    '禅': '禪',
-    '胜': '勝',
-    '恶': '惡',
-    '释': '釋',
-    '诞': '誕',
-    '药': '藥',
-    '师': '師',
-    '莲': '蓮',
-    '荟': '薈',
-    '弥': '彌',
-    '观': '觀',
-    '亿': '億',
-    '万': '萬',
-    '环': '環',
-    '点': '點',
-    '复': '復',
-    '圆': '圓',
-    '亏': '虧',
-    '两': '兩',
-    '后': '後',
-    '历': '曆',
-    '庆': '慶',
-    '闭': '閉',
-    '轮': '輪',
-    '链': '鏈',
-    '制': '製',
-    '周': '週'
-  };
+	const en = {
+		'百年藏历':'Tibetan Calendar 1951–2051','公历':'Gregorian','藏历':'Tibetan','今天':'Today','上一年':'Previous year','下一年':'Next year','上一月':'Previous month','下一月':'Next month','分享':'Share','关闭':'Close','复制信息':'Copy details','添加提醒':'Add reminder','日期信息已复制':'Date details copied','分享链接已复制':'Share link copied','关闭弹窗':'Close dialog','闰':'Leap ','闰月':'Leap month','闰日':'Repeated day','缺日':'Skipped day','藏历信息':'Tibetan calendar','节日庆典':'Practice day','天象信息':'Eclipse','藏历日期：':'Tibetan date: ','藏历：':'Tibetan: ','节日：':'Observance: ','天象：':'Eclipse: ','日全食':'Total solar eclipse','日偏食':'Partial solar eclipse','日环食':'Annular solar eclipse','混合日食':'Hybrid solar eclipse','月全食':'Total lunar eclipse','月偏食':'Partial lunar eclipse','混合月食':'Hybrid lunar eclipse','有':'','食甚':'Maximum ','初亏':'Begins ','复圆':', ends ','，复圆':', ends ','点':':','分':'','一天后有':'In one day: ','两天后有':'In two days: ',
+		'神变节':'Chotrul Düchen','禅定胜王佛节日':'Samadhi King Buddha practice day','释迦牟尼佛<br>初转法轮日':'Chökhor Düchen','释迦牟尼佛诞辰':'Birth of Shakyamuni Buddha','药师佛节日':'Medicine Buddha practice day','莲师荟供日':'Guru Rinpoche tsog','释迦牟尼佛<br>成道日涅槃日':'Saka Dawa Düchen','释迦牟尼佛入胎日':'Descent of Shakyamuni Buddha','阿弥陀佛节日':'Amitabha Buddha practice day','观音菩萨节日':'Chenrezig practice day','释迦牟尼佛天降日':'Lhabab Düchen','地藏王菩萨节日':'Kshitigarbha practice day','空行母荟供日':'Dakini tsog','释迦牟尼佛节日':'Shakyamuni Buddha practice day','作何善恶成百倍':'Actions are traditionally said to multiply 100×','作何善恶成千倍':'Actions are traditionally said to multiply 1,000×','作何善恶成十万倍':'Actions are traditionally said to multiply 100,000×','作何善恶成百万倍':'Actions are traditionally said to multiply 1,000,000×','作何善恶成千万倍':'Actions are traditionally said to multiply 10,000,000×','作何善恶成亿倍':'Actions are traditionally said to multiply 100,000,000×','作何善恶成九亿倍':'Actions are traditionally said to multiply 900,000,000×'
+	};
 
-  window.ZANGLI_TRADITIONAL_PHRASES = Object.freeze(phrases);
-  window.ZANGLI_TRADITIONAL_CHARACTERS = Object.freeze(characters);
+	const bo = {
+		'百年藏历':'བོད་ཀྱི་ལོ་ཐོ།','公历':'སྤྱི་ལོ།','藏历':'བོད་ཟླ།','今天':'དེ་རིང་།','上一年':'ལོ་སྔོན་མ།','下一年':'ལོ་རྗེས་མ།','上一月':'ཟླ་སྔོན་མ།','下一月':'ཟླ་རྗེས་མ།','分享':'མཉམ་སྤྱོད།','关闭':'སྒོ་རྒྱག','复制信息':'འདྲ་བཤུས།','添加提醒':'དྲན་སྐུལ།','日期信息已复制':'འདྲ་བཤུས་ཟིན།','分享链接已复制':'དྲ་ཐག་འདྲ་བཤུས་ཟིན།','闰':'ཟླ་བཤོལ་ ','闰月':'ཟླ་བཤོལ།','闰日':'ཚེས་ལྷག','缺日':'ཚེས་ཆད','藏历信息':'བོད་ཟླའི་གནས་ཚུལ།','节日庆典':'དུས་ཆེན།','天象信息':'ཉི་ཟླ་འཛིན་པ།','藏历日期：':'བོད་ཟླ། ','藏历：':'བོད་ཟླ། ','节日：':'དུས་ཆེན། ','天象：':'ཉི་ཟླ་འཛིན་པ། ','日全食':'ཉི་འཛིན་ཆ་ཚང་།','日偏食':'ཉི་འཛིན་ཆ་ཤས།','日环食':'ཉི་འཛིན་ཨ་ལོང་།','混合日食':'ཉི་འཛིན་འདྲེས་མ།','月全食':'ཟླ་འཛིན་ཆ་ཚང་།','月偏食':'ཟླ་འཛིན་ཆ་ཤས།','混合月食':'ཟླ་འཛིན་འདྲེས་མ།','有':'','食甚':'འཛིན་མཐར་ཐུག ','初亏':'འགོ་ཚུགས་པ ','复圆':', མཇུག་རྫོགས་པ ','，复圆':', མཇུག་རྫོགས་པ ','点':':','分':'','一天后有':'ཉིན་གཅིག་གི་རྗེས། ','两天后有':'ཉིན་གཉིས་ཀྱི་རྗེས། ',
+		'神变节':'Chotrul Düchen','禅定胜王佛节日':'Samadhi King Buddha','释迦牟尼佛<br>初转法轮日':'Chökhor Düchen','释迦牟尼佛诞辰':'Shakyamuni Buddha','药师佛节日':'Medicine Buddha','莲师荟供日':'Guru Rinpoche tsog','释迦牟尼佛<br>成道日涅槃日':'Saka Dawa Düchen','释迦牟尼佛入胎日':'Descent of Shakyamuni Buddha','阿弥陀佛节日':'Amitabha Buddha','观音菩萨节日':'Chenrezig','释迦牟尼佛天降日':'Lhabab Düchen','地藏王菩萨节日':'Kshitigarbha','空行母荟供日':'Dakini tsog','释迦牟尼佛节日':'Shakyamuni Buddha','作何善恶成百倍':'×100','作何善恶成千倍':'×1,000','作何善恶成十万倍':'×100,000','作何善恶成百万倍':'×1,000,000','作何善恶成千万倍':'×10,000,000','作何善恶成亿倍':'×100,000,000','作何善恶成九亿倍':'×900,000,000'
+	};
+
+	window.ZANGLI_TRADITIONAL_PHRASES = Object.freeze(traditionalPhrases);
+	window.ZANGLI_TRADITIONAL_CHARACTERS = Object.freeze(traditionalCharacters);
+	window.ZANGLI_MESSAGES = Object.freeze({ en: Object.freeze(en), bo: Object.freeze(bo) });
 })();

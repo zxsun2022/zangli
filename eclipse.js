@@ -46,7 +46,10 @@ var eclipseByBeijingDate=(function(){
 			type:eclipseType[eclipseData[1]],
 			value:trans("有")+eclipseType[eclipseData[1]],
 			extraInfo:maximumInfo,
-			extraInfo2:""
+			extraInfo2:"",
+			maximumTimestamp:eclipseData[0],
+			startTimestamp:eclipseData.length>2?eclipseData[2]:null,
+			endTimestamp:eclipseData.length>2?eclipseData[3]:null
 		};
 		if(eclipseData.length>2){
 			eclipseInfo.extraInfo=trans("初亏")+formatBeijingTime(eclipseData[2])+
@@ -65,6 +68,9 @@ function getEclipse(date){
 		result.value=todayInfo.value;
 		result.extraInfo=todayInfo.extraInfo;
 		result.extraInfo2=todayInfo.extraInfo2;
+		result.maximumTimestamp=todayInfo.maximumTimestamp;
+		result.startTimestamp=todayInfo.startTimestamp;
+		result.endTimestamp=todayInfo.endTimestamp;
 		return result;
 	}
 

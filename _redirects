@@ -1,0 +1,6 @@
+/zh-tw/* /tw/:splat 301
+/tw/date/* /tw/index.html 200
+/en/date/* /en/index.html 200
+/bo/date/* /bo/index.html 200
+/date/* /index.html 200
+/widget/* /widget/index.html 200
