@@ -1,0 +1,945 @@
+:root {
+	--primary-color: #8B4513;
+	--secondary-color: #CD853F;
+	--accent-color: #FF6B35;
+	--text-color: #2C1810;
+	--bg-color: #FFF8F0;
+	--card-bg: #FFFFFF;
+	--border-color: #E5D5C8;
+	--today-bg: #FFE4B5;
+	--today-border: #FF8C00;
+	--lunar-eclipse: #E6E6FF;
+	--solar-eclipse: #FFE6E6;
+	--shadow: 0 2px 10px rgba(139, 69, 19, 0.1);
+	--shadow-hover: 0 4px 20px rgba(139, 69, 19, 0.15);
+}
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body {
+	font-family: 'Segoe UI', 'Microsoft YaHei', '微软雅黑', Tahoma, Geneva, Verdana, sans-serif;
+	background: linear-gradient(135deg, var(--bg-color) 0%, #F5E6D3 100%);
+	color: var(--text-color);
+	line-height: 1.6;
+	min-height: 100vh;
+}
+
+.container {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 20px;
+}
+
+                        .header {
+                                text-align: center;
+                                margin-bottom: 20px;
+                                padding: 10px 20px;
+                                background: var(--card-bg);
+                                border-radius: 15px;
+                                box-shadow: var(--shadow);
+                                position: relative;
+                        }
+
+                        .lang-switch {
+                                position: absolute;
+                                top: 10px;
+                                right: 20px;
+                                font-size: 0.9rem;
+                        }
+
+.header h1 {
+	font-size: 2.5rem;
+	color: var(--primary-color);
+	margin-bottom: 10px;
+	font-weight: 700;
+}
+
+.header .subtitle {
+	font-size: 1.1rem;
+	color: var(--secondary-color);
+	margin-bottom: 0px;
+}
+
+.selected-day {
+	background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+	color: white;
+	padding: 15px 25px;
+	border-radius: 15px;
+	font-size: 1.2rem;
+	font-weight: 600;
+	box-shadow: var(--shadow);
+	margin-bottom: 10px;
+	text-align: center;
+	line-height: 1.3;
+	max-width: 90%;
+	height: 85px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	margin-left: auto;
+	margin-right: auto;
+	overflow: hidden;
+}
+
+.selected-day .festival-info {
+	font-size: 0.9rem;
+	margin-top: 3px;
+	margin-bottom: 0;
+	opacity: 0.95;
+	font-weight: 500;
+	line-height: 1.2;
+}
+
+.selected-day-bottom {
+	background: var(--card-bg);
+	border: 2px solid var(--primary-color);
+	border-radius: 15px;
+	padding: 20px;
+	margin: 30px 0;
+	text-align: center;
+	box-shadow: var(--shadow);
+	font-size: 1.1rem;
+	color: var(--text-color);
+	line-height: 1.3;
+	height: 100px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	overflow: hidden;
+}
+
+.selected-day-bottom .festival-info {
+	color: var(--accent-color);
+	font-weight: 600;
+	margin-top: 5px;
+	margin-bottom: 0;
+	font-size: 0.95rem;
+	line-height: 1.2;
+}
+
+.controls {
+	display: flex;
+	flex-direction: row !important;
+	justify-content: center;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 20px;
+	padding: 0 10px;
+}
+
+.controls label {
+	font-weight: 600;
+	color: var(--primary-color);
+	font-size: 1.1rem;
+}
+
+.controls select {
+	padding: 12px 20px;
+	border: 2px solid var(--border-color);
+	border-radius: 8px;
+	font-size: 1.1rem;
+	background: var(--card-bg);
+	color: var(--text-color);
+	cursor: pointer;
+	transition: all 0.3s ease;
+	min-width: 100px;
+}
+
+.controls select:hover {
+	border-color: var(--secondary-color);
+	box-shadow: 0 2px 8px rgba(139, 69, 19, 0.1);
+}
+
+.controls select:focus {
+	outline: none;
+	border-color: var(--primary-color);
+	box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+}
+
+.controls > .nav-btn, .controls > .nav-btn.today-btn {
+	flex: 1 1 0;
+	min-width: 0;
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.nav-btn, .nav-btn.today-btn {
+	min-width: 64px;
+	height: 42px;
+	padding: 0 18px;
+	border-radius: 16px;
+	font-size: 1rem;
+	font-weight: 600;
+	border: none;
+	box-shadow: 0 2px 8px rgba(139,69,19,0.08);
+	transition: all 0.18s cubic-bezier(.4,2,.6,1);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--card-bg);
+	color: var(--text-color);
+	cursor: pointer;
+}
+
+.nav-btn.today-btn {
+	background: linear-gradient(45deg, var(--accent-color), #FF8C42);
+	color: #fff;
+	box-shadow: 0 4px 16px rgba(255,107,53,0.12);
+}
+
+.nav-btn:hover, .nav-btn:focus {
+	transform: translateY(-2px) scale(1.04);
+	box-shadow: 0 6px 20px rgba(139,69,19,0.18);
+	z-index: 1;
+}
+
+.nav-btn:active {
+	transform: scale(0.98);
+}
+
+.nav-btn.prev-year,
+.nav-btn.next-year {
+	background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+	color: white;
+	border-color: var(--primary-color);
+	flex: 1;
+}
+
+.nav-btn.prev-month,
+.nav-btn.next-month {
+	background: linear-gradient(45deg, var(--secondary-color), #DEB887);
+	color: var(--text-color);
+	border-color: var(--secondary-color);
+	flex: 1;
+}
+
+/* 移动端响应式设计 */
+@media (max-width: 768px) {
+	.controls {
+		gap: 6px;
+		padding: 0 4px;
+	}
+	.nav-btn, .nav-btn.today-btn {
+		min-width: 48px;
+		height: 36px;
+		font-size: 0.95rem;
+		border-radius: 12px;
+		padding: 0 8px;
+	}
+}
+
+@media (max-width: 480px) {
+	.controls {
+		gap: 3px;
+		padding: 0 3px;
+	}
+
+	.nav-btn, .nav-btn.today-btn {
+		height: 32px;
+		line-height: 32px;
+	}
+
+	.nav-btn {
+		padding: 8px 3px;
+		font-size: 0.75rem;
+		min-width: 0;
+		flex: 1;
+	}
+
+	.nav-btn span {
+		display: none;
+	}
+
+	.nav-btn.prev-year::after {
+		content: "◀年";
+	}
+
+	.nav-btn.next-year::after {
+		content: "年▶";
+	}
+
+	.nav-btn.prev-month::after {
+		content: "◀月";
+	}
+
+	.nav-btn.next-month::after {
+		content: "月▶";
+	}
+
+	.nav-btn.today-btn {
+		font-size: 0;
+		flex: 1;
+	}
+
+	.nav-btn.today-btn::after {
+		content: "今天";
+		font-size: 0.75rem;
+	}
+}
+
+@media (max-width: 360px) {
+	.controls {
+		gap: 2px;
+		padding: 0 2px;
+	}
+
+	.nav-btn {
+		padding: 6px 2px;
+		font-size: 0.7rem;
+		min-width: 0;
+		flex: 1;
+	}
+}
+
+.calendar-container {
+	background: var(--card-bg);
+	border-radius: 15px;
+	box-shadow: var(--shadow);
+	overflow: hidden;
+	margin-bottom: 30px;
+}
+
+.calendar-table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.calendar-table th {
+	background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+	color: white;
+	padding: 15px 8px;
+	font-weight: 600;
+	font-size: 1rem;
+	text-align: center;
+	border: none;
+	white-space: nowrap;
+}
+
+.calendar-table td {
+	border: 1px solid var(--border-color);
+	padding: 8px;
+	vertical-align: top;
+	height: 100px;
+	width: 14.28%;
+	position: relative;
+	cursor: pointer;
+	transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+	background: var(--card-bg);
+}
+
+.calendar-table td:active {
+	transform: scale(0.98);
+	transition: transform 0.05s ease;
+}
+
+.calendar-table td:not(:active) {
+	transition: transform 0.1s ease;
+}
+
+.calendar-table td:hover {
+	background: #F8F8F8;
+	box-shadow: inset 0 0 10px rgba(139, 69, 19, 0.1);
+}
+
+.calendar-table td:empty {
+	cursor: default;
+}
+
+.calendar-table td.out-of-range {
+	background: var(--bg-color);
+	cursor: not-allowed;
+	box-shadow: none;
+}
+
+.calendar-table td.out-of-range .day-number {
+	opacity: 0.35;
+}
+
+.calendar-table td[role="button"]:focus-visible {
+	outline: 3px solid #4A90E2;
+	outline-offset: -3px;
+	box-shadow: inset 0 0 0 2px #FFFFFF;
+}
+
+.calendar-table td.today {
+	background: var(--today-bg);
+	border: 2px solid var(--today-border);
+	box-shadow: 0 0 15px rgba(255, 140, 0, 0.3);
+}
+
+.calendar-table td.today::before {
+	content: "今天";
+	position: absolute;
+	top: 2px;
+	right: 2px;
+	background: var(--accent-color);
+	color: white;
+	font-size: 0.7rem;
+	padding: 2px 6px;
+	border-radius: 10px;
+	font-weight: 600;
+}
+
+.calendar-table td.selected {
+	background: #E8F4FD !important;
+	border: 2px solid #4A90E2 !important;
+	box-shadow: 0 0 10px rgba(74, 144, 226, 0.3) !important;
+	transition: none !important;
+}
+
+.calendar-table td.selected.today {
+	background: linear-gradient(135deg, var(--today-bg) 0%, #E8F4FD 100%) !important;
+	border: 2px solid var(--today-border) !important;
+	box-shadow: 0 0 15px rgba(255, 140, 0, 0.4) !important;
+	transition: none !important;
+}
+
+.day-number {
+	font-size: 1.2rem;
+	font-weight: 600;
+	color: var(--text-color);
+	margin-bottom: 4px;
+}
+
+.day-number.first-day {
+	text-align: center;
+}
+
+.lunar-date {
+	font-size: 1rem;
+	color: var(--primary-color);
+	font-weight: 600;
+	margin-bottom: 2px;
+	text-align: center;
+}
+
+.lunar-date.festival {
+	position: relative;
+}
+
+.lunar-date.festival::before {
+	content: "🎉";
+	position: absolute;
+	top: -2px;
+	right: -2px;
+	font-size: 0.6rem;
+	opacity: 0.8;
+	animation: festivalPulse 2s infinite;
+}
+
+@keyframes festivalPulse {
+	0%, 100% { transform: scale(1); opacity: 0.8; }
+	50% { transform: scale(1.2); opacity: 1; }
+}
+
+.lunar-month {
+	color: var(--accent-color);
+	font-weight: 700;
+}
+
+.extra-info {
+	font-size: 0.8rem;
+	color: var(--secondary-color);
+	text-align: center;
+	line-height: 1.2;
+}
+
+.eclipse-info {
+	font-size: 0.75rem;
+	color: #666;
+	text-align: center;
+	margin-top: 2px;
+}
+
+.lunareclipse {
+	background: var(--lunar-eclipse) !important;
+}
+
+.solareclipse {
+	background: var(--solar-eclipse) !important;
+}
+
+.info-section {
+	background: var(--card-bg);
+	border-radius: 15px;
+	padding: 25px;
+	box-shadow: var(--shadow);
+	margin-bottom: 20px;
+}
+
+.info-section h3 {
+	color: var(--primary-color);
+	margin-bottom: 15px;
+	font-size: 1.3rem;
+}
+
+.info-section p {
+	margin-bottom: 10px;
+	color: var(--text-color);
+}
+
+.mobile-tip {
+	background: linear-gradient(45deg, var(--accent-color), #FF8C42);
+	color: white;
+	padding: 15px;
+	border-radius: 10px;
+	text-align: center;
+	font-weight: 600;
+	margin-bottom: 20px;
+}
+
+.navigation-hint {
+	text-align: center;
+	color: var(--secondary-color);
+	font-size: 0.9rem;
+	margin-bottom: 20px;
+	padding: 10px;
+	background: rgba(139, 69, 19, 0.05);
+	border-radius: 8px;
+}
+
+.festival-tooltip {
+	position: fixed;
+	background: var(--card-bg);
+	border: 2px solid var(--accent-color);
+	border-radius: 10px;
+	padding: 15px;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+	z-index: 1000;
+	max-width: 280px;
+	font-size: 0.9rem;
+	color: var(--text-color);
+	display: none;
+	animation: tooltipFadeIn 0.3s ease-out;
+}
+
+.festival-tooltip::before {
+	content: "🎉";
+	font-size: 1.2rem;
+	margin-right: 8px;
+}
+
+.festival-tooltip .close-btn {
+	position: absolute;
+	top: 5px;
+	right: 8px;
+	background: none;
+	border: none;
+	font-size: 1.2rem;
+	cursor: pointer;
+	color: var(--secondary-color);
+}
+
+@keyframes tooltipFadeIn {
+	from { opacity: 0; transform: scale(0.8); }
+	to { opacity: 1; transform: scale(1); }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+	.container {
+		padding: 10px;
+	}
+
+	.header h1 {
+		font-size: 2rem;
+	}
+
+	.selected-day {
+		height: 90px;
+		padding: 12px 20px;
+		font-size: 1.1rem;
+	}
+
+	.selected-day .festival-info {
+		font-size: 0.85rem;
+	}
+
+	.selected-day-bottom {
+		height: 110px;
+		padding: 15px;
+	}
+
+	.selected-day-bottom .festival-info {
+		font-size: 0.9rem;
+	}
+
+	.calendar-table td {
+		height: 60px;
+		padding: 4px;
+	}
+
+	.day-number {
+		font-size: 1rem;
+	}
+
+	.lunar-date {
+		font-size: 0.9rem;
+	}
+
+	.extra-info {
+		font-size: 0.7rem;
+	}
+
+	.eclipse-info {
+		font-size: 0.65rem;
+	}
+
+	.controls {
+		flex-direction: column;
+		gap: 10px;
+	}
+
+	.controls select {
+		width: 100%;
+		max-width: 200px;
+	}
+
+                                .today-btn {
+                                        width: 100%;
+                                        max-width: 200px;
+                                        margin-top: 0;
+                                }
+                        }
+
+@media (max-width: 480px) {
+	.calendar-table td {
+		height: 60px;
+		padding: 2px;
+	}
+
+	.day-number {
+		font-size: 0.9rem;
+	}
+
+	.lunar-date {
+		font-size: 0.8rem;
+	}
+
+	.extra-info {
+		display: none;
+	}
+
+	.eclipse-info {
+		font-size: 0.6rem;
+	}
+
+	.lunar-date.festival::before {
+		font-size: 0.5rem;
+		top: -1px;
+		right: -1px;
+	}
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.calendar-container {
+	animation: fadeIn 0.6s ease-out;
+}
+
+/* 隐藏/显示类 */
+.narrow { display: none; }
+.wide { display: block; }
+
+                        @media (max-width: 639px) {
+                                .narrow { display: block; }
+                                .wide { display: none; }
+                        }
+
+                        /* 日期详情弹层 */
+                        #detailMask {
+                                position: fixed;
+                                top: 0;
+                                left: 0;
+                                right: 0;
+                                bottom: 0;
+                                background: rgba(0,0,0,0.3);
+                                display: none;
+                                z-index: 999;
+                        }
+
+                        #detailDialog {
+                                background: var(--card-bg);
+                                border-radius: 12px;
+                                box-shadow: var(--shadow);
+                                padding: 20px;
+                                max-width: 480px;
+                                width: 90%;
+                                max-height: 85vh;
+                                overflow-y: auto;
+                                position: fixed;
+                                top: 50%;
+                                left: 50%;
+                                transform: translate(-50%, -50%);
+                                z-index: 1000;
+                                display: none;
+                        }
+
+                        #detailDialog.bottom-sheet {
+                                position: fixed;
+                                top: auto;
+                                left: 0;
+                                right: 0;
+                                bottom: 0;
+                                transform: translateY(100%);
+                                width: 100%;
+                                max-width: none;
+                                max-height: 80vh;
+                                overflow-y: auto;
+                                border-radius: 12px 12px 0 0;
+                                transition: transform 0.15s ease-out;
+                        }
+
+                        #detailDialog.bottom-sheet.active {
+                                transform: translateY(0);
+                        }
+
+                        #detailDialog .close-btn {
+                                position: absolute;
+                                top: 8px;
+                                right: 8px;
+                                background: none;
+                                border: none;
+                                font-size: 1.2rem;
+                                cursor: pointer;
+                                color: var(--secondary-color);
+                                padding: 4px 8px;
+                                border-radius: 4px;
+                                transition: background-color 0.2s ease;
+                        }
+
+                        #detailDialog .close-btn:hover {
+                                background-color: rgba(0, 0, 0, 0.1);
+                        }
+
+                        #detailDialog .dialog-header {
+                                position: absolute;
+                                top: 8px;
+                                right: 8px;
+                                display: flex;
+                                gap: 8px;
+                                align-items: center;
+                                z-index: 1;
+                        }
+
+                        #detailDialog .dialog-header .close-btn {
+                                position: static;
+                                font-size: 1.2rem;
+                                color: var(--secondary-color);
+                                padding: 4px 8px;
+                        }
+
+                        #detailDialog .dialog-header .share-btn {
+                                background: none;
+                                border: none;
+                                font-size: 0.9rem;
+                                cursor: pointer;
+                                color: var(--primary-color);
+                                padding: 6px 12px;
+                                border-radius: 4px;
+                                transition: all 0.2s ease;
+                                font-weight: 500;
+                        }
+
+                        #detailDialog .dialog-header .share-btn:hover {
+                                background-color: var(--primary-color);
+                                color: #fff;
+                        }
+
+                        #detailDialog .dialog-header .close-btn:hover {
+                                background-color: rgba(0, 0, 0, 0.1);
+                        }
+
+                        #detailDialog .dialog-footer {
+                                display: flex;
+                                justify-content: center;
+                                margin-top: 16px;
+                                padding-top: 16px;
+                                border-top: 1px solid var(--border-color);
+                        }
+
+                        #detailDialog .dialog-actions {
+                                display: flex;
+                                gap: 10px;
+                                justify-content: center;
+                                margin-top: 16px;
+                                padding-top: 16px;
+                                border-top: 1px solid var(--border-color);
+                        }
+
+                        #detailDialog .copy-btn {
+                                padding: 8px 16px;
+                                border: 1px solid var(--primary-color);
+                                background: transparent;
+                                color: var(--primary-color);
+                                border-radius: 6px;
+                                cursor: pointer;
+                                font-size: 0.9rem;
+                                transition: all 0.2s ease;
+                        }
+
+                        #detailDialog .copy-btn:hover {
+                                background-color: var(--primary-color);
+                                color: #fff;
+                        }
+
+                        #detailDialog h3 {
+                                margin: 0 0 16px 0;
+                                color: var(--primary-color);
+                                font-size: 1.3rem;
+                                border-bottom: 2px solid var(--border-color);
+                                padding-bottom: 8px;
+                        }
+
+                        #detailDialog .detail-section {
+                                margin-bottom: 16px;
+                                padding: 12px;
+                                background: rgba(0, 0, 0, 0.02);
+                                border-radius: 8px;
+                                border-left: 4px solid var(--primary-color);
+                        }
+
+                        #detailDialog .detail-section h4 {
+                                margin: 0 0 8px 0;
+                                color: var(--primary-color);
+                                font-size: 1rem;
+                                font-weight: 600;
+                        }
+
+                        #detailDialog .detail-section p {
+                                margin: 4px 0;
+                                color: var(--text-color);
+                                font-size: 0.9rem;
+                                line-height: 1.4;
+                        }
+
+                        #detailDialog .festival-section {
+                                border-left-color: var(--accent-color);
+                                background: rgba(255, 140, 0, 0.05);
+                        }
+
+                        #detailDialog .festival-section h4 {
+                                color: var(--accent-color);
+                        }
+
+                        #detailDialog .festival-info {
+                                font-weight: 600;
+                                color: var(--accent-color);
+                        }
+
+                        #detailDialog .eclipse-section {
+                                border-left-color: #4A90E2;
+                                background: rgba(74, 144, 226, 0.05);
+                        }
+
+                        #detailDialog .eclipse-section h4 {
+                                color: #4A90E2;
+                        }
+
+                        #detailDialog .date-url {
+                                font-family: monospace;
+                                font-size: 0.8rem;
+                                background: rgba(0, 0, 0, 0.05);
+                                padding: 6px 8px;
+                                border-radius: 4px;
+                                word-break: break-all;
+                                color: var(--secondary-color);
+                        }
+
+                        /* 弹窗响应式设计 */
+                        @media (max-width: 768px) {
+                                #detailDialog {
+                                        max-width: 95vw;
+                                        margin: 20px auto;
+                                        padding: 20px;
+                                }
+
+                                #detailDialog.bottom-sheet {
+                                        max-height: 85vh;
+                                        padding: 20px;
+                                }
+
+                                #detailDialog .dialog-header {
+                                        top: 12px;
+                                        right: 12px;
+                                        gap: 12px;
+                                }
+
+                                #detailDialog .share-btn,
+                                #detailDialog .close-btn {
+                                        padding: 8px 10px;
+                                        font-size: 1.3rem;
+                                }
+
+                                #detailDialog .detail-section {
+                                        padding: 10px;
+                                        margin-bottom: 12px;
+                                }
+
+                                #detailDialog .dialog-footer {
+                                        margin-top: 20px;
+                                        padding-top: 20px;
+                                }
+
+                                #detailDialog .copy-btn {
+                                        width: 100%;
+                                        padding: 12px;
+                                }
+                        }
+
+                        @media (max-width: 480px) {
+                                #detailDialog {
+                                        padding: 16px;
+                                }
+
+                                #detailDialog h3 {
+                                        font-size: 1.1rem;
+                                        margin-bottom: 12px;
+                                        padding-right: 60px;
+                                }
+
+                                #detailDialog .dialog-header {
+                                        top: 8px;
+                                        right: 8px;
+                                        gap: 8px;
+                                }
+
+                                #detailDialog .share-btn,
+                                #detailDialog .close-btn {
+                                        padding: 6px 8px;
+                                        font-size: 1.2rem;
+                                }
+
+                                #detailDialog .detail-section h4 {
+                                        font-size: 0.9rem;
+                                }
+
+                                #detailDialog .detail-section p {
+                                        font-size: 0.85rem;
+                                }
+
+                                #detailDialog .date-url {
+                                        font-size: 0.75rem;
+                                }
+
+                                #detailDialog .copy-btn {
+                                        padding: 10px;
+                                        font-size: 0.85rem;
+                                }
+                        }

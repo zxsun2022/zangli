@@ -144,11 +144,11 @@ function getZangli(p) {
 		d = new Date(d);
 		if ("Invalid Date" === d.toString()) {
 			console.error(trans(`错误：\"${p}\" 字符串的日期格式不对`));
-			return "error";
+			return { value: "error" };
 		}
 	}
 	if (typeof d === "number") {
-		console.warn(trans(`警告：尝试把数字 ${p} 按秒转换成日期`));
+		console.warn(trans(`警告：尝试把数字 ${p} 按毫秒转换成日期`));
 		d = new Date(d);
 	}
 	if (!(d instanceof Date)) {
@@ -231,7 +231,7 @@ function getZangli(p) {
 					case 14:
 						if (months === 3) extraInfo = trans("释迦牟尼佛<br>成道日涅槃日");
 						else if (months === 5) extraInfo = trans("释迦牟尼佛入胎日");
-						else extraInfo = trans("阿弥陀佛节日"); extraInfo2 = trans("作何善恶成百万倍");
+						else { extraInfo = trans("阿弥陀佛节日"); extraInfo2 = trans("作何善恶成百万倍"); }
 						break;
 					case 17: extraInfo = trans("观音菩萨节日"); extraInfo2 = trans("作何善恶成千万倍"); break;
 					case 19: if (months === 8) extraInfo = trans("释迦牟尼佛天降日"); break;
@@ -250,4 +250,4 @@ function getZangli(p) {
 
 if (typeof zangli_callback === "function") {
 	zangli_callback();
-} 
+}

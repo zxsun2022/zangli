@@ -8,6 +8,10 @@ RewriteEngine On
 # This handles the redirect at server level, preventing MIME type issues
 RewriteRule ^zh-tw/?(.*)$ /tw/$1 [R=301,L]
 
+# Resolve date deep links before any broader front-controller rules.
+RewriteRule ^tw/date/[0-9]{4}-[0-9]{2}-[0-9]{2}$ /tw/index.html [L]
+RewriteRule ^date/[0-9]{4}-[0-9]{2}-[0-9]{2}$ /index.html [L]
+
 # 依赖服务器默认/已配置的 MIME 类型映射，无需强制覆盖
 
 # Cache control for static assets

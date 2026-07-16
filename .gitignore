@@ -1,35 +1,18 @@
+# OS metadata
+.DS_Store
 
-ctrc-uchen.ttf
-
-test.html
+# Dependencies
 **/node_modules/
 
+# Local and generated files
+ctrc-uchen.ttf
+test.html
 new_zangli.js
-
 new_zangli.html
-
-data/new_file.html
-
-data/new_file_2.html
-
-data/data.txt
-
-data/checkdata.html
-
-new_zangli.html
-
-new_zangli.js
-
-new_zangli.html
-
-new_zangli.js
-
-new_zangli.js
-
-new_zangli.html
-
 transformData.html
-
+data/new_file.html
+data/new_file_2.html
+data/data.txt
+data/checkdata.html
 data/lunareclipse.gif
-
 data/solareclipse.gif

@@ -1,0 +1,51 @@
+{
+  "name": "百年藏曆 - 線上藏曆查詢工具",
+  "short_name": "百年藏曆",
+  "description": "提供1951年-2051年公曆藏曆對照查詢，包含藏曆節日、佛教殊勝日、日月食資訊等詳細資訊",
+  "start_url": "/tw/",
+  "scope": "/tw/",
+  "display": "standalone",
+  "background_color": "#FFF8F0",
+  "theme_color": "#8B4513",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo-192x192-circle.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo-250x250-circle.png",
+      "sizes": "250x250",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo-512x512-circle.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "lifestyle", "education"],
+  "lang": "zh-TW",
+  "screenshots": [
+    {
+      "src": "/logo-250x250-circle.png",
+      "sizes": "250x250",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ]
+}
