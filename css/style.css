@@ -211,36 +211,24 @@ main { padding: 42px 0 28px; }
 	color: var(--red);
 }
 .basis-button {
+	width: 100%;
 	display: inline-flex;
 	align-items: center;
-	gap: 8px;
+	justify-content: space-between;
+	gap: 12px;
 	min-height: 44px;
-	padding: 0;
+	margin-top: 18px;
+	padding: 12px 0 0;
 	border: 0;
+	border-top: 1px solid var(--line);
 	border-radius: 0;
 	background: transparent;
 	text-align: left;
 	color: var(--ink-soft);
 }
-.basis-button span { font-size: .78rem; }
-.basis-button strong { color: var(--ink); font-size: .82rem; font-weight: 650; }
-.basis-button::after { content: '›'; color: var(--red); font-size: 1.05rem; }
-.basis-button:hover strong { color: var(--red); }
-.hero-context {
-	grid-column: 1 / -1;
-	display: flex;
-	align-items: center;
-	gap: 18px;
-	min-height: 44px;
-}
-.date-notice {
-	margin: 0;
-	max-width: 680px;
-	padding-left: 12px;
-	border-left: 2px solid var(--saffron);
-	color: var(--ink-soft);
-	font-size: .8rem;
-}
+.basis-button span { min-width: 0; font-size: .75rem; }
+.basis-button strong { flex: 0 0 auto; color: var(--red); font-size: .75rem; font-weight: 700; }
+.basis-button:hover span { color: var(--ink); }
 .today-card, .next-card {
 	background: var(--surface);
 	border: 1px solid var(--line);
@@ -248,7 +236,8 @@ main { padding: 42px 0 28px; }
 	padding: 24px;
 	box-shadow: var(--shadow-small);
 }
-.today-card { position: relative; overflow: hidden; padding: clamp(26px, 3.5vw, 44px); }
+.today-card { position: relative; overflow: hidden; display: flex; flex-direction: column; padding: clamp(26px, 3.5vw, 44px); }
+#selectedDayContent { flex: 1; }
 .today-card::after {
 	content: '';
 	position: absolute;
@@ -512,6 +501,16 @@ footer { padding: 27px 0 44px; color: var(--ink-soft); font-size: .75rem; }
 .dialog-title-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
 .dialog-title-row h2 { margin: 0; font: 560 1.5rem var(--serif); }
 .settings-dialog fieldset { display: grid; gap: 10px; margin: 22px 0; padding: 0; border: 0; }
+.settings-date-notice:not([hidden]) {
+	display: block;
+	margin-top: 18px;
+	padding: 11px 13px;
+	border-left: 2px solid var(--saffron);
+	background: var(--paper);
+	color: var(--ink-soft);
+	font-size: .8rem;
+}
+.settings-date-notice:not([hidden]) + fieldset { margin-top: 14px; }
 .choice-card { display: flex; gap: 12px; padding: 15px; border: 1px solid var(--line); border-radius: var(--radius); cursor: pointer; }
 .choice-card:has(input:checked) { border-color: var(--red); background: var(--red-soft); }
 .choice-card input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--red); }
@@ -552,7 +551,6 @@ footer { padding: 27px 0 44px; color: var(--ink-soft); font-size: .75rem; }
 	.hero { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 24px; }
 	.hero-copy { grid-column: auto; padding: 0 0 10px; }
 	.hero h1 { font-size: 1.65rem; }
-	.hero-context { grid-column: auto; align-items: flex-start; flex-direction: column; gap: 0; }
 	.today-card, .next-card { padding: 19px; }
 	.tibetan-date { font-size: clamp(1.8rem, 7.5vw, 2.75rem); }
 	.calendar-toolbar { min-height: auto; padding: 14px; flex-wrap: wrap; }
