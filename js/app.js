@@ -20,6 +20,9 @@ const messages = {
 	installUnavailable: '可通过浏览器菜单将页面安装到桌面。', offlineReady: '页面已可离线使用',
 	copied: '日期信息已复制', linkCopied: '分享链接已复制',
 	festival: '节日', multiplier: '功德增广日', eclipse: '日月食', all: '全部',
+	annualUpcoming: '{year} 年共 {count} 个匹配日期 · 显示今天起 {days} 天内的 {shown} 个',
+	noUpcoming: '未来 {days} 天内没有匹配日期。', expandYear: '展开全年', collapseUpcoming: '收起至近期',
+	backToListTop: '回到列表顶部', commonObservance: '节日 · 功德增广日',
 	gregorian: '公历', tibetan: '藏历', sourceBadge: '历书对照', dateBasis: '日期口径',
 	yearSuffix: '年', monthSuffix: '月', daySuffix: '日', weekdayPrefix: '周',
 	monthTitle: '{year} 年 {month} 月', monthShort: '{month}月', dayShort: '{day}',
@@ -32,7 +35,7 @@ const messages = {
 
 const englishMessages = {
 	selectedDate:'Selected date',today:'Today',localBasis:'Device-local date',beijingBasis:'Beijing date',lookupNote:'Gregorian date used to query the published crosswalk',deviceZone:'Device time zone',
-	discrepancy:'It is {local} locally and {beijing} in Beijing. This page is using “{basis}.”',nextIn:'In {days} days',nextToday:'Today',noNext:'No later observance was found in the supported range',viewDate:'View date',events:'{count} matching dates in {year}',noEvents:'No dates match this filter.',reverseFound:'Found {count} matching dates',reverseNone:'No date was found. The Tibetan day may be skipped or outside the selected Gregorian year.',repeated:'Repeated day',skipped:'Skipped day',leapMonth:'Leap month',localEclipse:'Your time zone',beijingEclipse:'Beijing time',eclipseArchive:'Eclipses are filed by Beijing date. Visibility and local contact times depend on location.',calendarExported:'Calendar file created',reminderExported:'Reminder file created; import it into your calendar',installUnavailable:'Use your browser menu to install this page.',offlineReady:'Offline access is ready',copied:'Date details copied',linkCopied:'Share link copied',festival:'Observance',multiplier:'Multiplier day',eclipse:'Eclipse',all:'All',gregorian:'Gregorian',tibetan:'Tibetan',sourceBadge:'Published crosswalk',dateBasis:'Date basis',yearSuffix:'',monthSuffix:'',daySuffix:'',weekdayPrefix:'',monthTitle:'{month} {year}',monthShort:'Month {month}',dayShort:'Day {day}',viewDetails:'View details',observance:'Observance',source:'Source & method',localModeDetail:'“Local” only decides which Gregorian day to look up. It does not recalculate local Tibetan astronomical parameters.',icsDescription:'Tibetan calendar: {tibetan}. {detail}',openSource:'Open-source data',copiedTitle:'Tibetan Calendar',install:'Install',themeDark:'Switch to dark mode',themeLight:'Switch to light mode'
+	discrepancy:'It is {local} locally and {beijing} in Beijing. This page is using “{basis}.”',nextIn:'In {days} days',nextToday:'Today',noNext:'No later observance was found in the supported range',viewDate:'View date',events:'{count} matching dates in {year}',noEvents:'No dates match this filter.',annualUpcoming:'{count} matching dates in {year} · showing {shown} in the next {days} days',noUpcoming:'No matching dates in the next {days} days.',expandYear:'Show full year',collapseUpcoming:'Show upcoming only',backToListTop:'Back to list top',commonObservance:'Observance · Multiplier day',reverseFound:'Found {count} matching dates',reverseNone:'No date was found. The Tibetan day may be skipped or outside the selected Gregorian year.',repeated:'Repeated day',skipped:'Skipped day',leapMonth:'Leap month',localEclipse:'Your time zone',beijingEclipse:'Beijing time',eclipseArchive:'Eclipses are filed by Beijing date. Visibility and local contact times depend on location.',calendarExported:'Calendar file created',reminderExported:'Reminder file created; import it into your calendar',installUnavailable:'Use your browser menu to install this page.',offlineReady:'Offline access is ready',copied:'Date details copied',linkCopied:'Share link copied',festival:'Observance',multiplier:'Multiplier day',eclipse:'Eclipse',all:'All',gregorian:'Gregorian',tibetan:'Tibetan',sourceBadge:'Published crosswalk',dateBasis:'Date basis',yearSuffix:'',monthSuffix:'',daySuffix:'',weekdayPrefix:'',monthTitle:'{month} {year}',monthShort:'Month {month}',dayShort:'Day {day}',viewDetails:'View details',observance:'Observance',source:'Source & method',localModeDetail:'“Local” only decides which Gregorian day to look up. It does not recalculate local Tibetan astronomical parameters.',icsDescription:'Tibetan calendar: {tibetan}. {detail}',openSource:'Open-source data',copiedTitle:'Tibetan Calendar',install:'Install',themeDark:'Switch to dark mode',themeLight:'Switch to light mode'
 };
 
 const tibetanMessages = {
@@ -54,6 +57,8 @@ const state = {
 	activeDate: null,
 	previousFocus: null,
 	annualEvents: [],
+	annualExpanded: false,
+	annualRenderedYear: null,
 	deferredInstallPrompt: null,
 	historyLocation: `${location.pathname}${location.search}${location.hash}`
 };
@@ -173,6 +178,10 @@ function formatMonthTitle(date) {
 	if (locale === 'en') return new Intl.DateTimeFormat('en-CA', { year:'numeric', month:'long' }).format(date);
 	if (locale === 'bo') return `${date.getFullYear()} · ཟླ་ ${date.getMonth() + 1}`;
 	return msg('monthTitle', { year: String(date.getFullYear()), month: String(date.getMonth() + 1) });
+}
+
+function formatAnnualMonth(date) {
+	return new Intl.DateTimeFormat(intlLocale, { month:'long' }).format(date);
 }
 
 function formatZoneName(timeZone) {
@@ -298,24 +307,78 @@ function renderCalendar(date) {
 	while (row.cells.length < 7) row.insertCell().className = 'empty-cell';
 }
 
+function annualEventIndicators(event) {
+	if (event.types.includes('eclipse')) return `<i class="type-pill eclipse">${escapeHTML(msg('eclipse'))}</i>`;
+	if (event.types.includes('festival') && event.types.includes('multiplier')) {
+		return `<span class="type-dot" aria-label="${escapeHTML(msg('commonObservance'))}" title="${escapeHTML(msg('commonObservance'))}"><i class="legend-dot multiplier-dot" aria-hidden="true"></i></span>`;
+	}
+	return event.types.map(type => `<i class="type-pill ${type}">${escapeHTML(msg(type))}</i>`).join('');
+}
+
+function renderAnnualControls(isCurrentYear) {
+	const controls = $('annualRangeControls');
+	controls.replaceChildren();
+	if (!isCurrentYear) return;
+	const toggle = document.createElement('button');
+	toggle.className = 'secondary-button';
+	toggle.type = 'button';
+	toggle.textContent = msg(state.annualExpanded ? 'collapseUpcoming' : 'expandYear');
+	toggle.setAttribute('aria-expanded', String(state.annualExpanded));
+	toggle.addEventListener('click', () => {
+		state.annualExpanded = !state.annualExpanded;
+		renderAnnualList();
+		if (!state.annualExpanded) $('annualSummary').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start' });
+	});
+	controls.appendChild(toggle);
+	if (state.annualExpanded) {
+		const back = document.createElement('button');
+		back.className = 'text-button annual-back-button';
+		back.type = 'button';
+		back.textContent = `${msg('backToListTop')} ↑`;
+		back.addEventListener('click', () => $('annualSummary').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start' }));
+		controls.appendChild(back);
+	}
+}
+
 function renderAnnualList() {
 	const year = Number($('year').value);
+	if (state.annualRenderedYear !== year) {
+		state.annualRenderedYear = year;
+		state.annualExpanded = false;
+	}
 	const from = createLocalDate(year, 1, 1) < startDate ? startDate : createLocalDate(year, 1, 1);
 	const to = createLocalDate(year, 12, 31) > endDate ? endDate : createLocalDate(year, 12, 31);
 	state.annualEvents = scanEvents(from, to);
 	const filter = $('annualFilter').value;
-	const events = state.annualEvents.filter(event => filter === 'all' || event.types.includes(filter));
-	$('annualSummary').textContent = msg('events', { year: String(year), count: String(events.length) });
+	const filteredEvents = state.annualEvents.filter(event => filter === 'all' || event.types.includes(filter));
+	const today = getToday();
+	const isCurrentYear = year === today.getFullYear();
+	const upcomingEnd = addDays(today, 90);
+	const events = isCurrentYear && !state.annualExpanded
+		? filteredEvents.filter(event => event.date >= today && event.date <= upcomingEnd)
+		: filteredEvents;
+	$('annualSummary').textContent = isCurrentYear && !state.annualExpanded
+		? msg('annualUpcoming', { year: String(year), count: String(filteredEvents.length), shown: String(events.length), days: '90' })
+		: msg('events', { year: String(year), count: String(filteredEvents.length) });
 	const list = $('annualList');
 	list.replaceChildren();
+	renderAnnualControls(isCurrentYear);
 	if (!events.length) {
-		list.innerHTML = `<li class="empty-state">${escapeHTML(msg('noEvents'))}</li>`;
+		list.innerHTML = `<li class="empty-state">${escapeHTML(isCurrentYear && !state.annualExpanded ? msg('noUpcoming', { days:'90' }) : msg('noEvents'))}</li>`;
 		return;
 	}
+	let renderedMonth = -1;
 	for (const event of events) {
+		if (event.date.getMonth() !== renderedMonth) {
+			renderedMonth = event.date.getMonth();
+			const heading = document.createElement('li');
+			heading.className = 'annual-month';
+			heading.innerHTML = `<span>${escapeHTML(formatAnnualMonth(event.date))}</span>`;
+			list.appendChild(heading);
+		}
 		const item = document.createElement('li');
 		item.className = 'event-row';
-		item.innerHTML = `<button type="button" data-open-date="${formatDate(event.date)}"><time datetime="${formatDate(event.date)}"><span class="date-line date-line-gregorian"><i>${escapeHTML(msg('gregorian'))}</i><strong>${escapeHTML(new Intl.DateTimeFormat(intlLocale, { month:'short', day:'numeric' }).format(event.date))}</strong></span><span class="date-line date-line-tibetan"><i>${escapeHTML(msg('tibetan'))}</i><span>${escapeHTML(formatTibetanDate(event.zangli, true))}</span></span></time><span class="event-copy"><strong>${escapeHTML(eventTitle(event))}</strong><span>${event.types.map(type => `<i class="type-pill ${type}">${escapeHTML(msg(type))}</i>`).join('')}</span></span><span aria-hidden="true">→</span></button>`;
+		item.innerHTML = `<button type="button" data-open-date="${formatDate(event.date)}"><time datetime="${formatDate(event.date)}"><span class="date-line date-line-gregorian"><i>${escapeHTML(msg('gregorian'))}</i><strong>${escapeHTML(new Intl.DateTimeFormat(intlLocale, { month:'short', day:'numeric' }).format(event.date))}</strong></span><span class="date-line date-line-tibetan"><i>${escapeHTML(msg('tibetan'))}</i><span>${escapeHTML(formatTibetanDate(event.zangli, true))}</span></span></time><span class="event-copy"><strong>${escapeHTML(eventTitle(event))}</strong><span>${annualEventIndicators(event)}</span></span><span aria-hidden="true">→</span></button>`;
 		list.appendChild(item);
 	}
 }

@@ -2,6 +2,7 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
+const { ASSET_VERSION } = require('./release-config');
 
 const root = path.resolve(__dirname, '..');
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
@@ -64,15 +65,37 @@ assert.equal(dayIn('Asia/Shanghai'), '2026-07-16');
 for (const [file, language] of [['index.html','zh-CN'],['tw/index.html','zh-TW'],['en/index.html','en'],['bo/index.html','bo']]) {
 	const html = read(file);
 	assert.ok(html.includes(`<html lang="${language}">`), `${file} language`);
-	for (const id of ['basisButton','selectedDay','nextSpecialDay','calendarWorkspace','annualPanel','reversePanel','aboutPanel','settingsDialog']) {
+	for (const id of ['basisButton','selectedDay','nextSpecialDay','calendarWorkspace','annualPanel','annualRangeControls','reversePanel','aboutPanel','settingsDialog']) {
 		assert.ok(html.includes(`id="${id}"`), `${file} missing ${id}`);
 	}
-	assert.ok(html.includes('v=20260716-7'));
+	assert.ok(html.includes(`v=${ASSET_VERSION}`));
 }
+for (const file of ['index.html','tw/index.html','en/index.html']) assert.ok(!read(file).includes('value="bo"'), `${file} should not expose the Tibetan beta in the language switcher`);
+assert.ok(read('bo/index.html').includes('<option value="bo" selected hidden>'), 'The hidden Tibetan route should identify its current language without exposing a public option');
 assert.ok(read('index.html').includes('<option value="4">四月（萨嘎月）</option>'));
 assert.ok(read('index.html').includes('<option value="20">二十</option>'));
 assert.ok(read('bo/index.html').includes('<option value="20">ཚེས་ ༢༠</option>'));
 assert.ok(!read('js/app.js').includes("dayShort: '初{day}'"));
+assert.ok(!read('js/langDetect.js').includes("preference = 'bo'"));
+
+for (const file of ['widget/index.html','sw.js']) {
+	const versions = [...read(file).matchAll(/\?v=(\d{8}-\d+)/g)].map(match => match[1]);
+	assert.ok(versions.length, `${file} should contain versioned assets`);
+	assert.ok(versions.every(version => version === ASSET_VERSION), `${file} asset versions should match release-config`);
+}
+assert.ok(read('sw.js').includes(`const CACHE_NAME = 'zangli-${ASSET_VERSION}';`));
+
+const style = read('css/style.css');
+assert.ok(style.includes('grid-template-columns: max-content minmax(0, 1fr)'), 'Date labels should size to their translated text');
+assert.ok(style.includes(':root:not([data-theme])'), 'System dark mode should have a CSS-only first-paint fallback');
+assert.ok(style.includes('grid-template-columns: repeat(3, minmax(0, 1fr))'), 'All three tool tabs should fit in the narrow mobile layout');
+
+const luminance = hex => {
+	const channels = hex.match(/[a-f\d]{2}/gi).map(channel => parseInt(channel, 16) / 255).map(channel => channel <= .04045 ? channel / 12.92 : ((channel + .055) / 1.055) ** 2.4);
+	return .2126 * channels[0] + .7152 * channels[1] + .0722 * channels[2];
+};
+const festivalContrast = (luminance('f4aaa2') + .05) / (luminance('4b2926') + .05);
+assert.ok(festivalContrast >= 4.5, `Dark festival label contrast should be at least 4.5:1, received ${festivalContrast.toFixed(2)}:1`);
 
 for (const file of ['manifest.json','tw/manifest.json','en/manifest.json','bo/manifest.json']) JSON.parse(read(file));
 for (const file of ['css/style.css','css/widget.css','js/app.js','js/widget.js','js/i18n-data.js','js/i18n.js','zangli.js','eclipse.js','calendar/zangli-special-days.ics']) {

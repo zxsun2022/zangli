@@ -12,7 +12,6 @@
 		const languages = navigator.languages || [navigator.language || ''];
 		const first = String(languages[0] || '').toLowerCase();
 		if (/^zh-(tw|hk|mo|hant)/.test(first)) preference = 'tw';
-		else if (/^bo(?:-|$)/.test(first)) preference = 'bo';
 		else if (first && !/^zh(?:-|$)/.test(first)) preference = 'en';
 		if (preference) {
 			location.replace(`/${preference}/${search}${hash}`);
