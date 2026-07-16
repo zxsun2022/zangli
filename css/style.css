@@ -149,7 +149,10 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 .brand strong { font-family: var(--serif); font-size: 1.05rem; letter-spacing: .04em; }
 .brand small { color: var(--ink-soft); font-size: .73rem; text-transform: uppercase; letter-spacing: .12em; }
 .header-actions, .button-group { display: flex; align-items: center; gap: 9px; }
-.header-actions { flex-wrap: nowrap; }
+.header-actions { margin-left: auto; flex-wrap: nowrap; }
+.header-basis-status { color: var(--ink-soft); font-size: .76rem; white-space: nowrap; }
+.header-actions-divider { width: 1px; height: 26px; margin: 0 3px; background: var(--line); }
+.settings-icon { display: none; font-size: 1.05rem; line-height: 1; }
 .button-group { flex-wrap: wrap; }
 .quiet-select, .text-button, .icon-button, .secondary-button, .primary-button, .step-button, .inline-link {
 	min-height: 44px;
@@ -170,20 +173,10 @@ main { padding: 42px 0 28px; }
 	display: grid;
 	grid-template-columns: minmax(0, 1.45fr) minmax(290px, .75fr);
 	column-gap: clamp(18px, 3vw, 36px);
-	row-gap: 16px;
 	align-items: stretch;
 	margin-bottom: 44px;
 }
-.hero-copy {
-	grid-column: 1 / -1;
-	display: flex;
-	align-items: baseline;
-	justify-content: space-between;
-	gap: 20px;
-	padding-bottom: 12px;
-	border-bottom: 1px solid var(--line);
-}
-.eyebrow, .section-kicker, .period-title p {
+.section-kicker, .period-title p {
 	margin: 0 0 9px;
 	color: var(--red);
 	font-size: .75rem;
@@ -191,44 +184,6 @@ main { padding: 42px 0 28px; }
 	letter-spacing: .13em;
 	text-transform: uppercase;
 }
-.hero h1 {
-	margin: 0;
-	font-family: var(--serif);
-	font-size: clamp(1.65rem, 2.6vw, 2.4rem);
-	line-height: 1.1;
-	font-weight: 600;
-	letter-spacing: -.02em;
-}
-.hero-copy .eyebrow { margin: 0; color: var(--ink-soft); white-space: nowrap; }
-.beta-badge {
-	display: inline-block;
-	vertical-align: top;
-	margin: 6px 0 0 7px;
-	padding: 3px 7px;
-	border: 1px solid var(--red);
-	font: 700 .7rem/1 var(--sans);
-	letter-spacing: .08em;
-	color: var(--red);
-}
-.basis-button {
-	width: 100%;
-	display: inline-flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 12px;
-	min-height: 44px;
-	margin-top: 18px;
-	padding: 12px 0 0;
-	border: 0;
-	border-top: 1px solid var(--line);
-	border-radius: 0;
-	background: transparent;
-	text-align: left;
-	color: var(--ink-soft);
-}
-.basis-button span { min-width: 0; font-size: .75rem; }
-.basis-button strong { flex: 0 0 auto; color: var(--red); font-size: .75rem; font-weight: 700; }
-.basis-button:hover span { color: var(--ink); }
 .today-card, .next-card {
 	background: var(--surface);
 	border: 1px solid var(--line);
@@ -544,13 +499,14 @@ footer { padding: 27px 0 44px; color: var(--ink-soft); font-size: .75rem; }
 @media (max-width: 720px) {
 	.site-shell { width: min(calc(100% - 32px), 620px); }
 	.site-header { min-height: 70px; }
-	.brand small, .header-actions .text-button { display: none; }
+	.brand small, .header-basis-status, .header-actions-divider { display: none; }
 	.header-actions { gap: 6px; }
+	.settings-button { width: 44px; min-width: 44px; padding: 0; }
+	.settings-text { display: none; }
+	.settings-icon { display: inline-block; }
 	.quiet-select { max-width: 106px; }
 	main { padding-top: 26px; }
 	.hero { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 24px; }
-	.hero-copy { grid-column: auto; padding: 0 0 10px; }
-	.hero h1 { font-size: 1.65rem; }
 	.today-card, .next-card { padding: 19px; }
 	.tibetan-date { font-size: clamp(1.8rem, 7.5vw, 2.75rem); }
 	.calendar-toolbar { min-height: auto; padding: 14px; flex-wrap: wrap; }
@@ -595,9 +551,8 @@ footer { padding: 27px 0 44px; color: var(--ink-soft); font-size: .75rem; }
 
 @media (max-width: 430px) {
 	.brand-mark { width: 40px; height: 40px; }
-	.brand strong { font-size: .92rem; }
-	.hero h1 { font-size: 1.5rem; }
-	.hero-copy .eyebrow { font-size: .62rem; letter-spacing: .08em; }
+	.brand strong { font-size: .92rem; letter-spacing: 0; }
+	html:lang(zh-CN) .brand strong, html:lang(zh-TW) .brand strong { white-space: nowrap; }
 	.calendar-table td { height: 70px; }
 	.calendar-table th { font-size: .56rem; letter-spacing: 0; }
 	.lunar-date { font-size: .64rem; }
@@ -619,7 +574,7 @@ footer { padding: 27px 0 44px; color: var(--ink-soft); font-size: .75rem; }
 }
 
 @media print {
-	.site-header, .hero-copy, .next-card, .tools, .install-card, footer, .calendar-toolbar button, .calendar-legend { display: none !important; }
+	.site-header, .next-card, .tools, .install-card, footer, .calendar-toolbar button, .calendar-legend { display: none !important; }
 	body, .site-shell, .calendar-workspace { background: white; color: black; width: 100%; box-shadow: none; border: 0; }
 	main { padding: 0; }
 	.hero { display: block; margin: 0 0 12px; }

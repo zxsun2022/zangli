@@ -65,11 +65,17 @@ assert.equal(dayIn('Asia/Shanghai'), '2026-07-16');
 for (const [file, language] of [['index.html','zh-CN'],['tw/index.html','zh-TW'],['en/index.html','en'],['bo/index.html','bo']]) {
 	const html = read(file);
 	assert.ok(html.includes(`<html lang="${language}">`), `${file} language`);
-	for (const id of ['basisButton','basisAction','selectedDay','selectedDayContent','nextSpecialDay','calendarWorkspace','annualPanel','annualRangeControls','reversePanel','aboutPanel','settingsDialog','dateDiscrepancy']) {
+	for (const id of ['basisLabel','settingsButton','languageSelect','themeButton','selectedDay','selectedDayContent','nextSpecialDay','calendarWorkspace','annualPanel','annualRangeControls','reversePanel','aboutPanel','settingsDialog','dateDiscrepancy']) {
 		assert.ok(html.includes(`id="${id}"`), `${file} missing ${id}`);
 	}
 	assert.ok(html.includes(`v=${ASSET_VERSION}`));
 	assert.ok(!html.includes('class="hero-context"'), `${file} should not give date-basis metadata a full-width hero row`);
+	assert.ok(!html.includes('class="hero-copy"'), `${file} should not repeat a visible page title above the primary cards`);
+	assert.ok(html.includes('<h1 id="pageTitle" class="sr-only">'), `${file} should retain an accessible page heading`);
+	assert.ok(html.includes(`id="settingsButton" class="text-button settings-button" type="button" aria-label="`), `${file} should keep an accessible settings name when its mobile label is hidden`);
+	assert.ok(html.indexOf('id="basisLabel"') < html.indexOf('id="settingsButton"'), `${file} should show date basis before settings`);
+	assert.ok(html.indexOf('id="settingsButton"') < html.indexOf('id="languageSelect"'), `${file} should show settings before language`);
+	assert.ok(html.indexOf('id="languageSelect"') < html.indexOf('id="themeButton"'), `${file} should show language before theme`);
 	assert.ok(html.indexOf('id="dateDiscrepancy"') > html.indexOf('id="settingsDialog"'), `${file} should keep the detailed date discrepancy inside settings`);
 }
 for (const file of ['index.html','tw/index.html','en/index.html']) assert.ok(!read(file).includes('value="bo"'), `${file} should not expose the Tibetan beta in the language switcher`);
@@ -91,6 +97,8 @@ const style = read('css/style.css');
 assert.ok(style.includes('grid-template-columns: max-content minmax(0, 1fr)'), 'Date labels should size to their translated text');
 assert.ok(style.includes(':root:not([data-theme])'), 'System dark mode should have a CSS-only first-paint fallback');
 assert.ok(style.includes('grid-template-columns: repeat(3, minmax(0, 1fr))'), 'All three tool tabs should fit in the narrow mobile layout');
+assert.ok(style.includes('.brand small, .header-basis-status, .header-actions-divider { display: none; }'), 'Mobile should hide the compact date-basis status');
+assert.ok(style.includes('.settings-icon { display: inline-block; }'), 'Mobile should retain settings as an icon button');
 assert.ok(read('js/app.js').includes("timeZoneName:'shortOffset'"), 'The compact date-basis label should use a language-neutral GMT offset');
 
 const luminance = hex => {

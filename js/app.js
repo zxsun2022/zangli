@@ -11,7 +11,7 @@ const messages = {
 	selectedDate: '所选日期', today: '今天', localBasis: '设备本地日期', beijingBasis: '北京时间日期',
 	lookupNote: '查询《百年历书》的公历日期', deviceZone: '设备时区',
 	discrepancy: '当前本地日期为 {local}，北京日期为 {beijing}。页面按“{basis}”显示。',
-	basisCompact: '按{basis} · {zone}', adjustBasis: '调整',
+	basisCompact: '按{basis} · {zone}',
 	nextIn: '{days} 天后', nextToday: '就是今天', noNext: '支持范围内没有找到下一殊胜日',
 	viewDate: '查看日期', events: '{year} 年共 {count} 个匹配日期', noEvents: '这个筛选条件下没有日期。',
 	reverseFound: '找到 {count} 个对应日期', reverseNone: '没有找到对应日期；藏历可能有缺日，或结果位于所选公历年份之外。',
@@ -36,7 +36,7 @@ const messages = {
 
 const englishMessages = {
 	selectedDate:'Selected date',today:'Today',localBasis:'Device-local date',beijingBasis:'Beijing date',lookupNote:'Gregorian date used to query the published crosswalk',deviceZone:'Device time zone',
-	discrepancy:'Your local date is {local}; the Beijing date is {beijing}. This page is using “{basis}.”',basisCompact:'Using {basis} · {zone}',adjustBasis:'Change',nextIn:'In {days} days',nextToday:'Today',noNext:'No later observance was found in the supported range',viewDate:'View date',events:'{count} matching dates in {year}',noEvents:'No dates match this filter.',annualUpcoming:'{count} matching dates in {year} · showing {shown} in the next {days} days',noUpcoming:'No matching dates in the next {days} days.',expandYear:'Show full year',collapseUpcoming:'Show upcoming only',backToListTop:'Back to list top',commonObservance:'Observance · Multiplier day',reverseFound:'Found {count} matching dates',reverseNone:'No date was found. The Tibetan day may be skipped or outside the selected Gregorian year.',repeated:'Repeated day',skipped:'Skipped day',leapMonth:'Leap month',localEclipse:'Your time zone',beijingEclipse:'Beijing time',eclipseArchive:'Eclipses are filed by Beijing date. Visibility and local contact times depend on location.',calendarExported:'Calendar file created',reminderExported:'Reminder file created; import it into your calendar',installUnavailable:'Use your browser menu to install this page.',offlineReady:'Offline access is ready',copied:'Date details copied',linkCopied:'Share link copied',festival:'Observance',multiplier:'Multiplier day',eclipse:'Eclipse',all:'All',gregorian:'Gregorian',tibetan:'Tibetan',sourceBadge:'Published crosswalk',dateBasis:'Date basis',yearSuffix:'',monthSuffix:'',daySuffix:'',weekdayPrefix:'',monthTitle:'{month} {year}',monthShort:'Month {month}',dayShort:'Day {day}',viewDetails:'View details',observance:'Observance',source:'Source & method',localModeDetail:'“Local” only decides which Gregorian day to look up. It does not recalculate local Tibetan astronomical parameters.',icsDescription:'Tibetan calendar: {tibetan}. {detail}',openSource:'Open-source data',copiedTitle:'Tibetan Calendar',install:'Install',themeDark:'Switch to dark mode',themeLight:'Switch to light mode'
+	discrepancy:'Your local date is {local}; the Beijing date is {beijing}. This page is using “{basis}.”',basisCompact:'Using {basis} · {zone}',nextIn:'In {days} days',nextToday:'Today',noNext:'No later observance was found in the supported range',viewDate:'View date',events:'{count} matching dates in {year}',noEvents:'No dates match this filter.',annualUpcoming:'{count} matching dates in {year} · showing {shown} in the next {days} days',noUpcoming:'No matching dates in the next {days} days.',expandYear:'Show full year',collapseUpcoming:'Show upcoming only',backToListTop:'Back to list top',commonObservance:'Observance · Multiplier day',reverseFound:'Found {count} matching dates',reverseNone:'No date was found. The Tibetan day may be skipped or outside the selected Gregorian year.',repeated:'Repeated day',skipped:'Skipped day',leapMonth:'Leap month',localEclipse:'Your time zone',beijingEclipse:'Beijing time',eclipseArchive:'Eclipses are filed by Beijing date. Visibility and local contact times depend on location.',calendarExported:'Calendar file created',reminderExported:'Reminder file created; import it into your calendar',installUnavailable:'Use your browser menu to install this page.',offlineReady:'Offline access is ready',copied:'Date details copied',linkCopied:'Share link copied',festival:'Observance',multiplier:'Multiplier day',eclipse:'Eclipse',all:'All',gregorian:'Gregorian',tibetan:'Tibetan',sourceBadge:'Published crosswalk',dateBasis:'Date basis',yearSuffix:'',monthSuffix:'',daySuffix:'',weekdayPrefix:'',monthTitle:'{month} {year}',monthShort:'Month {month}',dayShort:'Day {day}',viewDetails:'View details',observance:'Observance',source:'Source & method',localModeDetail:'“Local” only decides which Gregorian day to look up. It does not recalculate local Tibetan astronomical parameters.',icsDescription:'Tibetan calendar: {tibetan}. {detail}',openSource:'Open-source data',copiedTitle:'Tibetan Calendar',install:'Install',themeDark:'Switch to dark mode',themeLight:'Switch to light mode'
 };
 
 const tibetanMessages = {
@@ -230,8 +230,7 @@ function renderBasis() {
 	const basisText = state.basis === 'beijing' ? msg('beijingBasis') : msg('localBasis');
 	const zoneOffset = formatZoneOffset(getBasisTimeZone());
 	$('basisLabel').textContent = msg('basisCompact', { basis:basisText, zone:zoneOffset });
-	$('basisAction').textContent = msg('adjustBasis');
-	$('basisButton').title = `${msg('lookupNote')} · ${zoneOffset}`;
+	$('basisLabel').title = `${msg('lookupNote')} · ${zoneOffset}`;
 	const notice = $('dateDiscrepancy');
 	if (!isSameDate(localToday, beijingToday)) {
 		notice.textContent = msg('discrepancy', { local: formatGregorian(localToday), beijing: formatGregorian(beijingToday), basis: basisText });
@@ -607,7 +606,6 @@ function handleHistory() {
 
 function initSettings() {
 	$('settingsButton').addEventListener('click', () => $('settingsDialog').showModal());
-	$('basisButton').addEventListener('click', () => $('settingsDialog').showModal());
 	document.querySelectorAll('input[name="dateBasis"]').forEach(input => input.addEventListener('change', () => {
 		state.basis = input.value; localStorage.setItem('zangli-date-basis', state.basis); renderApp(getToday());
 	}));
