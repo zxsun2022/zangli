@@ -14,7 +14,7 @@ const messages = {
 	nextIn: '{days} 天后', nextToday: '就是今天', noNext: '支持范围内没有找到下一殊胜日',
 	viewDate: '查看日期', events: '{year} 年共 {count} 个匹配日期', noEvents: '这个筛选条件下没有日期。',
 	reverseFound: '找到 {count} 个对应日期', reverseNone: '没有找到对应日期；藏历可能有缺日，或结果位于所选公历年份之外。',
-	repeated: '闰日', skipped: '缺日', leapMonth: '闰月', localEclipse: '你的时区', beijingEclipse: '北京时区',
+	repeated: '重日', skipped: '缺日', leapMonth: '闰月', localEclipse: '你的时区', beijingEclipse: '北京时区',
 	eclipseArchive: '日月食按北京时间日期归档；能否看到以及当地接触时刻取决于地理位置。',
 	calendarExported: '日历文件已生成', reminderExported: '提醒文件已生成，可导入系统日历',
 	installUnavailable: '可通过浏览器菜单将页面安装到桌面。', offlineReady: '页面已可离线使用',
@@ -22,7 +22,7 @@ const messages = {
 	festival: '节日', multiplier: '功德增广日', eclipse: '日月食', all: '全部',
 	gregorian: '公历', tibetan: '藏历', sourceBadge: '历书对照', dateBasis: '日期口径',
 	yearSuffix: '年', monthSuffix: '月', daySuffix: '日', weekdayPrefix: '周',
-	monthTitle: '{year} 年 {month} 月', monthShort: '{month}月', dayShort: '初{day}',
+	monthTitle: '{year} 年 {month} 月', monthShort: '{month}月', dayShort: '{day}',
 	viewDetails: '查看详情', observance: '殊胜日', source: '来源与口径',
 	localModeDetail: '“本地”只决定今天查哪一个公历日期，不会重新计算所在地的藏历天文参数。',
 	icsDescription: '百年藏历：{tibetan}。{detail}',
@@ -36,7 +36,7 @@ const englishMessages = {
 };
 
 const tibetanMessages = {
-	selectedDate:'བདམས་པའི་ཚེས།',today:'དེ་རིང་།',localBasis:'ས་གནས་ཀྱི་ཚེས།',beijingBasis:'པེ་ཅིང་གི་ཚེས།',nextToday:'དེ་རིང་།',viewDate:'ཚེས་ལ་བལྟ་བ།',festival:'དུས་ཆེན།',multiplier:'དགེ་བ་འཕེལ་བའི་ཉིན།',eclipse:'ཉི་ཟླ་འཛིན་པ།',gregorian:'སྤྱི་ལོ།',tibetan:'བོད་ཟླ།',dateBasis:'ཚེས་གྲངས་ཀྱི་གཞི།',monthShort:'ཟླ་ {month}',dayShort:'ཚེས་ {day}',viewDetails:'ཞིབ་ཕྲ།',observance:'དུས་ཆེན།',install:'Install'
+	selectedDate:'བདམས་པའི་ཚེས།',today:'དེ་རིང་།',localBasis:'ས་གནས་ཀྱི་ཚེས།',beijingBasis:'པེ་ཅིང་གི་ཚེས།',nextToday:'དེ་རིང་།',viewDate:'ཚེས་ལ་བལྟ་བ།',festival:'དུས་ཆེན།',multiplier:'དགེ་བ་འཕེལ་བའི་ཉིན།',eclipse:'ཉི་ཟླ་འཛིན་པ།',gregorian:'སྤྱི་ལོ།',tibetan:'བོད་ཟླ།',dateBasis:'ཚེས་གྲངས་ཀྱི་གཞི།',monthShort:'ཟླ་ {month}',dayShort:'ཚེས་ {day}',repeated:'ཚེས་ལྷག།',skipped:'ཚེས་ཆད།',leapMonth:'ཟླ་བཤོལ།',viewDetails:'ཞིབ་ཕྲ།',observance:'དུས་ཆེན།',install:'Install'
 };
 
 function msg(key, values = {}) {
@@ -138,13 +138,31 @@ function getYearLabel(zangli) {
 	return trans(zangli.year);
 }
 
+function toTibetanDigits(value) {
+	return String(value).replace(/\d/g, digit => '༠༡༢༣༤༥༦༧༨༩'[Number(digit)]);
+}
+
 function formatTibetanDate(zangli, compact = false) {
 	const leapMonth = zangli.monthLeap ? (locale === 'en' ? 'Leap ' : locale === 'bo' ? 'ཟླ་བཤོལ་ ' : trans('闰')) : '';
-	const repeated = zangli.dayLeap ? (locale === 'en' ? 'Repeated ' : locale === 'bo' ? 'ཚེས་ལྷག་ ' : trans('闰')) : '';
+	const repeated = zangli.dayLeap ? (locale === 'en' ? 'Repeated ' : locale === 'bo' ? 'ཚེས་ལྷག་ ' : '') : '';
 	if (locale === 'en') return `${compact ? '' : `${getYearLabel(zangli)} · `}${leapMonth}Month ${zangli.monthNumber}, ${repeated}Day ${zangli.dayNumber}`;
-	if (locale === 'bo') return `${compact ? '' : `${getYearLabel(zangli)} · `}${leapMonth}ཟླ་ ${zangli.monthNumber} · ${repeated}ཚེས་ ${zangli.dayNumber}`;
-	const year = compact ? '' : `${getYearLabel(zangli)}${trans('年')}`;
-	return `${year}${leapMonth}${zangli.monthNumber}${trans('月')}${repeated}${zangli.dayNumber}${trans('日')}`;
+	if (locale === 'bo') return `${compact ? '' : `${getYearLabel(zangli)} · `}${leapMonth}ཟླ་ ${toTibetanDigits(zangli.monthNumber)} · ${repeated}ཚེས་ ${toTibetanDigits(zangli.dayNumber)}`;
+	const year = compact ? '' : `${getYearLabel(zangli)}${trans('年')} · `;
+	const repeatedStatus = zangli.dayLeap ? `（${msg('repeated')}）` : '';
+	return `${year}${leapMonth}${getZangliMonthOrdinal(zangli.monthNumber)}${trans('月')}（${getZangliTraditionalMonth(zangli.monthNumber)}${trans('月')}）${getZangliDayName(zangli.dayNumber)}${repeatedStatus}`;
+}
+
+function formatTibetanCalendarCell(zangli) {
+	const showMonth = zangli.dayNumber === 1 || (zangli.dayNumber === 2 && zangli.dayMiss);
+	if (locale === 'en') return showMonth
+		? msg('monthShort', { month: `${zangli.monthLeap ? 'Leap ' : ''}${zangli.monthNumber}` })
+		: msg('dayShort', { day: String(zangli.dayNumber) });
+	if (locale === 'bo') return showMonth
+		? `${zangli.monthLeap ? 'ཟླ་བཤོལ་ ' : ''}ཟླ་ ${toTibetanDigits(zangli.monthNumber)}`
+		: `ཚེས་ ${toTibetanDigits(zangli.dayNumber)}`;
+	return showMonth
+		? `${zangli.monthLeap ? trans('闰') : ''}${getZangliMonthOrdinal(zangli.monthNumber)}${trans('月')}`
+		: getZangliDayName(zangli.dayNumber);
 }
 
 function formatGregorian(date, options = {}) {
@@ -216,7 +234,7 @@ function renderSelectedDay(date) {
 	const festival = cleanInfo(zangli.extraInfo);
 	const multiplier = cleanInfo(zangli.extraInfo2);
 	const dayLabel = isSameDate(date, getToday()) ? msg('today') : msg('selectedDate');
-	$('selectedDay').innerHTML = `<p class="section-kicker">${escapeHTML(dayLabel)} · ${escapeHTML(msg('tibetan'))}</p><p class="tibetan-date">${escapeHTML(formatTibetanDate(zangli))}</p><p class="gregorian-date">${escapeHTML(formatGregorian(date, { weekday:true }))}</p>${festival ? `<p class="selected-event">${escapeHTML(festival)}</p>` : ''}${multiplier ? `<p class="selected-multiplier">${escapeHTML(multiplier)}</p>` : ''}`;
+	$('selectedDay').innerHTML = `<p class="section-kicker">${escapeHTML(dayLabel)} · ${escapeHTML(msg('tibetan'))}</p><p class="tibetan-date">${escapeHTML(formatTibetanDate(zangli))}</p><p class="gregorian-date"><span class="calendar-system-label">${escapeHTML(msg('gregorian'))}</span>${escapeHTML(formatGregorian(date, { weekday:true }))}</p>${festival ? `<p class="selected-event">${escapeHTML(festival)}</p>` : ''}${multiplier ? `<p class="selected-multiplier">${escapeHTML(multiplier)}</p>` : ''}`;
 }
 
 function renderNextEvent() {
@@ -229,7 +247,7 @@ function renderNextEvent() {
 	}
 	const days = Math.round((event.date - today) / 86400000);
 	const distance = days === 0 ? msg('nextToday') : msg('nextIn', { days: String(days) });
-	$('nextSpecialDay').innerHTML = `<p class="section-kicker">${escapeHTML(distance)}</p><h2>${escapeHTML(eventTitle(event))}</h2><p>${escapeHTML(formatGregorian(event.date, { weekday:true }))}</p><p class="muted">${escapeHTML(formatTibetanDate(event.zangli, true))}</p><button class="inline-link" type="button" data-open-date="${formatDate(event.date)}">${escapeHTML(msg('viewDate'))} →</button>`;
+	$('nextSpecialDay').innerHTML = `<p class="section-kicker">${escapeHTML(distance)}</p><h2>${escapeHTML(eventTitle(event))}</h2><p><span class="calendar-system-label">${escapeHTML(msg('gregorian'))}</span>${escapeHTML(formatGregorian(event.date, { weekday:true }))}</p><p class="muted"><span class="calendar-system-label">${escapeHTML(msg('tibetan'))}</span>${escapeHTML(formatTibetanDate(event.zangli, true))}</p><button class="inline-link" type="button" data-open-date="${formatDate(event.date)}">${escapeHTML(msg('viewDate'))} →</button>`;
 }
 
 function populatePeriodSelects(date) {
@@ -270,9 +288,7 @@ function renderCalendar(date) {
 		cell.classList.toggle('today', isSameDate(current, today));
 		cell.classList.toggle('selected', state.activeDate && isSameDate(current, state.activeDate));
 		for (const type of types) cell.classList.add(`has-${type}`);
-		const shortTibetan = zangli.dayNumber === 1 || (zangli.dayNumber === 2 && zangli.dayMiss)
-			? msg('monthShort', { month: `${zangli.monthLeap ? trans('闰') : ''}${zangli.monthNumber}` })
-			: msg('dayShort', { day: String(zangli.dayNumber) });
+		const shortTibetan = formatTibetanCalendarCell(zangli);
 		const eventLabel = eventTitle({ zangli, eclipse }, false);
 		const label = `${formatGregorian(current, { weekday:true })}. ${formatTibetanDate(zangli)}${eventLabel ? `. ${eventLabel}` : ''}`;
 		cell.setAttribute('aria-label', label);
@@ -299,7 +315,7 @@ function renderAnnualList() {
 	for (const event of events) {
 		const item = document.createElement('li');
 		item.className = 'event-row';
-		item.innerHTML = `<button type="button" data-open-date="${formatDate(event.date)}"><time datetime="${formatDate(event.date)}"><strong>${escapeHTML(new Intl.DateTimeFormat(intlLocale, { month:'short', day:'numeric' }).format(event.date))}</strong><span>${escapeHTML(formatTibetanDate(event.zangli, true))}</span></time><span class="event-copy"><strong>${escapeHTML(eventTitle(event))}</strong><span>${event.types.map(type => `<i class="type-pill ${type}">${escapeHTML(msg(type))}</i>`).join('')}</span></span><span aria-hidden="true">→</span></button>`;
+		item.innerHTML = `<button type="button" data-open-date="${formatDate(event.date)}"><time datetime="${formatDate(event.date)}"><span class="date-line date-line-gregorian"><i>${escapeHTML(msg('gregorian'))}</i><strong>${escapeHTML(new Intl.DateTimeFormat(intlLocale, { month:'short', day:'numeric' }).format(event.date))}</strong></span><span class="date-line date-line-tibetan"><i>${escapeHTML(msg('tibetan'))}</i><span>${escapeHTML(formatTibetanDate(event.zangli, true))}</span></span></time><span class="event-copy"><strong>${escapeHTML(eventTitle(event))}</strong><span>${event.types.map(type => `<i class="type-pill ${type}">${escapeHTML(msg(type))}</i>`).join('')}</span></span><span aria-hidden="true">→</span></button>`;
 		list.appendChild(item);
 	}
 }
@@ -342,7 +358,7 @@ function eclipseTime(timestamp, timeZone) {
 function buildDetailHTML(date) {
 	const zangli = getZangli(date);
 	const eclipse = getEclipse(date);
-	let html = `<p class="section-kicker">${escapeHTML(msg('selectedDate'))}</p><h2 id="detailTitle">${escapeHTML(formatGregorian(date, { weekday:true }))}</h2><section class="detail-section"><h3>${escapeHTML(msg('tibetan'))}</h3><p class="detail-tibetan">${escapeHTML(formatTibetanDate(zangli))}</p><div class="status-row">${zangli.monthLeap ? `<span>${escapeHTML(msg('leapMonth'))}</span>` : ''}${zangli.dayLeap ? `<span>${escapeHTML(msg('repeated'))}</span>` : ''}${zangli.dayMiss ? `<span>${escapeHTML(msg('skipped'))}</span>` : ''}</div></section>`;
+	let html = `<p class="section-kicker">${escapeHTML(msg('selectedDate'))} · ${escapeHTML(msg('gregorian'))}</p><h2 id="detailTitle">${escapeHTML(formatGregorian(date, { weekday:true }))}</h2><section class="detail-section"><h3>${escapeHTML(msg('tibetan'))}</h3><p class="detail-tibetan">${escapeHTML(formatTibetanDate(zangli))}</p><div class="status-row">${zangli.monthLeap ? `<span>${escapeHTML(msg('leapMonth'))}</span>` : ''}${zangli.dayLeap ? `<span>${escapeHTML(msg('repeated'))}</span>` : ''}${zangli.dayMiss ? `<span>${escapeHTML(msg('skipped'))}</span>` : ''}</div></section>`;
 	if (cleanInfo(zangli.extraInfo) || cleanInfo(zangli.extraInfo2)) html += `<section class="detail-section accent-section"><h3>${escapeHTML(msg('observance'))}</h3>${cleanInfo(zangli.extraInfo) ? `<p class="detail-event">${escapeHTML(cleanInfo(zangli.extraInfo))}</p>` : ''}${cleanInfo(zangli.extraInfo2) ? `<p>${escapeHTML(cleanInfo(zangli.extraInfo2))}</p>` : ''}</section>`;
 	if (eclipse.value) {
 		html += `<section class="detail-section eclipse-section"><h3>${escapeHTML(msg('eclipse'))}</h3><p class="detail-event">${escapeHTML(eclipse.value)}</p>`;
@@ -403,7 +419,7 @@ function copyText(text, success) {
 function activeDateText() {
 	if (!state.activeDate) return '';
 	const zangli = getZangli(state.activeDate); const eclipse = getEclipse(state.activeDate);
-	return [formatGregorian(state.activeDate, { weekday:true }), `${msg('tibetan')}: ${formatTibetanDate(zangli)}`, cleanInfo(zangli.extraInfo), cleanInfo(zangli.extraInfo2), eclipse.value].filter(Boolean).join('\n');
+	return [`${msg('gregorian')}: ${formatGregorian(state.activeDate, { weekday:true })}`, `${msg('tibetan')}: ${formatTibetanDate(zangli)}`, cleanInfo(zangli.extraInfo), cleanInfo(zangli.extraInfo2), eclipse.value].filter(Boolean).join('\n');
 }
 
 function copyDateInfo() { copyText(activeDateText(), msg('copied')); }
@@ -475,7 +491,7 @@ function runReverseLookup(event) {
 	}
 	const container = $('reverseResults');
 	if (!results.length) { container.innerHTML = `<p class="empty-state">${escapeHTML(msg('reverseNone'))}</p>`; return; }
-	container.innerHTML = `<p class="panel-summary">${escapeHTML(msg('reverseFound', { count:String(results.length) }))}</p><div class="result-grid">${results.map(result => `<button type="button" data-open-date="${formatDate(result.date)}"><strong>${escapeHTML(formatGregorian(result.date, { weekday:true }))}</strong><span>${escapeHTML(formatTibetanDate(result.zangli))}</span>${result.zangli.dayLeap ? `<i>${escapeHTML(msg('repeated'))}</i>` : ''}${result.zangli.dayMiss ? `<i>${escapeHTML(msg('skipped'))}</i>` : ''}</button>`).join('')}</div>`;
+	container.innerHTML = `<p class="panel-summary">${escapeHTML(msg('reverseFound', { count:String(results.length) }))}</p><div class="result-grid">${results.map(result => `<button type="button" data-open-date="${formatDate(result.date)}"><strong><small class="calendar-system-label">${escapeHTML(msg('gregorian'))}</small>${escapeHTML(formatGregorian(result.date, { weekday:true }))}</strong><span><small class="calendar-system-label">${escapeHTML(msg('tibetan'))}</small>${escapeHTML(formatTibetanDate(result.zangli))}</span>${result.zangli.dayLeap ? `<i>${escapeHTML(msg('repeated'))}</i>` : ''}${result.zangli.dayMiss ? `<i>${escapeHTML(msg('skipped'))}</i>` : ''}</button>`).join('')}</div>`;
 }
 
 function showToast(message) {

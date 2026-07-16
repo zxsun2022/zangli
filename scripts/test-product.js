@@ -23,6 +23,12 @@ function runtime(localePath) {
 
 const en = runtime('/en/');
 assert.equal(en.trans('有'), '', 'English empty translations must not fall back to Chinese');
+const zh = runtime('/');
+assert.equal(vm.runInContext('getZangliDayName(10)', zh), '初十');
+assert.equal(vm.runInContext('getZangliDayName(20)', zh), '二十');
+assert.equal(vm.runInContext('getZangliDayName(21)', zh), '廿一');
+assert.equal(vm.runInContext('getZangliMonthOrdinal(1)', zh), '正');
+assert.equal(vm.runInContext('getZangliTraditionalMonth(4)', zh), '萨嘎');
 const july15 = vm.runInContext('getZangli(new Date(2026, 6, 15, 12))', en);
 assert.deepEqual(
 	{ month: july15.monthNumber, day: july15.dayNumber, element: july15.elementIndex, animal: july15.animalIndex },
@@ -61,8 +67,12 @@ for (const [file, language] of [['index.html','zh-CN'],['tw/index.html','zh-TW']
 	for (const id of ['basisButton','selectedDay','nextSpecialDay','calendarWorkspace','annualPanel','reversePanel','aboutPanel','settingsDialog']) {
 		assert.ok(html.includes(`id="${id}"`), `${file} missing ${id}`);
 	}
-	assert.ok(html.includes('v=20260716-6'));
+	assert.ok(html.includes('v=20260716-7'));
 }
+assert.ok(read('index.html').includes('<option value="4">四月（萨嘎月）</option>'));
+assert.ok(read('index.html').includes('<option value="20">二十</option>'));
+assert.ok(read('bo/index.html').includes('<option value="20">ཚེས་ ༢༠</option>'));
+assert.ok(!read('js/app.js').includes("dayShort: '初{day}'"));
 
 for (const file of ['manifest.json','tw/manifest.json','en/manifest.json','bo/manifest.json']) JSON.parse(read(file));
 for (const file of ['css/style.css','css/widget.css','js/app.js','js/widget.js','js/i18n-data.js','js/i18n.js','zangli.js','eclipse.js','calendar/zangli-special-days.ics']) {

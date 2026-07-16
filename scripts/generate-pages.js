@@ -14,7 +14,7 @@ const locales = {
 		export: '导出本年 .ics', subscribe: '订阅 2026–2030', reverseHint: '选择公历年份范围及藏历月、日，查找对应的公历日期。',
 		gregYear: '公历年份范围', lunarMonth: '藏历月份', lunarDay: '藏历日', includeLeap: '包含闰月', search: '开始反查',
 		sourceTitle: '你正在查看的是什么历日？',
-		source: '藏历对照来自《藏历、公历、农历对照百年历书（1951–2050）》。本地模式只用你设备所在时区确定“今天”，再查询同一份历书；它不是按所在地重新推算的天文历法。不同寺院、传承或历书的殊胜日口径可能不同。日月食按北京时间日期归档，实际可见性与当地位置有关。',
+		source: '藏历对照来自《藏历、公历、农历对照百年历书（1951–2050）》。本地模式只用你设备所在时区确定“今天”，再查询同一份历书；它不是按所在地重新推算的天文历法。不同寺院、传承或历书的殊胜日口径可能不同。日月食按北京时间日期归档，实际可见性与当地位置有关。显示上，公历保留阿拉伯数字并明确标注；藏历使用正月、初一至初十、十一至三十等中文历日写法，并附传统月名，例如四月“萨嘎月”。',
 		install: '离线使用', installText: '安装到桌面后，可离线查看已缓存的页面，也可打开紧凑小组件。', installButton: '安装应用', widget: '打开桌面小组件',
 		settings: '设置', settingsTitle: '日期与显示设置', localBasis: '设备本地日期', beijingBasis: '北京时间日期', localHelp: '适合确认温哥华等所在地的“今天”对应哪一个历书日期。', beijingHelp: '与原始日月食归档及中国常用历日保持同一天。', close: '完成',
 		share: '分享', copy: '复制信息', reminder: '添加提醒', prevMonth: '上一月', nextMonth: '下一月', prevYear: '上一年', nextYear: '下一年',
@@ -23,7 +23,7 @@ const locales = {
 	tw: {
 		dir: 'tw', lang: 'zh-TW', locale: 'zh_TW', name: '百年藏曆', short: '現代曆書',
 		title: '百年藏曆｜公曆藏曆對照、殊勝日與提醒', description: '1951–2051 公曆藏曆對照工具，支援本地日期口徑、殊勝日清單、藏曆反查、日曆提醒與離線使用。',
-		eyebrow: '公曆 ↔ 藏曆 · 1951–2051', tagline: '今日藏曆', basis: '日期口徑', next: '下一殊勝日', monthView: '月曆', today: '今天', annual: '年度殊勝日', reverse: '藏曆反查', about: '計算口徑', all: '全部類型', festival: '節日', multiplier: '功德增廣日', eclipse: '日月食', export: '匯出本年 .ics', subscribe: '訂閱 2026–2030', reverseHint: '選擇公曆年份範圍及藏曆月、日，查找對應的公曆日期。', gregYear: '公曆年份範圍', lunarMonth: '藏曆月份', lunarDay: '藏曆日', includeLeap: '包含閏月', search: '開始反查', sourceTitle: '你正在查看的是什麼曆日？', source: '藏曆對照來自《藏曆、公曆、農曆對照百年曆書（1951–2050）》。本地模式只用你裝置所在時區確定「今天」，再查詢同一份曆書；它不是按所在地重新推算的天文曆法。不同寺院、傳承或曆書的殊勝日口徑可能不同。日月食按北京時間日期歸檔，實際可見性與當地位置有關。', install: '離線使用', installText: '安裝到桌面後，可離線查看已快取的頁面，也可打開緊湊小組件。', installButton: '安裝應用', widget: '打開桌面小組件', settings: '設定', settingsTitle: '日期與顯示設定', localBasis: '裝置本地日期', beijingBasis: '北京時間日期', localHelp: '適合確認溫哥華等所在地的「今天」對應哪一個曆書日期。', beijingHelp: '與原始日月食歸檔及中國常用曆日保持同一天。', close: '完成', share: '分享', copy: '複製資訊', reminder: '添加提醒', prevMonth: '上一月', nextMonth: '下一月', prevYear: '上一年', nextYear: '下一年', week: ['週日','週一','週二','週三','週四','週五','週六'], noscript: '此日曆需要啟用 JavaScript 才能查詢。', boBeta: ''
+		eyebrow: '公曆 ↔ 藏曆 · 1951–2051', tagline: '今日藏曆', basis: '日期口徑', next: '下一殊勝日', monthView: '月曆', today: '今天', annual: '年度殊勝日', reverse: '藏曆反查', about: '計算口徑', all: '全部類型', festival: '節日', multiplier: '功德增廣日', eclipse: '日月食', export: '匯出本年 .ics', subscribe: '訂閱 2026–2030', reverseHint: '選擇公曆年份範圍及藏曆月、日，查找對應的公曆日期。', gregYear: '公曆年份範圍', lunarMonth: '藏曆月份', lunarDay: '藏曆日', includeLeap: '包含閏月', search: '開始反查', sourceTitle: '你正在查看的是什麼曆日？', source: '藏曆對照來自《藏曆、公曆、農曆對照百年曆書（1951–2050）》。本地模式只用你裝置所在時區確定「今天」，再查詢同一份曆書；它不是按所在地重新推算的天文曆法。不同寺院、傳承或曆書的殊勝日口徑可能不同。日月食按北京時間日期歸檔，實際可見性與當地位置有關。顯示上，公曆保留阿拉伯數字並明確標註；藏曆使用正月、初一至初十、十一至三十等中文曆日寫法，並附傳統月名，例如四月「薩嘎月」。', install: '離線使用', installText: '安裝到桌面後，可離線查看已快取的頁面，也可打開緊湊小組件。', installButton: '安裝應用', widget: '打開桌面小組件', settings: '設定', settingsTitle: '日期與顯示設定', localBasis: '裝置本地日期', beijingBasis: '北京時間日期', localHelp: '適合確認溫哥華等所在地的「今天」對應哪一個曆書日期。', beijingHelp: '與原始日月食歸檔及中國常用曆日保持同一天。', close: '完成', share: '分享', copy: '複製資訊', reminder: '添加提醒', prevMonth: '上一月', nextMonth: '下一月', prevYear: '上一年', nextYear: '下一年', week: ['週日','週一','週二','週三','週四','週五','週六'], noscript: '此日曆需要啟用 JavaScript 才能查詢。', boBeta: ''
 	},
 	en: {
 		dir: 'en', lang: 'en', locale: 'en_US', name: 'Tibetan Calendar', short: 'Modern Almanac',
@@ -41,8 +41,26 @@ function render(locale, s) {
 	const prefix = s.dir ? `/${s.dir}/` : '/';
 	const languageOptions = [['zh-cn','简体'],['tw','繁體'],['en','English'],['bo','བོད་ཡིག']]
 		.map(([value, label]) => `<option value="${value}"${value === locale ? ' selected' : ''}>${label}</option>`).join('');
-	const monthOptions = Array.from({length: 12}, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('');
-	const dayOptions = Array.from({length: 30}, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('');
+	const monthOrdinals = locale === 'tw'
+		? ['正','二','三','四','五','六','七','八','九','十','十一','十二']
+		: ['正','二','三','四','五','六','七','八','九','十','十一','十二'];
+	const traditionalMonths = locale === 'tw'
+		? ['神變','苦行','具香','薩嘎','作淨','明淨','具醉','具賢','天降','持眾','莊嚴','滿意']
+		: ['神变','苦行','具香','萨嘎','作净','明净','具醉','具贤','天降','持众','庄严','满意'];
+	const dayNames = ['初一','初二','初三','初四','初五','初六','初七','初八','初九','初十','十一','十二','十三','十四','十五','十六','十七','十八','十九','二十','廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'];
+	const tibetanDigits = value => String(value).replace(/\d/g, digit => '༠༡༢༣༤༥༦༧༨༩'[Number(digit)]);
+	const monthOptions = Array.from({length: 12}, (_, i) => {
+		const value = i + 1;
+		const label = locale === 'zh-cn' || locale === 'tw' ? `${monthOrdinals[i]}月（${traditionalMonths[i]}月）`
+			: locale === 'bo' ? `ཟླ་ ${tibetanDigits(value)}` : value;
+		return `<option value="${value}">${label}</option>`;
+	}).join('');
+	const dayOptions = Array.from({length: 30}, (_, i) => {
+		const value = i + 1;
+		const label = locale === 'zh-cn' || locale === 'tw' ? dayNames[i]
+			: locale === 'bo' ? `ཚེས་ ${tibetanDigits(value)}` : value;
+		return `<option value="${value}">${label}</option>`;
+	}).join('');
 	return `<!DOCTYPE html>
 <html lang="${s.lang}">
 <head>
@@ -55,13 +73,13 @@ function render(locale, s) {
 	<link rel="canonical" href="https://zangli.org${prefix}">
 	<meta property="og:title" content="${s.title}"><meta property="og:description" content="${s.description}"><meta property="og:type" content="website"><meta property="og:url" content="https://zangli.org${prefix}"><meta property="og:image" content="https://zangli.org/logo-512x512-circle.png"><meta property="og:locale" content="${s.locale}">
 	<meta name="twitter:card" content="summary"><meta name="twitter:title" content="${s.title}"><meta name="twitter:description" content="${s.description}"><meta name="twitter:image" content="https://zangli.org/logo-512x512-circle.png">
-	<link rel="icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="manifest" href="${prefix}manifest.json?v=20260716-6">
+	<link rel="icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="manifest" href="${prefix}manifest.json?v=20260716-7">
 	<title>${s.title}</title>
 	<link rel="alternate" hreflang="zh-CN" href="https://zangli.org/"><link rel="alternate" hreflang="zh-TW" href="https://zangli.org/tw/"><link rel="alternate" hreflang="en" href="https://zangli.org/en/"><link rel="alternate" hreflang="bo" href="https://zangli.org/bo/"><link rel="alternate" hreflang="x-default" href="https://zangli.org/en/">
 	<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"${s.name}","url":"https://zangli.org${prefix}","description":"${s.description}","applicationCategory":"Calendar","operatingSystem":"All","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"inLanguage":"${s.lang}"}</script>
-	<link rel="stylesheet" href="/css/style.css?v=20260716-6">
-	<script src="/js/langDetect.js?v=20260716-6"></script>
-	<script defer src="/js/i18n-data.js?v=20260716-6"></script><script defer src="/js/i18n.js?v=20260716-6"></script><script defer src="/zangli.js?v=20260716-6"></script><script defer src="/eclipse.js?v=20260716-6"></script><script defer src="/js/app.js?v=20260716-6"></script>
+	<link rel="stylesheet" href="/css/style.css?v=20260716-7">
+	<script src="/js/langDetect.js?v=20260716-7"></script>
+	<script defer src="/js/i18n-data.js?v=20260716-7"></script><script defer src="/js/i18n.js?v=20260716-7"></script><script defer src="/zangli.js?v=20260716-7"></script><script defer src="/eclipse.js?v=20260716-7"></script><script defer src="/js/app.js?v=20260716-7"></script>
 </head>
 <body>
 	<a class="skip-link" href="#calendarWorkspace">Skip to calendar</a>

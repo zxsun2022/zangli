@@ -121,6 +121,23 @@ const specialDays = [
 const startDate = new Date(1951, 0, 8, 12, 0, 0);  // 1951/1/8 12:00
 const endDate = new Date(2051, 1, 11, 12, 0, 0);   // 2051/2/11 12:00
 
+// 中文藏历日期使用历书中常见的月、日名称。集中维护，避免界面把每一天都拼成“初+数字”。
+const zangliMonthOrdinals = Object.freeze(["正", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二"]);
+const zangliTraditionalMonths = Object.freeze(["神变", "苦行", "具香", "萨嘎", "作净", "明净", "具醉", "具贤", "天降", "持众", "庄严", "满意"]);
+const zangliDayNames = Object.freeze(["初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十", "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十", "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"]);
+
+function getZangliMonthOrdinal(monthNumber) {
+	return trans(zangliMonthOrdinals[Number(monthNumber) - 1] || String(monthNumber));
+}
+
+function getZangliTraditionalMonth(monthNumber) {
+	return trans(zangliTraditionalMonths[Number(monthNumber) - 1] || String(monthNumber));
+}
+
+function getZangliDayName(dayNumber) {
+	return trans(zangliDayNames[Number(dayNumber) - 1] || String(dayNumber));
+}
+
 /*方法说明
  *@method getZangli
  *@param{String,Date,Number}p 可以转换成标准日期的入参
@@ -210,15 +227,15 @@ function getZangli(p) {
 				result.animalIndex = years % 12;
 				result.monthNumber = months - leapMonths + 1;
 				result.year = trans(`铁水木火土`.substr(Math.floor((years) / 2) % 5, 1) + `虎兔龙蛇马羊猴鸡狗猪鼠牛`.substr(years % 12, 1));
-				result.month = trans((monthLeap ? "闰" : "") + ["正", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二"][months - leapMonths]);
-				result.tMonth = trans((monthLeap ? "闰" : "") + ["神变", "苦行", "具香", "萨嘎", "作净", "明净", "具醉", "具贤", "天降", "持众", "庄严", "满意"][months - leapMonths]);
+				result.month = trans((monthLeap ? "闰" : "") + zangliMonthOrdinals[result.monthNumber - 1]);
+				result.tMonth = trans((monthLeap ? "闰" : "") + zangliTraditionalMonths[result.monthNumber - 1]);
 				
 				// Ensure tDays2 is within valid range for the day names array
 				if (tDays2 < 0) tDays2 = 0;
 				if (tDays2 > 29) tDays2 = 29;
 				result.dayNumber = tDays2 + 1;
 				
-				result.day = trans((dayLeap ? "闰" : "") + ["初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十", "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十", "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"][tDays2]);
+				result.day = trans((dayLeap ? "闰" : "") + zangliDayNames[result.dayNumber - 1]);
 				result.dayLeap = dayLeap;
 				result.monthLeap = monthLeap;
 				result.dayMiss = dayMiss;
