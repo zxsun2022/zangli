@@ -61,7 +61,7 @@ for (const [file, language] of [['index.html','zh-CN'],['tw/index.html','zh-TW']
 	for (const id of ['basisButton','selectedDay','nextSpecialDay','calendarWorkspace','annualPanel','reversePanel','aboutPanel','settingsDialog']) {
 		assert.ok(html.includes(`id="${id}"`), `${file} missing ${id}`);
 	}
-	assert.ok(html.includes('v=20260716-4'));
+	assert.ok(html.includes('v=20260716-6'));
 }
 
 for (const file of ['manifest.json','tw/manifest.json','en/manifest.json','bo/manifest.json']) JSON.parse(read(file));

@@ -8,7 +8,7 @@ const deviceTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
 const BEIJING_TIME_ZONE = 'Asia/Shanghai';
 
 const messages = {
-	selectedDate: '所选日期', localBasis: '设备本地日期', beijingBasis: '北京时间日期',
+	selectedDate: '所选日期', today: '今天', localBasis: '设备本地日期', beijingBasis: '北京时间日期',
 	lookupNote: '查询《百年历书》的公历日期', deviceZone: '设备时区',
 	discrepancy: '此刻本地是 {local}，北京是 {beijing}。页面按“{basis}”显示。',
 	nextIn: '{days} 天后', nextToday: '就是今天', noNext: '支持范围内没有找到下一殊胜日',
@@ -31,12 +31,12 @@ const messages = {
 };
 
 const englishMessages = {
-	selectedDate:'Selected date',localBasis:'Device-local date',beijingBasis:'Beijing date',lookupNote:'Gregorian date used to query the published crosswalk',deviceZone:'Device time zone',
+	selectedDate:'Selected date',today:'Today',localBasis:'Device-local date',beijingBasis:'Beijing date',lookupNote:'Gregorian date used to query the published crosswalk',deviceZone:'Device time zone',
 	discrepancy:'It is {local} locally and {beijing} in Beijing. This page is using “{basis}.”',nextIn:'In {days} days',nextToday:'Today',noNext:'No later observance was found in the supported range',viewDate:'View date',events:'{count} matching dates in {year}',noEvents:'No dates match this filter.',reverseFound:'Found {count} matching dates',reverseNone:'No date was found. The Tibetan day may be skipped or outside the selected Gregorian year.',repeated:'Repeated day',skipped:'Skipped day',leapMonth:'Leap month',localEclipse:'Your time zone',beijingEclipse:'Beijing time',eclipseArchive:'Eclipses are filed by Beijing date. Visibility and local contact times depend on location.',calendarExported:'Calendar file created',reminderExported:'Reminder file created; import it into your calendar',installUnavailable:'Use your browser menu to install this page.',offlineReady:'Offline access is ready',copied:'Date details copied',linkCopied:'Share link copied',festival:'Observance',multiplier:'Multiplier day',eclipse:'Eclipse',all:'All',gregorian:'Gregorian',tibetan:'Tibetan',sourceBadge:'Published crosswalk',dateBasis:'Date basis',yearSuffix:'',monthSuffix:'',daySuffix:'',weekdayPrefix:'',monthTitle:'{month} {year}',monthShort:'Month {month}',dayShort:'Day {day}',viewDetails:'View details',observance:'Observance',source:'Source & method',localModeDetail:'“Local” only decides which Gregorian day to look up. It does not recalculate local Tibetan astronomical parameters.',icsDescription:'Tibetan calendar: {tibetan}. {detail}',openSource:'Open-source data',copiedTitle:'Tibetan Calendar',install:'Install',themeDark:'Switch to dark mode',themeLight:'Switch to light mode'
 };
 
 const tibetanMessages = {
-	selectedDate:'བདམས་པའི་ཚེས།',localBasis:'ས་གནས་ཀྱི་ཚེས།',beijingBasis:'པེ་ཅིང་གི་ཚེས།',nextToday:'དེ་རིང་།',viewDate:'ཚེས་ལ་བལྟ་བ།',festival:'དུས་ཆེན།',multiplier:'དགེ་བ་འཕེལ་བའི་ཉིན།',eclipse:'ཉི་ཟླ་འཛིན་པ།',gregorian:'སྤྱི་ལོ།',tibetan:'བོད་ཟླ།',dateBasis:'ཚེས་གྲངས་ཀྱི་གཞི།',monthShort:'ཟླ་ {month}',dayShort:'ཚེས་ {day}',viewDetails:'ཞིབ་ཕྲ།',observance:'དུས་ཆེན།',install:'Install'
+	selectedDate:'བདམས་པའི་ཚེས།',today:'དེ་རིང་།',localBasis:'ས་གནས་ཀྱི་ཚེས།',beijingBasis:'པེ་ཅིང་གི་ཚེས།',nextToday:'དེ་རིང་།',viewDate:'ཚེས་ལ་བལྟ་བ།',festival:'དུས་ཆེན།',multiplier:'དགེ་བ་འཕེལ་བའི་ཉིན།',eclipse:'ཉི་ཟླ་འཛིན་པ།',gregorian:'སྤྱི་ལོ།',tibetan:'བོད་ཟླ།',dateBasis:'ཚེས་གྲངས་ཀྱི་གཞི།',monthShort:'ཟླ་ {month}',dayShort:'ཚེས་ {day}',viewDetails:'ཞིབ་ཕྲ།',observance:'དུས་ཆེན།',install:'Install'
 };
 
 function msg(key, values = {}) {
@@ -215,7 +215,8 @@ function renderSelectedDay(date) {
 	const zangli = getZangli(date);
 	const festival = cleanInfo(zangli.extraInfo);
 	const multiplier = cleanInfo(zangli.extraInfo2);
-	$('selectedDay').innerHTML = `<p class="section-kicker">${escapeHTML(msg('selectedDate'))}</p><p class="gregorian-date">${escapeHTML(formatGregorian(date, { weekday:true }))}</p><p class="tibetan-date">${escapeHTML(formatTibetanDate(zangli))}</p>${festival ? `<p class="selected-event">${escapeHTML(festival)}</p>` : ''}${multiplier ? `<p class="selected-multiplier">${escapeHTML(multiplier)}</p>` : ''}`;
+	const dayLabel = isSameDate(date, getToday()) ? msg('today') : msg('selectedDate');
+	$('selectedDay').innerHTML = `<p class="section-kicker">${escapeHTML(dayLabel)} · ${escapeHTML(msg('tibetan'))}</p><p class="tibetan-date">${escapeHTML(formatTibetanDate(zangli))}</p><p class="gregorian-date">${escapeHTML(formatGregorian(date, { weekday:true }))}</p>${festival ? `<p class="selected-event">${escapeHTML(festival)}</p>` : ''}${multiplier ? `<p class="selected-multiplier">${escapeHTML(multiplier)}</p>` : ''}`;
 }
 
 function renderNextEvent() {
