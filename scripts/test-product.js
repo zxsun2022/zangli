@@ -102,10 +102,14 @@ for (const file of ['widget/index.html','sw.js']) {
 assert.ok(read('sw.js').includes(`const CACHE_NAME = 'zangli-${ASSET_VERSION}';`));
 assert.ok(read('sw.js').includes("key.startsWith('zangli-')"), 'Service worker should only delete its own caches');
 assert.ok(read('sw.js').includes('if (!response.ok'), 'Service worker should not cache error responses');
+assert.ok(read('sw.js').includes('.catch(() => {}).then(() => response)'), 'A failed cache write should not fail the request it came from');
 
 const app = read('js/app.js');
 assert.ok(app.includes("readStorage('zangli-date-basis'"), 'Main app should tolerate unavailable browser storage');
 assert.ok(app.includes("writeStorage('zangli-theme'"), 'Theme changes should tolerate unavailable browser storage');
+assert.ok(app.includes('clearTimeout(state.detailCloseTimer)'), 'Reopening the detail dialog should cancel a pending close');
+assert.ok(app.includes('dialog.getBoundingClientRect()'), 'Backdrop dismissal should ignore clicks on the dialog padding');
+assert.ok(!app.includes('trapDetailFocus'), 'The native modal dialog already traps focus');
 assert.ok(read('js/widget.js').includes("readStorage('zangli-theme'"), 'Widget should tolerate unavailable browser storage');
 
 const nginx = read('nginx.conf');

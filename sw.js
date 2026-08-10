@@ -17,7 +17,8 @@ self.addEventListener('activate', event => {
 
 function cacheResponse(request, response) {
 	if (!response.ok || !['basic', 'cors'].includes(response.type)) return Promise.resolve(response);
-	return caches.open(CACHE_NAME).then(cache => cache.put(request, response.clone())).then(() => response);
+	// A failed write (quota, opaque range response) must never fail the request itself.
+	return caches.open(CACHE_NAME).then(cache => cache.put(request, response.clone())).catch(() => {}).then(() => response);
 }
 
 self.addEventListener('fetch', event => {

@@ -67,6 +67,7 @@ const state = {
 	selectedCell: null,
 	activeDate: null,
 	previousFocus: null,
+	detailCloseTimer: null,
 	annualEvents: [],
 	annualExpanded: false,
 	annualRenderedYear: null,
@@ -449,6 +450,7 @@ function openDetail(date, anchor) {
 	state.previousFocus = anchor || document.activeElement;
 	$('detailContent').innerHTML = buildDetailHTML(date);
 	const dialog = $('detailDialog');
+	if (state.detailCloseTimer) { clearTimeout(state.detailCloseTimer); state.detailCloseTimer = null; }
 	dialog.classList.toggle('bottom-sheet', innerWidth <= 720);
 	if (!dialog.open) dialog.showModal();
 	requestAnimationFrame(() => dialog.classList.add('active'));
@@ -459,15 +461,26 @@ function openDetail(date, anchor) {
 
 function closeDetail(updateHistory = true) {
 	const dialog = $('detailDialog');
-	if (!dialog.open) return;
+	if (!dialog.open || state.detailCloseTimer) return;
 	dialog.classList.remove('active');
 	if (updateHistory && location.pathname !== basePath) history.replaceState({}, '', `${basePath}#${state.activeDate.getFullYear()}/${state.activeDate.getMonth() + 1}/${state.activeDate.getDate()}`);
 	const previous = state.previousFocus;
 	state.activeDate = null;
-	setTimeout(() => {
+	state.detailCloseTimer = setTimeout(() => {
+		state.detailCloseTimer = null;
 		if (dialog.open) dialog.close();
 		if (previous && previous.isConnected) previous.focus();
 	}, 160);
+}
+
+// A click on the dialog element itself lands either on ::backdrop or on the card's own
+// padding ring; only the former should dismiss it.
+function handleDetailBackdropClick(event) {
+	const dialog = $('detailDialog');
+	if (event.target !== dialog) return;
+	const box = dialog.getBoundingClientRect();
+	const inside = event.clientX >= box.left && event.clientX <= box.right && event.clientY >= box.top && event.clientY <= box.bottom;
+	if (!inside) closeDetail();
 }
 
 function openDateFromElement(element) {
@@ -606,16 +619,6 @@ function handleDocumentKeydown(event) {
 	if (cell && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); openDateFromElement(cell); }
 }
 
-function trapDetailFocus(event) {
-	if (event.key !== 'Tab') return;
-	const focusable = [...$('detailDialog').querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')]
-		.filter(element => !element.disabled && !element.hidden);
-	if (!focusable.length) return;
-	const first = focusable[0], last = focusable[focusable.length - 1];
-	if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-	else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
-}
-
 function handleHistory() {
 	const routeDate = parseRouteDate();
 	if (routeDate) { renderApp(routeDate); openDetail(routeDate); }
@@ -652,8 +655,7 @@ function initApp() {
 	$('reverseForm').addEventListener('submit', runReverseLookup);
 	$('closeDetailButton').addEventListener('click', () => closeDetail());
 	$('detailDialog').addEventListener('cancel', event => { event.preventDefault(); closeDetail(); });
-	$('detailDialog').addEventListener('click', event => { if (event.target === $('detailDialog')) closeDetail(); });
-	$('detailDialog').addEventListener('keydown', trapDetailFocus);
+	$('detailDialog').addEventListener('click', handleDetailBackdropClick);
 	$('copyButton').addEventListener('click', copyDateInfo);
 	$('shareButton').addEventListener('click', shareDate);
 	$('reminderButton').addEventListener('click', addReminder);
