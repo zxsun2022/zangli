@@ -1,5 +1,7 @@
 # 语言检测逻辑修复说明
 
+> **历史归档。** 当前语言逻辑已改为 `js/langDetect.js` 与 `js/app.js` 中的 `zangli-language` 本地存储、路径语言前缀和服务端重写。本文的 `sessionStorage` 键名与部分代码片段不再是当前实现。
+
 ## 🔧 **修复的问题**
 
 ### 1. Sitemap中的无效URL

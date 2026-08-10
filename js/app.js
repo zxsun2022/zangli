@@ -7,6 +7,16 @@ const intlLocale = { 'zh-cn': 'zh-CN', tw: 'zh-TW', en: 'en-CA', bo: 'bo' }[loca
 const deviceTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
 const BEIJING_TIME_ZONE = 'Asia/Shanghai';
 
+function readStorage(key, fallback) {
+	try { return localStorage.getItem(key) ?? fallback; }
+	catch (error) { return fallback; }
+}
+
+function writeStorage(key, value) {
+	try { localStorage.setItem(key, value); return true; }
+	catch (error) { return false; }
+}
+
 const messages = {
 	selectedDate: '所选日期', today: '今天', localBasis: '设备本地日期', beijingBasis: '北京时间日期',
 	lookupNote: '查询《百年历书》的公历日期', deviceZone: '设备时区',
@@ -52,11 +62,12 @@ function msg(key, values = {}) {
 }
 
 const state = {
-	basis: localStorage.getItem('zangli-date-basis') === 'beijing' ? 'beijing' : 'local',
-	theme: localStorage.getItem('zangli-theme') || 'system',
+	basis: readStorage('zangli-date-basis', 'local') === 'beijing' ? 'beijing' : 'local',
+	theme: readStorage('zangli-theme', 'system'),
 	selectedCell: null,
 	activeDate: null,
 	previousFocus: null,
+	detailCloseTimer: null,
 	annualEvents: [],
 	annualExpanded: false,
 	annualRenderedYear: null,
@@ -303,7 +314,7 @@ function renderCalendar(date) {
 		const label = `${formatGregorian(current, { weekday:true })}. ${formatTibetanDate(zangli)}${eventLabel ? `. ${eventLabel}` : ''}`;
 		cell.setAttribute('aria-label', label);
 		cell.title = label;
-		cell.innerHTML = `<span class="day-number">${day}</span><span class="lunar-date">${escapeHTML(shortTibetan)}</span><span class="cell-markers" aria-hidden="true">${types.map(type => `<i class="${type}-marker"></i>`).join('')}</span><span class="cell-event wide">${escapeHTML(cleanInfo(zangli.extraInfo) || eclipse.value || '')}</span>`;
+		cell.innerHTML = `<span class="day-number">${day}</span><span class="lunar-date">${escapeHTML(shortTibetan)}</span><span class="cell-meta"><span class="cell-event wide">${escapeHTML(cleanInfo(zangli.extraInfo) || eclipse.value || '')}</span><span class="cell-markers" aria-hidden="true">${types.map(type => `<i class="${type}-marker"></i>`).join('')}</span></span>`;
 	}
 	while (row.cells.length < 7) row.insertCell().className = 'empty-cell';
 }
@@ -346,10 +357,10 @@ function renderAnnualList() {
 	if (state.annualRenderedYear !== year) {
 		state.annualRenderedYear = year;
 		state.annualExpanded = false;
+		const from = createLocalDate(year, 1, 1) < startDate ? startDate : createLocalDate(year, 1, 1);
+		const to = createLocalDate(year, 12, 31) > endDate ? endDate : createLocalDate(year, 12, 31);
+		state.annualEvents = scanEvents(from, to);
 	}
-	const from = createLocalDate(year, 1, 1) < startDate ? startDate : createLocalDate(year, 1, 1);
-	const to = createLocalDate(year, 12, 31) > endDate ? endDate : createLocalDate(year, 12, 31);
-	state.annualEvents = scanEvents(from, to);
 	const filter = $('annualFilter').value;
 	const filteredEvents = state.annualEvents.filter(event => filter === 'all' || event.types.includes(filter));
 	const today = getToday();
@@ -394,7 +405,7 @@ function renderApp(date = getRequestedDate()) {
 	renderSelectedDay(date);
 	renderCalendar(date);
 	renderNextEvent();
-	renderAnnualList();
+	if (!$('annualPanel').hidden) renderAnnualList();
 }
 
 function navigateTo(year, month, day = 1) {
@@ -433,39 +444,43 @@ function buildDetailHTML(date) {
 	return html;
 }
 
-function setBackgroundInert(value) {
-	const shell = document.querySelector('.site-shell');
-	shell.inert = value;
-	if (value) shell.setAttribute('aria-hidden', 'true'); else shell.removeAttribute('aria-hidden');
-}
-
 function openDetail(date, anchor) {
 	if (!isSupportedDate(date)) return;
 	state.activeDate = date;
 	state.previousFocus = anchor || document.activeElement;
 	$('detailContent').innerHTML = buildDetailHTML(date);
-	$('detailMask').style.display = 'block';
-	$('detailDialog').style.display = 'block';
-	$('detailDialog').setAttribute('aria-hidden', 'false');
-	$('detailDialog').classList.toggle('bottom-sheet', innerWidth <= 720);
-	requestAnimationFrame(() => $('detailDialog').classList.add('active'));
-	setBackgroundInert(true);
+	const dialog = $('detailDialog');
+	if (state.detailCloseTimer) { clearTimeout(state.detailCloseTimer); state.detailCloseTimer = null; }
+	dialog.classList.toggle('bottom-sheet', innerWidth <= 720);
+	if (!dialog.open) dialog.showModal();
+	requestAnimationFrame(() => dialog.classList.add('active'));
 	$('closeDetailButton').focus();
 	const path = `${basePath}date/${formatDate(date)}`;
 	if (location.pathname !== path) history.pushState({ detail:true }, '', path);
 }
 
 function closeDetail(updateHistory = true) {
-	if ($('detailDialog').style.display !== 'block') return;
-	$('detailMask').style.display = 'none';
-	$('detailDialog').classList.remove('active');
-	$('detailDialog').setAttribute('aria-hidden', 'true');
-	setBackgroundInert(false);
-	setTimeout(() => { $('detailDialog').style.display = 'none'; }, 160);
+	const dialog = $('detailDialog');
+	if (!dialog.open || state.detailCloseTimer) return;
+	dialog.classList.remove('active');
 	if (updateHistory && location.pathname !== basePath) history.replaceState({}, '', `${basePath}#${state.activeDate.getFullYear()}/${state.activeDate.getMonth() + 1}/${state.activeDate.getDate()}`);
 	const previous = state.previousFocus;
 	state.activeDate = null;
-	if (previous && previous.isConnected) previous.focus();
+	state.detailCloseTimer = setTimeout(() => {
+		state.detailCloseTimer = null;
+		if (dialog.open) dialog.close();
+		if (previous && previous.isConnected) previous.focus();
+	}, 160);
+}
+
+// A click on the dialog element itself lands either on ::backdrop or on the card's own
+// padding ring; only the former should dismiss it.
+function handleDetailBackdropClick(event) {
+	const dialog = $('detailDialog');
+	if (event.target !== dialog) return;
+	const box = dialog.getBoundingClientRect();
+	const inside = event.clientX >= box.left && event.clientX <= box.right && event.clientY >= box.top && event.clientY <= box.bottom;
+	if (!inside) closeDetail();
 }
 
 function openDateFromElement(element) {
@@ -578,11 +593,18 @@ function applyTheme(theme = state.theme) {
 
 function toggleTheme() {
 	const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-	localStorage.setItem('zangli-theme', next); applyTheme(next);
+	writeStorage('zangli-theme', next); applyTheme(next);
 }
 
 function activatePanel(button) {
-	document.querySelectorAll('.tool-tab').forEach(tab => { const active = tab === button; tab.classList.toggle('active', active); tab.setAttribute('aria-selected', active); $(tab.dataset.panel).hidden = !active; });
+	const shouldOpen = $(button.dataset.panel).hidden;
+	document.querySelectorAll('.tool-tab').forEach(tab => {
+		const active = tab === button && shouldOpen;
+		tab.classList.toggle('active', active);
+		tab.setAttribute('aria-expanded', String(active));
+		$(tab.dataset.panel).hidden = !active;
+	});
+	if (shouldOpen && button.dataset.panel === 'annualPanel') renderAnnualList();
 }
 
 function handleDocumentClick(event) {
@@ -593,7 +615,6 @@ function handleDocumentClick(event) {
 }
 
 function handleDocumentKeydown(event) {
-	if (event.key === 'Escape') closeDetail();
 	const cell = event.target.closest?.('.calendar-table td[data-date]');
 	if (cell && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); openDateFromElement(cell); }
 }
@@ -607,7 +628,7 @@ function handleHistory() {
 function initSettings() {
 	$('settingsButton').addEventListener('click', () => $('settingsDialog').showModal());
 	document.querySelectorAll('input[name="dateBasis"]').forEach(input => input.addEventListener('change', () => {
-		state.basis = input.value; localStorage.setItem('zangli-date-basis', state.basis); renderApp(getToday());
+		state.basis = input.value; writeStorage('zangli-date-basis', state.basis); renderApp(getToday());
 	}));
 }
 
@@ -633,7 +654,8 @@ function initApp() {
 	$('exportYearButton').addEventListener('click', exportAnnual);
 	$('reverseForm').addEventListener('submit', runReverseLookup);
 	$('closeDetailButton').addEventListener('click', () => closeDetail());
-	$('detailMask').addEventListener('click', () => closeDetail());
+	$('detailDialog').addEventListener('cancel', event => { event.preventDefault(); closeDetail(); });
+	$('detailDialog').addEventListener('click', handleDetailBackdropClick);
 	$('copyButton').addEventListener('click', copyDateInfo);
 	$('shareButton').addEventListener('click', shareDate);
 	$('reminderButton').addEventListener('click', addReminder);

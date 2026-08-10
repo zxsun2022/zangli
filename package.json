@@ -1,0 +1,13 @@
+{
+  "name": "zangli",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static Gregorian–Tibetan calendar for 1951–2051",
+  "scripts": {
+    "generate": "node scripts/generate-pages.js && node scripts/generate-subscription.js",
+    "check:syntax": "node scripts/check-javascript.js",
+    "check:generated": "node scripts/check-generated.js",
+    "test": "node scripts/test-product.js",
+    "verify": "npm run check:syntax && npm test && npm run check:generated"
+  }
+}
