@@ -1,6 +1,6 @@
 # Windows Chrome 兼容性问题修复
 
-> **历史故障记录。** 当前 `/zh-tw` 主要由 `_redirects`、`.htaccess` 或 `nginx.conf` 在服务器层跳转，另保留 `zh-tw/index.html` 作为静态回退。本文的客户端异常中断和 MIME 覆盖代码不应重新引入。
+> **历史归档 / 故障记录。** 当前 `/zh-tw` 主要由 `_redirects`、`.htaccess` 或 `nginx.conf` 在服务器层跳转，另保留 `zh-tw/index.html` 作为静态回退。本文的客户端异常中断和 MIME 覆盖代码不应重新引入。
 
 ## 🐛 **问题描述**
 

@@ -1,6 +1,6 @@
 # SEO关键词优化报告 - 添加"殊胜日"相关关键词
 
-> **历史记录。** 当前多语言入口由 `scripts/generate-pages.js` 生成，并未继续使用本文展示的 meta keywords 列表。SEO 变更应修改生成器、验证 canonical / `hreflang` / sitemap，并基于真实内容而不是关键词堆叠。
+> **历史归档。** 当前多语言入口由 `scripts/generate-pages.js` 生成，并未继续使用本文展示的 meta keywords 列表。SEO 变更应修改生成器、验证 canonical / `hreflang` / sitemap，并基于真实内容而不是关键词堆叠。
 
 ## 🎯 优化目标
 

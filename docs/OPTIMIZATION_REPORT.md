@@ -1,5 +1,7 @@
 # 百年藏历当前优化状态
 
+> 文档类别：当前状态快照。
+
 快照日期：2026-08-10。实现基线位于 `codex/compact-first-screen` 分支，最近一轮界面基线提交为 `4d7fe22`。
 
 ## 总体结论
@@ -63,7 +65,7 @@
 
 - 当前使用和开发入口：`README.md`
 - 完整架构与维护说明：`README_ENHANCED.md`
-- AI 接手规则：`AGENTS.md`
+- AI 接手规则：`../AGENTS.md`
 - 已确认决策：`DECISIONS.md`
 - 待办和验收标准：`TODO.md`
 - 部署：`DEPLOYMENT_CHECKLIST.md`

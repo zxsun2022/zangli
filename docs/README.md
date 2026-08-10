@@ -40,7 +40,7 @@ npm run verify
 ## 文档入口
 
 - [完整项目与维护指南](README_ENHANCED.md)
-- [AI / 自动化代理接手说明](AGENTS.md)
+- [AI / 自动化代理接手说明](../AGENTS.md)
 - [已确认的产品与工程决策](DECISIONS.md)
 - [项目待办](TODO.md)
 - [生产部署检查清单](DEPLOYMENT_CHECKLIST.md)
@@ -51,4 +51,4 @@ npm run verify
 
 藏历对照来自《藏历、公历、农历对照百年历书（1951–2050）》。设备本地日期模式只决定查询哪个公历日，不会按用户所在地重新推算藏历天文参数。不同寺院、传承或历书的日期可能存在差异；日月食按北京时间日期归档，实际可见性取决于所在地。
 
-原项目：[stonelf/zangli](https://github.com/stonelf/zangli)。许可证见 [LICENSE.md](LICENSE.md)。
+原项目：[stonelf/zangli](https://github.com/stonelf/zangli)。许可证见 [LICENSE.md](../LICENSE.md)。

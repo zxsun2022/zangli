@@ -1,6 +1,6 @@
 # /zh-tw/ URL 重定向问题修复
 
-> **历史记录。** `zh-tw/index.html` 静态回退页仍存在，但生产优先使用服务器 301 到 `/tw/`，页面使用 `noindex, follow`，且 sitemap 不再列出 `/zh-tw/`。当前规则见 `_redirects`、`.htaccess`、`nginx.conf` 和 `DEPLOYMENT_CHECKLIST.md`。
+> **历史归档。** `zh-tw/index.html` 静态回退页仍存在，但生产优先使用服务器 301 到 `/tw/`，页面使用 `noindex, follow`，且 sitemap 不再列出 `/zh-tw/`。当前规则见 `_redirects`、`.htaccess`、`nginx.conf` 和 `DEPLOYMENT_CHECKLIST.md`。
 
 ## 🐛 **问题描述**
 

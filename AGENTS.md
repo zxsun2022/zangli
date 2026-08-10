@@ -1,6 +1,6 @@
 # AI / 自动化代理接手说明
 
-本文件适用于整个仓库。开始工作前先阅读本文件、`README.md`、`DECISIONS.md` 和 `TODO.md`。
+本文件适用于整个仓库。开始工作前先阅读本文件、`docs/README.md`、`docs/DECISIONS.md` 和 `docs/TODO.md`。
 
 ## 当前快照
 
@@ -9,7 +9,7 @@
 - 本轮界面基线：最大内容宽度 1120px；年度殊胜日、藏历反查和计算口径默认收起；年度列表首次打开时才生成。
 - 已验证视口：1440×900 与 390×844，日期摘要和完整月历均能进入首屏。
 - 当前技术：无框架原生 JavaScript、HTML、CSS、Service Worker；Node.js 只用于生成和测试。
-- TypeScript 7：已评估，暂不迁移。先完成 `TODO.md` 的 P0 历法正确性测试。
+- TypeScript 7：已评估，暂不迁移。先完成 `docs/TODO.md` 的 P0 历法正确性测试。
 - 当前公开语言：简体中文、繁体中文、英文。藏文 `/bo/` 是隐藏 Beta。
 
 快照可能随提交变化。每次接手仍要运行：
@@ -35,9 +35,9 @@ npm run verify
 发生冲突时，按以下顺序判断：
 
 1. 当前代码与自动测试。
-2. `DECISIONS.md` 中状态为“已接受”的决策。
-3. `README_ENHANCED.md` 和 `DEPLOYMENT_CHECKLIST.md`。
-4. 根目录中的历史专题报告。
+2. `docs/DECISIONS.md` 中状态为“已接受”的决策。
+3. `docs/README_ENHANCED.md` 和 `docs/DEPLOYMENT_CHECKLIST.md`。
+4. `docs/` 中的历史专题报告。
 
 Logo、SEO、语言和 Windows Chrome 专题报告保留的是历史过程，不能直接当成当前实现说明。
 
@@ -84,7 +84,7 @@ npm run verify
 - Service Worker 只清理 `zangli-` 前缀缓存，不能缓存 404 或其他错误响应。
 - 日期深链接要回退到同语言入口，修改路由时同步 `_redirects`、`.htaccess` 和 `nginx.conf`。
 
-完整理由见 `DECISIONS.md`。
+完整理由见 `docs/DECISIONS.md`。
 
 ## 测试要求
 
@@ -113,9 +113,9 @@ git diff --check
 
 产品或架构决策变化时：
 
-1. 更新 `DECISIONS.md`，说明新理由和被替代的决定。
-2. 更新 `README.md` 与 `README_ENHANCED.md` 的用户和维护说明。
-3. 更新 `TODO.md` 的状态和验收标准。
-4. 如果影响发布，再更新 `DEPLOYMENT_CHECKLIST.md`。
+1. 更新 `docs/DECISIONS.md`，说明新理由和被替代的决定。
+2. 更新 `docs/README.md` 与 `docs/README_ENHANCED.md` 的用户和维护说明。
+3. 更新 `docs/TODO.md` 的状态和验收标准。
+4. 如果影响发布，再更新 `docs/DEPLOYMENT_CHECKLIST.md`。
 
 不要让历史报告重新成为当前事实来源。

@@ -180,4 +180,4 @@ js/app.js
 
 ## 11. 历史文档说明
 
-根目录中的 Logo、SEO、语言和 Windows Chrome 专题报告记录了过去的问题与处理过程。它们不是当前架构的事实来源。发生冲突时，以本指南、`AGENTS.md`、`DECISIONS.md`、测试和当前代码为准。
+本目录中的 Logo、SEO、语言和 Windows Chrome 专题报告记录了过去的问题与处理过程。它们不是当前架构的事实来源。发生冲突时，以本指南、`../AGENTS.md`、`DECISIONS.md`、测试和当前代码为准。
