@@ -119,7 +119,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 	border: 0;
 }
 
-.site-shell { width: min(1380px, calc(100% - 28px)); margin: 0 auto; }
+.site-shell { width: min(1120px, calc(100% - 32px)); margin: 0 auto; }
 .site-header {
 	min-height: 64px;
 	display: flex;
@@ -316,22 +316,30 @@ main { padding: 20px 0 24px; }
 .calendar-legend { display: flex; gap: 18px; margin: 0; padding: 8px 16px; border-top: 1px solid var(--line); color: var(--ink-soft); font-size: .72rem; }
 .calendar-legend span { display: flex; align-items: center; gap: 7px; }
 
-.tools { margin-top: 20px; border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius-large); overflow: hidden; overflow: clip; }
-.tool-tabs { display: flex; overflow-x: auto; border-bottom: 1px solid var(--line); }
+.tools { margin-top: 16px; border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius-large); overflow: hidden; overflow: clip; }
+.tool-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .tool-tab {
-	position: relative;
-	min-height: 46px;
-	padding: 0 22px;
+	min-width: 0;
+	min-height: 52px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	padding: 0 18px;
 	border: 0;
+	border-right: 1px solid var(--line);
 	background: transparent;
 	font-weight: 700;
 	color: var(--ink-soft);
 	white-space: nowrap;
 }
-.tool-tab::after { content: ''; position: absolute; left: 20px; right: 20px; bottom: -1px; height: 3px; background: transparent; }
-.tool-tab.active { color: var(--red); }
-.tool-tab.active::after { background: var(--red); }
-.tool-panel { padding: 18px; }
+.tool-tab:last-child { border-right: 0; }
+.tool-tab::after { content: '+'; color: var(--ink-soft); font-size: 1.05rem; font-weight: 450; }
+.tool-tab:hover { background: var(--surface-strong); color: var(--ink); }
+.tool-tab.active { color: var(--red); background: var(--surface-strong); }
+.tool-tab.active::after { content: '−'; color: var(--red); }
+.tool-tab:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; }
+.tool-panel { padding: 18px; border-top: 1px solid var(--line); animation: tool-reveal .18s ease both; }
 .panel-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 18px; }
 .panel-toolbar select, .reverse-form select {
 	min-height: 44px;
@@ -532,8 +540,7 @@ footer { padding: 20px 0 30px; color: var(--ink-soft); font-size: .75rem; }
 	.cell-meta { left: 4px; right: 4px; bottom: 3px; }
 	.calendar-legend { padding: 7px 10px; gap: 12px; overflow-x: auto; white-space: nowrap; }
 	.tool-panel { padding: 14px 10px; }
-	.tool-tab { padding: 0 15px; }
-	.tool-tab::after { left: 14px; right: 14px; }
+	.tool-tab { min-height: 58px; padding: 6px 10px; white-space: normal; font-size: .75rem; line-height: 1.25; text-align: left; }
 	.panel-toolbar { align-items: stretch; flex-direction: column; }
 	.panel-toolbar select { width: 100%; }
 	.button-group > * { flex: 1 1 auto; }
@@ -566,9 +573,8 @@ footer { padding: 20px 0 30px; color: var(--ink-soft); font-size: .75rem; }
 	.calendar-table th { font-size: .56rem; letter-spacing: 0; }
 	.lunar-date { font-size: .6rem; }
 	.calendar-legend { font-size: .68rem; }
-	.tool-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); overflow: visible; }
-	.tool-tab { min-width: 0; min-height: 58px; padding: 5px 6px; white-space: normal; font-size: .72rem; line-height: 1.25; }
-	.tool-tab::after { left: 6px; right: 6px; }
+	.tool-tab { padding: 5px 7px; font-size: .7rem; }
+	.tool-tab::after { font-size: .9rem; }
 	.event-row button { grid-template-columns: 122px minmax(0, 1fr) 12px; }
 	.date-line { gap: 5px; }
 	.annual-range-controls { align-items: stretch; flex-direction: column; }
@@ -580,6 +586,11 @@ footer { padding: 20px 0 30px; color: var(--ink-soft); font-size: .75rem; }
 
 @keyframes settle-in {
 	from { opacity: 0; transform: translateY(8px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes tool-reveal {
+	from { opacity: 0; transform: translateY(-4px); }
 	to { opacity: 1; transform: translateY(0); }
 }
 

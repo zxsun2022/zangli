@@ -1,3 +1,3 @@
 module.exports = {
-	ASSET_VERSION: '20260809-2'
+	ASSET_VERSION: '20260810-1'
 };

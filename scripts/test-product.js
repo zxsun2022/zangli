@@ -79,6 +79,9 @@ for (const [file, language] of [['index.html','zh-CN'],['tw/index.html','zh-TW']
 	assert.ok(html.indexOf('id="dateDiscrepancy"') > html.indexOf('id="settingsDialog"'), `${file} should keep the detailed date discrepancy inside settings`);
 	assert.ok(html.includes('<dialog id="detailDialog"'), `${file} should use the native modal dialog`);
 	assert.ok(!html.includes('id="detailMask"'), `${file} should not retain the custom modal backdrop`);
+	assert.ok(html.includes('id="annualTab" type="button" aria-expanded="false"'), `${file} should keep annual observances collapsed by default`);
+	assert.ok(html.includes('id="annualPanel" class="tool-panel" role="region" aria-labelledby="annualTab" hidden'), `${file} should hide the annual list until requested`);
+	assert.ok(!html.includes('role="tablist"'), `${file} should use disclosure controls when every tool can be collapsed`);
 }
 for (const file of ['index.html','tw/index.html','en/index.html']) assert.ok(!read(file).includes('value="bo"'), `${file} should not expose the Tibetan beta in the language switcher`);
 for (const file of ['index.html','tw/index.html','en/index.html']) assert.ok(!read(file).includes('hreflang="bo"'), `${file} should not advertise the hidden Tibetan beta to search engines`);
@@ -116,6 +119,7 @@ const style = read('css/style.css');
 assert.ok(style.includes('grid-template-columns: max-content minmax(0, 1fr)'), 'Date labels should size to their translated text');
 assert.ok(style.includes(':root:not([data-theme])'), 'System dark mode should have a CSS-only first-paint fallback');
 assert.ok(style.includes('grid-template-columns: repeat(3, minmax(0, 1fr))'), 'All three tool tabs should fit in the narrow mobile layout');
+assert.ok(style.includes('.site-shell { width: min(1120px, calc(100% - 32px));'), 'Desktop content should stay within a readable 1120px canvas');
 assert.ok(style.includes('.brand small, .header-basis-status, .header-actions-divider { display: none; }'), 'Mobile should hide the compact date-basis status');
 assert.ok(style.includes('.settings-icon { display: inline-block; }'), 'Mobile should retain settings as an icon button');
 assert.ok(style.includes('.calendar-table td { height: 58px;'), 'Mobile calendar cells should stay compact enough for first-screen scanning');
@@ -123,6 +127,7 @@ assert.ok(style.includes('.calendar-toolbar { min-height: 54px;'), 'Mobile month
 assert.ok(style.includes('.cell-event:empty, .cell-markers:empty { display: none; }'), 'Empty calendar metadata should not reserve space');
 assert.ok(style.includes('-webkit-line-clamp: 1;'), 'Calendar event labels should stay on one line above their markers');
 assert.ok(app.includes('<span class="cell-meta"><span class="cell-event wide">'), 'Calendar event labels and markers should share one non-overlapping metadata region');
+assert.ok(app.includes("if (!$('annualPanel').hidden) renderAnnualList();"), 'Annual observances should render lazily only when their panel is visible');
 assert.ok(read('js/app.js').includes("timeZoneName:'shortOffset'"), 'The compact date-basis label should use a language-neutral GMT offset');
 
 const luminance = hex => {

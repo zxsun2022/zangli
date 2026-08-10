@@ -356,10 +356,10 @@ function renderAnnualList() {
 	if (state.annualRenderedYear !== year) {
 		state.annualRenderedYear = year;
 		state.annualExpanded = false;
+		const from = createLocalDate(year, 1, 1) < startDate ? startDate : createLocalDate(year, 1, 1);
+		const to = createLocalDate(year, 12, 31) > endDate ? endDate : createLocalDate(year, 12, 31);
+		state.annualEvents = scanEvents(from, to);
 	}
-	const from = createLocalDate(year, 1, 1) < startDate ? startDate : createLocalDate(year, 1, 1);
-	const to = createLocalDate(year, 12, 31) > endDate ? endDate : createLocalDate(year, 12, 31);
-	state.annualEvents = scanEvents(from, to);
 	const filter = $('annualFilter').value;
 	const filteredEvents = state.annualEvents.filter(event => filter === 'all' || event.types.includes(filter));
 	const today = getToday();
@@ -404,7 +404,7 @@ function renderApp(date = getRequestedDate()) {
 	renderSelectedDay(date);
 	renderCalendar(date);
 	renderNextEvent();
-	renderAnnualList();
+	if (!$('annualPanel').hidden) renderAnnualList();
 }
 
 function navigateTo(year, month, day = 1) {
@@ -584,7 +584,14 @@ function toggleTheme() {
 }
 
 function activatePanel(button) {
-	document.querySelectorAll('.tool-tab').forEach(tab => { const active = tab === button; tab.classList.toggle('active', active); tab.setAttribute('aria-selected', active); $(tab.dataset.panel).hidden = !active; });
+	const shouldOpen = $(button.dataset.panel).hidden;
+	document.querySelectorAll('.tool-tab').forEach(tab => {
+		const active = tab === button && shouldOpen;
+		tab.classList.toggle('active', active);
+		tab.setAttribute('aria-expanded', String(active));
+		$(tab.dataset.panel).hidden = !active;
+	});
+	if (shouldOpen && button.dataset.panel === 'annualPanel') renderAnnualList();
 }
 
 function handleDocumentClick(event) {
