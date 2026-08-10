@@ -2,7 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const { ASSET_VERSION } = require('./release-config');
 
-const root = path.resolve(__dirname, '..');
+const sourceRoot = path.resolve(__dirname, '..');
+const outputRoot = process.argv[2] ? path.resolve(process.argv[2]) : sourceRoot;
 const locales = {
 	'zh-cn': {
 		dir: '', lang: 'zh-CN', locale: 'zh_CN', name: '百年藏历', short: '现代历书',
@@ -33,6 +34,7 @@ const locales = {
 	},
 	bo: {
 		dir: 'bo', lang: 'bo', locale: 'bo', name: 'བོད་ཀྱི་ལོ་ཐོ།', short: 'ལོ་ཐོ།',
+		robots: 'noindex, follow',
 		title: 'བོད་ཀྱི་ལོ་ཐོ། 1951–2051', description: 'བོད་ཟླ་དང་སྤྱི་ལོའི་ཚེས་གྲངས་བལྟ་བ།',
 		eyebrow: 'སྤྱི་ལོ། ↔ བོད་ཟླ། · 1951–2051', tagline: 'དེ་རིང་གི་ཚེས་གྲངས།', basis: 'ཚེས་གྲངས་ཀྱི་གཞི།', next: 'དུས་ཆེན་རྗེས་མ།', monthView: 'ཟླ་ཐོ།', today: 'དེ་རིང་།', annual: 'ལོ་འཁོར་དུས་ཆེན།', reverse: 'བོད་ཟླ་འཚོལ་བ།', about: 'རྩིས་སྟངས།', all: 'ཆ་ཚང་།', festival: 'དུས་ཆེན།', multiplier: 'དགེ་བ་འཕེལ་བའི་ཉིན།', eclipse: 'ཉི་ཟླ་འཛིན་པ།', export: '.ics ཕྱིར་འདྲེན།', subscribe: '2026–2030 མངགས་ཉོ།', reverseHint: 'Choose a Gregorian year and Tibetan month/day. Tibetan-language terminology is in beta.', gregYear: 'སྤྱི་ལོ།', lunarMonth: 'བོད་ཟླ།', lunarDay: 'ཚེས།', includeLeap: 'ཟླ་བཤོལ།', search: 'འཚོལ་བ།', sourceTitle: 'ཚེས་གྲངས་ཀྱི་གཞི།', source: 'This beta interface uses the same 1951–2050 published Chinese crosswalk. Device-local mode changes which Gregorian day is looked up; it does not recalculate a location-specific Tibetan astronomical calendar. Dates can differ by tradition and source.', install: 'Offline', installText: 'Install for cached access and a compact desktop view.', installButton: 'Install', widget: 'Desktop widget', settings: 'སྒྲིག་འགོད།', settingsTitle: 'ཚེས་གྲངས་སྒྲིག་འགོད།', localBasis: 'ས་གནས་དུས་ཚོད།', beijingBasis: 'པེ་ཅིང་དུས་ཚོད།', localHelp: 'Follows the device-local Gregorian day.', beijingHelp: 'Follows the Beijing Gregorian day used for eclipse filing.', close: 'འགྲུབ།', share: 'མཉམ་སྤྱོད།', copy: 'འདྲ་བཤུས།', reminder: 'དྲན་སྐུལ།', prevMonth: 'ཟླ་སྔོན་མ།', nextMonth: 'ཟླ་རྗེས་མ།', prevYear: 'ལོ་སྔོན་མ།', nextYear: 'ལོ་རྗེས་མ།', week: ['ཉི་མ།','ཟླ་བ།','མིག་དམར།','ལྷག་པ།','ཕུར་བུ།','པ་སངས།','སྤེན་པ།'], noscript: 'JavaScript is required.', boBeta: '<span class="beta-badge">Beta</span>'
 	}
@@ -70,14 +72,14 @@ function render(locale, s) {
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 	<meta name="description" content="${s.description}">
 	<meta name="author" content="Stone Huang">
-	<meta name="robots" content="index, follow">
+	<meta name="robots" content="${s.robots || 'index, follow'}">
 	<meta name="theme-color" content="#8f2f2c">
 	<link rel="canonical" href="https://zangli.org${prefix}">
 	<meta property="og:title" content="${s.title}"><meta property="og:description" content="${s.description}"><meta property="og:type" content="website"><meta property="og:url" content="https://zangli.org${prefix}"><meta property="og:image" content="https://zangli.org/logo-512x512-circle.png"><meta property="og:locale" content="${s.locale}">
 	<meta name="twitter:card" content="summary"><meta name="twitter:title" content="${s.title}"><meta name="twitter:description" content="${s.description}"><meta name="twitter:image" content="https://zangli.org/logo-512x512-circle.png">
 	<link rel="icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="manifest" href="${prefix}manifest.json?v=${ASSET_VERSION}">
 	<title>${s.title}</title>
-	<link rel="alternate" hreflang="zh-CN" href="https://zangli.org/"><link rel="alternate" hreflang="zh-TW" href="https://zangli.org/tw/"><link rel="alternate" hreflang="en" href="https://zangli.org/en/"><link rel="alternate" hreflang="bo" href="https://zangli.org/bo/"><link rel="alternate" hreflang="x-default" href="https://zangli.org/en/">
+	<link rel="alternate" hreflang="zh-CN" href="https://zangli.org/"><link rel="alternate" hreflang="zh-TW" href="https://zangli.org/tw/"><link rel="alternate" hreflang="en" href="https://zangli.org/en/"><link rel="alternate" hreflang="x-default" href="https://zangli.org/en/">
 	<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"${s.name}","url":"https://zangli.org${prefix}","description":"${s.description}","applicationCategory":"Calendar","operatingSystem":"All","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"inLanguage":"${s.lang}"}</script>
 	<link rel="stylesheet" href="/css/style.css?v=${ASSET_VERSION}">
 	<script src="/js/langDetect.js?v=${ASSET_VERSION}"></script>
@@ -99,20 +101,22 @@ function render(locale, s) {
 			<noscript><p class="noscript">${s.noscript}</p></noscript>
 		</main><footer><p>© ${new Date().getFullYear()} ${s.name} · 1951-01-08—2051-02-11</p></footer>
 	</div>
-	<div id="detailMask" aria-hidden="true"></div><div id="detailDialog" aria-modal="true" aria-hidden="true" role="dialog" tabindex="-1" aria-labelledby="detailTitle"><div class="dialog-header"><button id="shareButton" class="text-button" type="button">${s.share}</button><button id="closeDetailButton" class="icon-button" type="button" aria-label="${s.close}">×</button></div><div id="detailContent"></div><div class="dialog-footer"><button id="reminderButton" class="primary-button" type="button">${s.reminder}</button><button id="copyButton" class="secondary-button" type="button">${s.copy}</button></div></div>
+	<dialog id="detailDialog" aria-labelledby="detailTitle"><div class="dialog-header"><button id="shareButton" class="text-button" type="button">${s.share}</button><button id="closeDetailButton" class="icon-button" type="button" aria-label="${s.close}">×</button></div><div id="detailContent"></div><div class="dialog-footer"><button id="reminderButton" class="primary-button" type="button">${s.reminder}</button><button id="copyButton" class="secondary-button" type="button">${s.copy}</button></div></dialog>
 	<dialog id="settingsDialog" class="settings-dialog"><form method="dialog"><div class="dialog-title-row"><h2>${s.settingsTitle}</h2><button class="icon-button" value="cancel" aria-label="${s.close}">×</button></div><div id="dateDiscrepancy" class="settings-date-notice" role="status" hidden></div><fieldset><label class="choice-card"><input type="radio" name="dateBasis" value="local"><span><strong>${s.localBasis}</strong><small>${s.localHelp}</small></span></label><label class="choice-card"><input type="radio" name="dateBasis" value="beijing"><span><strong>${s.beijingBasis}</strong><small>${s.beijingHelp}</small></span></label></fieldset><button class="primary-button dialog-done" value="default">${s.close}</button></form></dialog>
 </body></html>`;
 }
 
 for (const [locale, strings] of Object.entries(locales)) {
-	const targetDir = path.join(root, strings.dir);
+	const targetDir = path.join(outputRoot, strings.dir);
 	fs.mkdirSync(targetDir, { recursive: true });
 	fs.writeFileSync(path.join(targetDir, 'index.html'), render(locale, strings));
 }
 
 for (const relativePath of ['widget/index.html', 'sw.js']) {
-	const file = path.join(root, relativePath);
-	let source = fs.readFileSync(file, 'utf8').replace(/\?v=\d{8}-\d+/g, `?v=${ASSET_VERSION}`);
+	const sourceFile = path.join(sourceRoot, relativePath);
+	const targetFile = path.join(outputRoot, relativePath);
+	let source = fs.readFileSync(sourceFile, 'utf8').replace(/\?v=\d{8}-\d+/g, `?v=${ASSET_VERSION}`);
 	if (relativePath === 'sw.js') source = source.replace(/const CACHE_NAME = '[^']+';/, `const CACHE_NAME = 'zangli-${ASSET_VERSION}';`);
-	fs.writeFileSync(file, source);
+	fs.mkdirSync(path.dirname(targetFile), { recursive: true });
+	fs.writeFileSync(targetFile, source);
 }

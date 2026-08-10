@@ -2,10 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 
-const root = path.resolve(__dirname, '..');
+const sourceRoot = path.resolve(__dirname, '..');
+const outputRoot = process.argv[2] ? path.resolve(process.argv[2]) : sourceRoot;
 const context = vm.createContext({ console, trans: value => value, Map, Date, Math, String, Number, Object, Array, RegExp, Boolean });
-vm.runInContext(fs.readFileSync(path.join(root, 'zangli.js'), 'utf8'), context);
-vm.runInContext(fs.readFileSync(path.join(root, 'eclipse.js'), 'utf8'), context);
+vm.runInContext(fs.readFileSync(path.join(sourceRoot, 'zangli.js'), 'utf8'), context);
+vm.runInContext(fs.readFileSync(path.join(sourceRoot, 'eclipse.js'), 'utf8'), context);
 
 const events = vm.runInContext(`(function () {
 	const output = [];
@@ -62,6 +63,6 @@ for (const event of events) {
 	);
 }
 lines.push('END:VCALENDAR');
-fs.mkdirSync(path.join(root, 'calendar'), { recursive: true });
-fs.writeFileSync(path.join(root, 'calendar', 'zangli-special-days.ics'), `${lines.map(foldIcsLine).join('\r\n')}\r\n`);
+fs.mkdirSync(path.join(outputRoot, 'calendar'), { recursive: true });
+fs.writeFileSync(path.join(outputRoot, 'calendar', 'zangli-special-days.ics'), `${lines.map(foldIcsLine).join('\r\n')}\r\n`);
 console.log(`Generated ${events.length} subscription events.`);

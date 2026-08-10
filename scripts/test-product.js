@@ -77,9 +77,14 @@ for (const [file, language] of [['index.html','zh-CN'],['tw/index.html','zh-TW']
 	assert.ok(html.indexOf('id="settingsButton"') < html.indexOf('id="languageSelect"'), `${file} should show settings before language`);
 	assert.ok(html.indexOf('id="languageSelect"') < html.indexOf('id="themeButton"'), `${file} should show language before theme`);
 	assert.ok(html.indexOf('id="dateDiscrepancy"') > html.indexOf('id="settingsDialog"'), `${file} should keep the detailed date discrepancy inside settings`);
+	assert.ok(html.includes('<dialog id="detailDialog"'), `${file} should use the native modal dialog`);
+	assert.ok(!html.includes('id="detailMask"'), `${file} should not retain the custom modal backdrop`);
 }
 for (const file of ['index.html','tw/index.html','en/index.html']) assert.ok(!read(file).includes('value="bo"'), `${file} should not expose the Tibetan beta in the language switcher`);
+for (const file of ['index.html','tw/index.html','en/index.html']) assert.ok(!read(file).includes('hreflang="bo"'), `${file} should not advertise the hidden Tibetan beta to search engines`);
 assert.ok(read('bo/index.html').includes('<option value="bo" selected hidden>'), 'The hidden Tibetan route should identify its current language without exposing a public option');
+assert.ok(read('bo/index.html').includes('<meta name="robots" content="noindex, follow">'), 'The hidden Tibetan beta should not be indexed');
+assert.ok(!read('sitemap.xml').includes('/bo/'), 'The hidden Tibetan beta should not be in the public sitemap');
 assert.ok(read('index.html').includes('<option value="4">四月（萨嘎月）</option>'));
 assert.ok(read('index.html').includes('<option value="20">二十</option>'));
 assert.ok(read('bo/index.html').includes('<option value="20">ཚེས་ ༢༠</option>'));
@@ -92,6 +97,20 @@ for (const file of ['widget/index.html','sw.js']) {
 	assert.ok(versions.every(version => version === ASSET_VERSION), `${file} asset versions should match release-config`);
 }
 assert.ok(read('sw.js').includes(`const CACHE_NAME = 'zangli-${ASSET_VERSION}';`));
+assert.ok(read('sw.js').includes("key.startsWith('zangli-')"), 'Service worker should only delete its own caches');
+assert.ok(read('sw.js').includes('if (!response.ok'), 'Service worker should not cache error responses');
+
+const app = read('js/app.js');
+assert.ok(app.includes("readStorage('zangli-date-basis'"), 'Main app should tolerate unavailable browser storage');
+assert.ok(app.includes("writeStorage('zangli-theme'"), 'Theme changes should tolerate unavailable browser storage');
+assert.ok(read('js/widget.js').includes("readStorage('zangli-theme'"), 'Widget should tolerate unavailable browser storage');
+
+const nginx = read('nginx.conf');
+const apache = read('.htaccess');
+for (const route of ['en', 'bo']) {
+	assert.ok(nginx.includes(`^/${route}/date/`), `Nginx should resolve ${route} date deep links`);
+	assert.ok(apache.includes(`^${route}/date/`), `Apache should resolve ${route} date deep links`);
+}
 
 const style = read('css/style.css');
 assert.ok(style.includes('grid-template-columns: max-content minmax(0, 1fr)'), 'Date labels should size to their translated text');
@@ -99,6 +118,8 @@ assert.ok(style.includes(':root:not([data-theme])'), 'System dark mode should ha
 assert.ok(style.includes('grid-template-columns: repeat(3, minmax(0, 1fr))'), 'All three tool tabs should fit in the narrow mobile layout');
 assert.ok(style.includes('.brand small, .header-basis-status, .header-actions-divider { display: none; }'), 'Mobile should hide the compact date-basis status');
 assert.ok(style.includes('.settings-icon { display: inline-block; }'), 'Mobile should retain settings as an icon button');
+assert.ok(style.includes('.calendar-table td { height: 58px;'), 'Mobile calendar cells should stay compact enough for first-screen scanning');
+assert.ok(style.includes('.calendar-toolbar { min-height: 54px;'), 'Mobile month controls should remain on a compact row');
 assert.ok(read('js/app.js').includes("timeZoneName:'shortOffset'"), 'The compact date-basis label should use a language-neutral GMT offset');
 
 const luminance = hex => {

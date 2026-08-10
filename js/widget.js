@@ -8,6 +8,8 @@
 	const clean = value => String(value || '').replace(/<br>/g, ' ').replace(/&nbsp;/g, '').trim();
 	const format = date => new Intl.DateTimeFormat(locale, { year:'numeric', month:'long', day:'numeric', weekday:'long' }).format(date);
 	const formatTibetan = value => `${value.year}年${value.monthNumber}月${value.dayNumber}日`;
+	const readStorage = (key, fallback) => { try { return localStorage.getItem(key) ?? fallback; } catch (error) { return fallback; } };
+	const writeStorage = (key, value) => { try { localStorage.setItem(key, value); } catch (error) {} };
 	const data = getZangli(today);
 	$('widgetToday').innerHTML = `<p class="date">${format(today)}</p><h1>${formatTibetan(data)}</h1>${clean(data.extraInfo) ? `<p class="festival">${clean(data.extraInfo)}</p>` : ''}`;
 	let next;
@@ -19,9 +21,9 @@
 	}
 	if (next) $('widgetNext').innerHTML = `<p>${next.offset ? `${next.offset} 天后` : '今天'} · ${format(next.date)}</p><h2>${clean(next.zangli.extraInfo) || next.eclipse.value}</h2>`;
 	$('widgetZone').textContent = zone.replace('_', ' ');
-	const theme = localStorage.getItem('zangli-theme') || 'system';
+	const theme = readStorage('zangli-theme', 'system');
 	const apply = value => { document.documentElement.dataset.theme = value === 'dark' || (value === 'system' && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light'; };
 	apply(theme);
-	$('widgetTheme').addEventListener('click', () => { const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; localStorage.setItem('zangli-theme', nextTheme); apply(nextTheme); });
+	$('widgetTheme').addEventListener('click', () => { const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; writeStorage('zangli-theme', nextTheme); apply(nextTheme); });
 	if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
 })();

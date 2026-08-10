@@ -7,6 +7,16 @@ const intlLocale = { 'zh-cn': 'zh-CN', tw: 'zh-TW', en: 'en-CA', bo: 'bo' }[loca
 const deviceTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
 const BEIJING_TIME_ZONE = 'Asia/Shanghai';
 
+function readStorage(key, fallback) {
+	try { return localStorage.getItem(key) ?? fallback; }
+	catch (error) { return fallback; }
+}
+
+function writeStorage(key, value) {
+	try { localStorage.setItem(key, value); return true; }
+	catch (error) { return false; }
+}
+
 const messages = {
 	selectedDate: '所选日期', today: '今天', localBasis: '设备本地日期', beijingBasis: '北京时间日期',
 	lookupNote: '查询《百年历书》的公历日期', deviceZone: '设备时区',
@@ -52,8 +62,8 @@ function msg(key, values = {}) {
 }
 
 const state = {
-	basis: localStorage.getItem('zangli-date-basis') === 'beijing' ? 'beijing' : 'local',
-	theme: localStorage.getItem('zangli-theme') || 'system',
+	basis: readStorage('zangli-date-basis', 'local') === 'beijing' ? 'beijing' : 'local',
+	theme: readStorage('zangli-theme', 'system'),
 	selectedCell: null,
 	activeDate: null,
 	previousFocus: null,
@@ -433,39 +443,31 @@ function buildDetailHTML(date) {
 	return html;
 }
 
-function setBackgroundInert(value) {
-	const shell = document.querySelector('.site-shell');
-	shell.inert = value;
-	if (value) shell.setAttribute('aria-hidden', 'true'); else shell.removeAttribute('aria-hidden');
-}
-
 function openDetail(date, anchor) {
 	if (!isSupportedDate(date)) return;
 	state.activeDate = date;
 	state.previousFocus = anchor || document.activeElement;
 	$('detailContent').innerHTML = buildDetailHTML(date);
-	$('detailMask').style.display = 'block';
-	$('detailDialog').style.display = 'block';
-	$('detailDialog').setAttribute('aria-hidden', 'false');
-	$('detailDialog').classList.toggle('bottom-sheet', innerWidth <= 720);
-	requestAnimationFrame(() => $('detailDialog').classList.add('active'));
-	setBackgroundInert(true);
+	const dialog = $('detailDialog');
+	dialog.classList.toggle('bottom-sheet', innerWidth <= 720);
+	if (!dialog.open) dialog.showModal();
+	requestAnimationFrame(() => dialog.classList.add('active'));
 	$('closeDetailButton').focus();
 	const path = `${basePath}date/${formatDate(date)}`;
 	if (location.pathname !== path) history.pushState({ detail:true }, '', path);
 }
 
 function closeDetail(updateHistory = true) {
-	if ($('detailDialog').style.display !== 'block') return;
-	$('detailMask').style.display = 'none';
-	$('detailDialog').classList.remove('active');
-	$('detailDialog').setAttribute('aria-hidden', 'true');
-	setBackgroundInert(false);
-	setTimeout(() => { $('detailDialog').style.display = 'none'; }, 160);
+	const dialog = $('detailDialog');
+	if (!dialog.open) return;
+	dialog.classList.remove('active');
 	if (updateHistory && location.pathname !== basePath) history.replaceState({}, '', `${basePath}#${state.activeDate.getFullYear()}/${state.activeDate.getMonth() + 1}/${state.activeDate.getDate()}`);
 	const previous = state.previousFocus;
 	state.activeDate = null;
-	if (previous && previous.isConnected) previous.focus();
+	setTimeout(() => {
+		if (dialog.open) dialog.close();
+		if (previous && previous.isConnected) previous.focus();
+	}, 160);
 }
 
 function openDateFromElement(element) {
@@ -578,7 +580,7 @@ function applyTheme(theme = state.theme) {
 
 function toggleTheme() {
 	const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-	localStorage.setItem('zangli-theme', next); applyTheme(next);
+	writeStorage('zangli-theme', next); applyTheme(next);
 }
 
 function activatePanel(button) {
@@ -593,9 +595,18 @@ function handleDocumentClick(event) {
 }
 
 function handleDocumentKeydown(event) {
-	if (event.key === 'Escape') closeDetail();
 	const cell = event.target.closest?.('.calendar-table td[data-date]');
 	if (cell && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); openDateFromElement(cell); }
+}
+
+function trapDetailFocus(event) {
+	if (event.key !== 'Tab') return;
+	const focusable = [...$('detailDialog').querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')]
+		.filter(element => !element.disabled && !element.hidden);
+	if (!focusable.length) return;
+	const first = focusable[0], last = focusable[focusable.length - 1];
+	if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+	else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
 }
 
 function handleHistory() {
@@ -607,7 +618,7 @@ function handleHistory() {
 function initSettings() {
 	$('settingsButton').addEventListener('click', () => $('settingsDialog').showModal());
 	document.querySelectorAll('input[name="dateBasis"]').forEach(input => input.addEventListener('change', () => {
-		state.basis = input.value; localStorage.setItem('zangli-date-basis', state.basis); renderApp(getToday());
+		state.basis = input.value; writeStorage('zangli-date-basis', state.basis); renderApp(getToday());
 	}));
 }
 
@@ -633,7 +644,9 @@ function initApp() {
 	$('exportYearButton').addEventListener('click', exportAnnual);
 	$('reverseForm').addEventListener('submit', runReverseLookup);
 	$('closeDetailButton').addEventListener('click', () => closeDetail());
-	$('detailMask').addEventListener('click', () => closeDetail());
+	$('detailDialog').addEventListener('cancel', event => { event.preventDefault(); closeDetail(); });
+	$('detailDialog').addEventListener('click', event => { if (event.target === $('detailDialog')) closeDetail(); });
+	$('detailDialog').addEventListener('keydown', trapDetailFocus);
 	$('copyButton').addEventListener('click', copyDateInfo);
 	$('shareButton').addEventListener('click', shareDate);
 	$('reminderButton').addEventListener('click', addReminder);
