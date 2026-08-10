@@ -120,6 +120,9 @@ assert.ok(style.includes('.brand small, .header-basis-status, .header-actions-di
 assert.ok(style.includes('.settings-icon { display: inline-block; }'), 'Mobile should retain settings as an icon button');
 assert.ok(style.includes('.calendar-table td { height: 58px;'), 'Mobile calendar cells should stay compact enough for first-screen scanning');
 assert.ok(style.includes('.calendar-toolbar { min-height: 54px;'), 'Mobile month controls should remain on a compact row');
+assert.ok(style.includes('.cell-event:empty, .cell-markers:empty { display: none; }'), 'Empty calendar metadata should not reserve space');
+assert.ok(style.includes('-webkit-line-clamp: 1;'), 'Calendar event labels should stay on one line above their markers');
+assert.ok(app.includes('<span class="cell-meta"><span class="cell-event wide">'), 'Calendar event labels and markers should share one non-overlapping metadata region');
 assert.ok(read('js/app.js').includes("timeZoneName:'shortOffset'"), 'The compact date-basis label should use a language-neutral GMT offset');
 
 const luminance = hex => {
