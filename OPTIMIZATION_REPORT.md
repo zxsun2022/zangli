@@ -1,153 +1,71 @@
-# 百年藏历项目优化报告
+# 百年藏历当前优化状态
 
-## 🎯 主要问题修复
+快照日期：2026-08-10。实现基线位于 `codex/compact-first-screen` 分支，最近一轮界面基线提交为 `4d7fe22`。
 
-### 1. Google搜索结果Logo显示问题 ✅ 已修复
+## 总体结论
 
-**问题原因：**
-- 原本使用 `favicon.ico` (32x32px) 作为社交媒体图片
-- 尺寸太小，不符合搜索引擎和社交平台要求
+项目已经从早期单页查询工具整理为可离线、多语言、可分享和可订阅的现代历书。当前重点不是继续增加首页内容，而是保护历法正确性、把浏览器验证纳入 CI，并保持界面信息层级稳定。
 
-**解决方案：**
-- 更改为使用 `logo-250x250-circle.png` (250x250px)
-- 创建了真正的圆形图标，而不是圆形背景中的方形图标
-- 添加了图片尺寸和类型信息
-- 在结构化数据中添加了logo信息
+## 已完成
 
-**修改文件：**
-- `index.html` - 更新 og:image 和 twitter:image
-- `tw/index.html` - 更新繁体版本的相同配置
-- `sitemap.xml` - 添加图片信息
-- `manifest.json` - 添加多尺寸圆形图标
+### 界面与信息层级
 
-### 2. 圆形图标优化 ✅ 新增功能
+- 桌面内容最大宽度从 1380px 收窄到 1120px。
+- 1440×900 和 390×844 都能在首屏看到日期摘要与完整月历。
+- 年度殊胜日、藏历反查、计算口径默认收起并互斥展开。
+- 年度列表首次打开时才扫描和生成，减少初始 DOM。
+- 桌面日历事件名限制为一行，圆点独立排列；手机隐藏长事件名，解决标记与文字重叠。
+- 原生 `dialog` 支持 Escape、焦点循环和关闭后的焦点恢复。
 
-**用户需求：**
-- 希望图标直接裁切成圆形，而不是圆形背景中的方形图标
+### 产品能力
 
-**实现方案：**
-- 使用ImageMagick创建真正的圆形图标
-- 生成了多个尺寸的圆形版本：192x192、250x250、512x512
-- 更新了所有相关配置文件使用圆形图标
+- 简体中文、繁体中文、英文公共页面。
+- 隐藏的藏文 Beta 页面。
+- 本地日期与北京时间口径。
+- 日期深链接、分享、复制、单日提醒和年度 `.ics` 导出。
+- 2026–2030 日历订阅，共 501 条事件。
+- PWA 安装、离线语言回退、深色模式和桌面小组件。
 
-**新增文件：**
-- `logo-192x192-circle.png` - 192x192圆形图标
-- `logo-250x250-circle.png` - 250x250圆形图标  
-- `logo-512x512-circle.png` - 512x512圆形图标
+### 可靠性
 
-### 2. SEO优化改进 ✅ 已完成
+- 本地存储被禁用时回退到默认主题与日期口径。
+- Service Worker 只清理自己的缓存，不缓存 404 或其他错误响应。
+- Netlify、Apache、Nginx 均维护同语言日期深链接规则。
+- 藏文 Beta 不进入语言菜单、`hreflang` 和 sitemap。
+- 资源版本集中在 `scripts/release-config.js`。
 
-**新增功能：**
-- 添加了 Web App Manifest (`manifest.json`)
-- 改进了结构化数据，包含logo信息
-- 添加了canonical链接
-- 优化了sitemap，包含图片信息
-- 添加了theme-color等移动端优化标签
+### 工程流程
 
-### 3. 技术改进建议
+- `npm run generate` 生成四个语言入口、Service Worker 资源版本和订阅文件。
+- `npm run verify` 执行 14 个 JavaScript 文件语法检查、产品测试和 7 个生成文件一致性检查。
+- GitHub Actions 在 push 与 pull request 时运行 Node.js 22 验证。
+- 生成物可以在临时目录重建并逐字节比较，不需要污染工作区。
 
-**已实现：**
-- ✅ 修复社交媒体图片配置
-- ✅ 优化SEO标签
-- ✅ 创建Web App Manifest
-- ✅ 改进sitemap结构
+## 当前验证基线
 
-**建议进一步优化：**
-- 🔄 考虑添加更大尺寸的logo图片 (512x512px) 用于PWA
-- 🔄 添加Service Worker实现离线功能
-- 🔄 优化图片加载性能
-- 🔄 添加更多结构化数据
+| 项目 | 当前结果 |
+|---|---|
+| 支持日期范围结构检查 | 36,560 天 |
+| JavaScript 语法检查 | 14 个文件 |
+| 订阅事件 | 501 条 |
+| 生成物一致性 | 7 个文件 |
+| 桌面目标视口 | 1440×900 |
+| 手机目标视口 | 390×844 |
+| 桌面内容最大宽度 | 1120px |
 
-## 📊 修复效果预期
+## 仍需解决
 
-### Google搜索结果改善
-- Logo现在应该能正常显示在搜索结果中
-- 使用180x180px的高质量图片
-- 符合Google推荐的图片尺寸要求
+最高风险不是界面，而是历法内容验证深度。当前全范围测试证明每一天都能返回结构合法的月份和日期，但大量预期值仍来自算法自身，不能替代独立历书核对。
 
-### 社交媒体分享改善
-- Facebook、Twitter等平台分享时会显示正确的图片
-- 图片尺寸符合各平台要求
-- 添加了图片尺寸信息提高加载效率
+下一步应完成 [TODO.md](TODO.md) 的 P0 黄金样本与性质测试，再考虑 TypeScript 7 或核心算法重构。浏览器首屏、无障碍、离线和缓存场景也应逐步进入 CI。
 
-### SEO改进
-- 更完整的结构化数据
-- 改进的sitemap包含图片信息
-- 更好的移动端支持
+## 文档关系
 
-## 🔧 技术细节
+- 当前使用和开发入口：`README.md`
+- 完整架构与维护说明：`README_ENHANCED.md`
+- AI 接手规则：`AGENTS.md`
+- 已确认决策：`DECISIONS.md`
+- 待办和验收标准：`TODO.md`
+- 部署：`DEPLOYMENT_CHECKLIST.md`
 
-### 修改的Meta标签
-```html
-<!-- 原来 -->
-<meta property="og:image" content="https://zangli.org/favicon.ico">
-<meta name="twitter:image" content="https://zangli.org/favicon.ico">
-
-<!-- 修改后 -->
-<meta property="og:image" content="https://zangli.org/apple-touch-icon.png">
-<meta property="og:image:width" content="180">
-<meta property="og:image:height" content="180">
-<meta property="og:image:type" content="image/png">
-<meta name="twitter:image" content="https://zangli.org/apple-touch-icon.png">
-```
-
-### 新增的结构化数据
-```json
-{
-  "logo": {
-    "@type": "ImageObject",
-    "url": "https://zangli.org/apple-touch-icon.png",
-    "width": 180,
-    "height": 180
-  },
-  "image": "https://zangli.org/apple-touch-icon.png"
-}
-```
-
-## 📈 预期改善时间
-
-- **搜索引擎重新索引：** 1-2周
-- **社交媒体缓存更新：** 几天到1周
-- **Google搜索结果显示logo：** 2-4周
-
-## 🚀 进一步优化建议
-
-### 1. 性能优化
-- 考虑使用WebP格式的图片
-- 添加图片懒加载
-- 优化CSS和JavaScript加载
-
-### 2. PWA功能
-- 添加Service Worker
-- 实现离线功能
-- 添加安装提示
-
-### 3. 用户体验
-- 添加深色模式支持
-- 改进移动端交互
-- 添加键盘快捷键说明
-
-### 4. 国际化
-- 考虑添加英文版本
-- 优化多语言SEO
-
-## 📝 验证方法
-
-### 测试社交媒体图片
-1. 使用 Facebook Sharing Debugger: https://developers.facebook.com/tools/debug/
-2. 使用 Twitter Card Validator: https://cards-dev.twitter.com/validator
-3. 使用 LinkedIn Post Inspector
-
-### 测试结构化数据
-1. 使用 Google Rich Results Test: https://search.google.com/test/rich-results
-2. 使用 Schema.org Validator
-
-### 监控搜索结果
-1. 使用 Google Search Console 监控索引状态
-2. 定期检查搜索结果中的logo显示
-
-## 🎉 总结
-
-通过这次优化，主要解决了Google搜索结果中logo不显示的问题，同时全面改善了网站的SEO表现。预计在1-4周内，你应该能在Google搜索结果中看到网站logo正常显示。
-
-所有修改都是向后兼容的，不会影响现有功能，只会增强网站的搜索引擎表现和社交媒体分享效果。
+旧的 Logo、SEO、语言和浏览器专题报告只保留历史背景。它们与本报告冲突时，以当前代码、测试和上述文档为准。

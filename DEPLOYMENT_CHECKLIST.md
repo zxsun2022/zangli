@@ -1,15 +1,15 @@
 # 生产部署检查清单
 
-## 发布前
+本文对应 2026-08-10 的静态站点、PWA 和多语言路由结构。
 
-- [ ] `npm run verify` 通过。
-- [ ] `git status --short` 不包含意外生成物。
-- [ ] `scripts/release-config.js` 的资源版本已更新。
-- [ ] `index.html`、`tw/`、`en/`、`widget/` 均能加载。
-- [ ] `/date/YYYY-MM-DD`、`/tw/date/YYYY-MM-DD`、`/en/date/YYYY-MM-DD` 分享链接能直接打开。
-- [ ] Service Worker 更新后，旧缓存会被替换且离线页面仍能加载。
+## 发布前生成与验证
 
-藏文 `/bo/` 当前是可直接访问但不公开索引的 Beta：不出现在语言菜单和 sitemap，并使用 `noindex, follow`。
+- [ ] 确认 `git status --short` 没有意外改动或漏掉的生成物。
+- [ ] 如果 JS、CSS、页面模板或缓存策略变化，更新 `scripts/release-config.js` 的 `ASSET_VERSION`。
+- [ ] 运行 `npm run generate`。
+- [ ] 运行 `npm run verify`，确认 14 个 JavaScript 文件、产品测试、501 条订阅事件和 7 个生成物检查通过。
+- [ ] 运行 `git diff --check`。
+- [ ] 确认 `index.html`、`tw/index.html`、`en/index.html`、`bo/index.html`、`widget/index.html` 和 `sw.js` 的资源版本一致。
 
 ## 路由
 
@@ -19,20 +19,58 @@
 - Apache：`.htaccess`
 - Nginx：`nginx.conf`
 
-切换托管平台时，要验证每种语言的日期深链接都返回对应语言的入口 HTML，而不是 404 或简体中文首页。
+逐项验证：
 
-## 缓存与响应头
+- [ ] `/date/YYYY-MM-DD` 返回简体入口。
+- [ ] `/tw/date/YYYY-MM-DD` 返回繁体入口。
+- [ ] `/en/date/YYYY-MM-DD` 返回英文入口。
+- [ ] `/bo/date/YYYY-MM-DD` 返回藏文 Beta 入口。
+- [ ] `/zh-tw/` 301 或静态回退到 `/tw/`，不产生脚本 MIME 错误。
+- [ ] `/widget/` 正常加载。
 
-- HTML 和 `sw.js` 不应长期缓存。
-- 带 `?v=<ASSET_VERSION>` 的 JS/CSS 可以使用一年 immutable 缓存。
-- 日历订阅文件使用 `text/calendar; charset=utf-8`。
-- 至少启用 `X-Content-Type-Options`、`Referrer-Policy` 和适合当前内联 JSON-LD 的 CSP。
+不要让所有未知路径无条件回退到简体首页，否则英文、繁体或藏文分享链接会丢失语言上下文。
 
-## 发布后抽查
+## 页面与交互抽查
 
-1. 桌面 1440×900 和手机 390×844 的首屏能看到日期摘要、下一殊胜日和主要月历区域。
-2. 切换语言后，日期深链接保留语言前缀。
-3. 禁止站点存储后，页面仍能渲染，主题和日期口径回退到默认值。
-4. 键盘打开日期详情后，Tab 焦点不会离开模态框，Escape 能关闭并恢复原焦点。
-5. 在线加载一次后断网刷新，当前语言页面仍可使用。
-6. Search Console / 站点地图中不包含隐藏的 `/bo/` Beta。
+- [ ] 1440×900 下内容宽度不超过 1120px，日期摘要和完整月历进入首屏。
+- [ ] 390×844 下日期摘要和完整月历进入首屏，没有水平滚动。
+- [ ] 年度殊胜日、藏历反查、计算口径默认全部收起。
+- [ ] 三个工具互斥展开，再次点击当前入口可以收起。
+- [ ] 年度殊胜日首次展开前列表为空，展开后显示当前年份未来 90 天，并可展开全年。
+- [ ] 桌面事件文字与标记点不重叠；手机仅显示标记点。
+- [ ] 键盘打开日期详情后，Tab 不离开 dialog；Escape 关闭并恢复原焦点。
+- [ ] 切换语言后，日期深链接保留对应语言前缀。
+
+## 日期与存储边界
+
+- [ ] 设备本地日期与北京时间口径显示正确，并能切换。
+- [ ] 禁止浏览器站点存储后，页面仍能渲染，主题和日期口径回退到默认值。
+- [ ] 在 UTC 日期边界附近抽查 America/Vancouver 与 Asia/Shanghai 的“今天”。
+- [ ] 日月食详情明确区分设备时区和北京时间，不把时间显示当作所在地可见性保证。
+
+## PWA、缓存与响应头
+
+- [ ] HTML 与 `sw.js` 不使用长期缓存。
+- [ ] 带 `?v=<ASSET_VERSION>` 的 JS/CSS 可以使用一年 immutable 缓存。
+- [ ] 新 Service Worker 激活后只删除旧的 `zangli-` 缓存。
+- [ ] 在线加载一次后断网刷新，当前语言页面仍可用。
+- [ ] 在线请求一个不存在资源得到 404；断网后同一资源应网络失败，而不是命中缓存的 404。
+- [ ] 日历订阅文件返回 `text/calendar; charset=utf-8`。
+- [ ] 至少启用 `X-Content-Type-Options`、`Referrer-Policy` 和适合当前内联 JSON-LD 的 CSP。
+
+## 搜索与隐藏 Beta
+
+藏文 `/bo/` 当前可直接访问，但仍是隐藏 Beta：
+
+- [ ] 页面使用 `noindex, follow`。
+- [ ] 语言菜单不显示藏文。
+- [ ] 公共页面不包含藏文 `hreflang`。
+- [ ] sitemap 不包含 `/bo/`。
+- [ ] Search Console 中没有新的 `/bo/` 公共索引。
+
+## 发布后
+
+- [ ] 用无缓存窗口检查简体、繁体、英文首页。
+- [ ] 用已安装 PWA 检查资源版本是否更新。
+- [ ] 抽查一个日期详情分享链接、一个年度导出文件和订阅地址。
+- [ ] 记录部署平台、提交 SHA、`ASSET_VERSION` 和抽查结果。

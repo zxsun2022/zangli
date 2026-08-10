@@ -1,5 +1,7 @@
 # 语言检测逻辑优化
 
+> **历史记录。** 本文描述早期语言切换方案。当前事实来源是 `js/langDetect.js`、`js/app.js`、`scripts/generate-pages.js` 和 `README_ENHANCED.md`；不要复制本文的旧会话状态逻辑。
+
 ## 🤔 **问题分析**
 
 ### 原有问题

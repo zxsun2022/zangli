@@ -1,0 +1,121 @@
+# AI / 自动化代理接手说明
+
+本文件适用于整个仓库。开始工作前先阅读本文件、`README.md`、`DECISIONS.md` 和 `TODO.md`。
+
+## 当前快照
+
+- 快照日期：2026-08-10。
+- 当前开发分支：`codex/compact-first-screen`。
+- 本轮界面基线：最大内容宽度 1120px；年度殊胜日、藏历反查和计算口径默认收起；年度列表首次打开时才生成。
+- 已验证视口：1440×900 与 390×844，日期摘要和完整月历均能进入首屏。
+- 当前技术：无框架原生 JavaScript、HTML、CSS、Service Worker；Node.js 只用于生成和测试。
+- TypeScript 7：已评估，暂不迁移。先完成 `TODO.md` 的 P0 历法正确性测试。
+- 当前公开语言：简体中文、繁体中文、英文。藏文 `/bo/` 是隐藏 Beta。
+
+快照可能随提交变化。每次接手仍要运行：
+
+```bash
+git status --short
+git branch --show-current
+git log -5 --oneline
+npm run verify
+```
+
+## 项目事实
+
+- 支持日期：1951-01-08 至 2051-02-11。
+- 藏历数据来源：《藏历、公历、农历对照百年历书（1951–2050）》。
+- `zangli.js` 提供 `getZangli(date)`，处理藏历月日、闰月、缺日、重日和节日。
+- `eclipse.js` 提供 `getEclipse(date)`，按北京时间日期索引 NASA 日月食数据。
+- “设备本地日期 / 北京时间日期”只决定查询哪个公历日，不会重新计算所在地藏历。
+- 页面依赖固定的全局脚本顺序：`i18n-data.js` → `i18n.js` → `zangli.js` → `eclipse.js` → `app.js`。
+
+## 事实来源优先级
+
+发生冲突时，按以下顺序判断：
+
+1. 当前代码与自动测试。
+2. `DECISIONS.md` 中状态为“已接受”的决策。
+3. `README_ENHANCED.md` 和 `DEPLOYMENT_CHECKLIST.md`。
+4. 根目录中的历史专题报告。
+
+Logo、SEO、语言和 Windows Chrome 专题报告保留的是历史过程，不能直接当成当前实现说明。
+
+## 源码与生成物
+
+不要只修改生成后的入口 HTML。
+
+| 要改变什么 | 修改哪里 |
+|---|---|
+| 多语言页面结构、静态文案、SEO 元数据 | `scripts/generate-pages.js` |
+| 主界面行为 | `js/app.js` |
+| 主界面视觉 | `css/style.css` |
+| 藏历计算与节日 | `zangli.js` |
+| 日月食 | `eclipse.js` |
+| 订阅文件 | `scripts/generate-subscription.js` |
+| 资源缓存版本 | `scripts/release-config.js` |
+| 产品与生成物测试 | `scripts/test-product.js`、`scripts/check-generated.js` |
+
+以下 7 个文件由脚本维护并应随源码一起提交：
+
+- `index.html`
+- `tw/index.html`
+- `en/index.html`
+- `bo/index.html`
+- `widget/index.html`
+- `sw.js`
+- `calendar/zangli-special-days.ics`
+
+修改模板或公共资源后：
+
+```bash
+npm run generate
+npm run verify
+```
+
+## 不可破坏的产品决策
+
+- 首屏的主线是“今日 / 所选日期 → 下一殊胜日 → 完整月历”。不要在它们前面增加营销区或大标题。
+- 桌面最大内容宽度保持 1120px，除非有跨视口截图证明更改更好。
+- 三个低频工具默认全部收起，并保持互斥展开；不要恢复默认长列表。
+- 移动端不显示日历单元格内的长事件名；桌面端事件名与圆点必须分行且不重叠。
+- 详情使用原生 `<dialog>`，必须保留 Escape 关闭、焦点循环和焦点恢复。
+- 藏文 Beta 不进入语言菜单、`hreflang` 或 sitemap，并继续使用 `noindex, follow`。
+- Service Worker 只清理 `zangli-` 前缀缓存，不能缓存 404 或其他错误响应。
+- 日期深链接要回退到同语言入口，修改路由时同步 `_redirects`、`.htaccess` 和 `nginx.conf`。
+
+完整理由见 `DECISIONS.md`。
+
+## 测试要求
+
+任何提交至少运行：
+
+```bash
+npm run verify
+git diff --check
+```
+
+高风险修改还需要：
+
+- UI：1440×900、390×844 浏览器截图和控制台错误检查。
+- 对话框：键盘打开、Tab 循环、Escape 关闭、焦点恢复。
+- PWA：在线加载后断网刷新，确认对应语言仍可用且 404 不会离线命中。
+- 路由：四种语言的 `/date/YYYY-MM-DD` 直接访问。
+- 历法核心：先增加独立来源的黄金样本，再改实现。禁止用当前函数输出反向生成“预期值”。
+
+## 已知缺口
+
+当前测试能证明 36,560 个支持日期都返回结构合法的结果，但不能证明每个结果都与原始历书一致。跨年代、闰月、缺日、重日、节日和边界日期的来源可追溯黄金样本是最高优先级工作。
+
+浏览器首屏、折叠面板、离线和焦点行为做过人工/无头浏览器验证，但尚未全部纳入 CI 端到端测试。
+
+## 文档维护
+
+产品或架构决策变化时：
+
+1. 更新 `DECISIONS.md`，说明新理由和被替代的决定。
+2. 更新 `README.md` 与 `README_ENHANCED.md` 的用户和维护说明。
+3. 更新 `TODO.md` 的状态和验收标准。
+4. 如果影响发布，再更新 `DEPLOYMENT_CHECKLIST.md`。
+
+不要让历史报告重新成为当前事实来源。

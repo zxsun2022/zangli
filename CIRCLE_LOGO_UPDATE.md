@@ -1,5 +1,7 @@
 # 圆形Logo更新报告
 
+> **历史记录。** 本文记录早期 Logo 调整，文件清单和元数据示例可能已过时。当前社交图片、manifest 和图标引用以 `scripts/generate-pages.js`、各语言 manifest、`README_ENHANCED.md` 和实际生成页面为准。
+
 ## 🎯 更新目标
 
 将网站logo从"圆形背景中的方形图标"改为"真正的圆形图标"，提供更好的视觉效果。
