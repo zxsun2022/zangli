@@ -346,13 +346,15 @@ main { padding: 8px 0 24px; }
 	height: 80px;
 	padding: 9px 10px;
 	border-top: 1px solid var(--line);
+	border-right: 1px solid var(--line);
 	vertical-align: top;
 	cursor: pointer;
 	transition: background-color .14s ease;
 }
+.calendar-table td:last-child { border-right: 0; }
 .calendar-table td[role='button']:hover { background: var(--tint); }
 .calendar-table td[role='button']:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; z-index: 2; }
-.calendar-table td.empty-cell { cursor: default; }
+.calendar-table td.empty-cell { cursor: default; background: color-mix(in srgb, var(--paper) 55%, transparent); }
 .calendar-table td.out-of-range { cursor: not-allowed; color: var(--ink-faint); opacity: .5; }
 .day-number {
 	display: inline-grid;
@@ -364,7 +366,9 @@ main { padding: 8px 0 24px; }
 	border-radius: 999px;
 	font: 600 1.05rem/1 var(--serif);
 }
+.calendar-table td.today[role='button'] { background: color-mix(in srgb, var(--red-soft) 60%, transparent); box-shadow: inset 0 0 0 2px var(--red); }
 .calendar-table td.today .day-number { background: var(--red); color: #fff; }
+.calendar-table td.today .lunar-date { color: var(--red); }
 :root[data-theme='dark'] .calendar-table td.today .day-number { color: #1d1210; }
 .lunar-date { position: absolute; top: 12px; right: 10px; color: var(--ink-soft); font-size: .76rem; line-height: 1.3; }
 .month-start .lunar-date { color: var(--red); font-weight: 700; }

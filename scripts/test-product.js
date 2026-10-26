@@ -127,6 +127,8 @@ assert.ok(style.includes('.site-shell { width: min(1120px, calc(100% - 32px));')
 assert.ok(style.includes('.header-basis-status { display: none; }'), 'Mobile should hide the compact date-basis status');
 assert.ok(style.includes('.calendar-table td { height: 58px;'), 'Mobile calendar cells should stay compact enough for first-screen scanning');
 assert.ok(style.includes('.calendar-toolbar { min-height: 54px;'), 'Mobile month controls should remain on a compact row');
+assert.ok(style.includes('box-shadow: inset 0 0 0 2px var(--red);'), 'Today should be framed as a whole cell, not only by its day number');
+assert.ok(style.includes('.calendar-table td:last-child { border-right: 0; }'), 'Calendar cells should keep column rules so each day reads as one unit');
 assert.ok(style.includes('.cell-event:empty, .cell-markers:empty { display: none; }'), 'Empty calendar metadata should not reserve space');
 assert.ok(style.includes('-webkit-line-clamp: 1;'), 'Calendar event labels should stay on one line above their markers');
 assert.ok(app.includes('<span class="cell-meta"><span class="cell-event wide">'), 'Calendar event labels and markers should share one non-overlapping metadata region');
