@@ -143,6 +143,13 @@ const luminance = hex => {
 	const channels = hex.match(/[a-f\d]{2}/gi).map(channel => parseInt(channel, 16) / 255).map(channel => channel <= .04045 ? channel / 12.92 : ((channel + .055) / 1.055) ** 2.4);
 	return .2126 * channels[0] + .7152 * channels[1] + .0722 * channels[2];
 };
+assert.ok(!app.includes("'aria-disabled'"), 'The Today button stays clickable, so it must not be announced as disabled');
+const faintText = style.match(/^[^\n]*[;{]\s*color: var\(--ink-faint\)[^\n]*$/gm) || [];
+assert.deepEqual(faintText.map(line => line.trim().split(' {')[0]), ['.tibetan-notes span + span::before', '.calendar-table td.out-of-range'], 'Readable text must not use --ink-faint; it is for separators and disabled dates only');
+for (const [ink, surface] of [['6b645b', 'ffffff'], ['6b645b', 'f4f1ea'], ['b3aba0', '24221f'], ['b3aba0', '171614']]) {
+	const ratio = (Math.max(luminance(ink), luminance(surface)) + .05) / (Math.min(luminance(ink), luminance(surface)) + .05);
+	assert.ok(ratio >= 4.5, `Secondary text #${ink} on #${surface} should reach 4.5:1, received ${ratio.toFixed(2)}:1`);
+}
 const festivalContrast = (luminance('f4aaa2') + .05) / (luminance('4b2926') + .05);
 assert.ok(festivalContrast >= 4.5, `Dark festival label contrast should be at least 4.5:1, received ${festivalContrast.toFixed(2)}:1`);
 

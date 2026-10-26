@@ -441,13 +441,12 @@ function renderApp(date = getRequestedDate()) {
 	if (!$('annualPanel').hidden) renderAnnualList();
 }
 
-// 已在今天所在月份且没有选中其他日期时，“今天”按钮无事可做，显示为淡色。
+// 已在今天所在月份且没有选中其他日期时，“今天”按钮无事可做，只在视觉上弱化；它仍可点击，所以不标 aria-disabled。
 function updateTodayButton() {
 	const today = getToday();
 	const atToday = Number($('year').value) === today.getFullYear() && Number($('month').value) === today.getMonth() + 1
 		&& (!state.selectedDate || isSameDate(state.selectedDate, today));
 	$('todayButton').classList.toggle('is-current', atToday);
-	$('todayButton').setAttribute('aria-disabled', String(atToday));
 }
 
 function navigateTo(year, month, day = 1) {
