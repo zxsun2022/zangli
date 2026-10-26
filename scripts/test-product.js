@@ -128,7 +128,7 @@ for (const route of ['en', 'bo']) {
 const style = read('css/style.css');
 assert.ok(style.includes(':root:not([data-theme])'), 'System dark mode should have a CSS-only first-paint fallback');
 assert.ok(style.includes('grid-template-columns: repeat(3, minmax(0, 1fr))'), 'All three tool tabs should fit in the narrow mobile layout');
-assert.ok(style.includes('.site-shell { width: min(1120px, calc(100% - 32px));'), 'Desktop content should stay within a readable 1120px canvas');
+assert.ok(style.includes('.site-shell { width: min(1000px, calc(100% - 32px));'), 'Desktop content should stay within a readable 1000px canvas');
 assert.ok(style.includes('.header-basis-status { display: none; }'), 'Mobile should hide the compact date-basis status');
 assert.ok(style.includes('.calendar-table td { height: 58px;'), 'Mobile calendar cells should stay compact enough for first-screen scanning');
 assert.ok(style.includes('.calendar-toolbar { min-height: 54px;'), 'Mobile month controls should remain on a compact row');
