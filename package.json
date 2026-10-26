@@ -7,7 +7,8 @@
     "generate": "node scripts/generate-pages.js && node scripts/generate-subscription.js",
     "check:syntax": "node scripts/check-javascript.js",
     "check:generated": "node scripts/check-generated.js",
-    "test": "node scripts/test-product.js",
+    "test:calendar": "node scripts/test-calendar.js",
+    "test": "node scripts/test-calendar.js && node scripts/test-product.js",
     "verify": "npm run check:syntax && npm test && npm run check:generated"
   }
 }

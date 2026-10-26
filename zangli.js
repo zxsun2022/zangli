@@ -2,7 +2,7 @@
  * zangli - v1.0 - 2019-01-29
  * Copyright Stone Huang and other contributors
  * https://github.com/stonelf/zangli
- * 本项目提供1951年1月8日到2051年1月12日之间到公历藏历对照查询。数据来源于《藏历、公历、农历对照百年历书（1951-2050）》
+ * 本项目提供1951年1月8日到2051年2月11日之间的公历藏历对照查询。数据来源于《藏历、公历、农历对照百年历书（1951-2050）》
  */
 
 /* 缺日闰日表
@@ -117,9 +117,12 @@ const specialDays = [
 	[[-30],[13,-24],[-28],[7,-21],[-24],[4,-17],[-19,30],[-12],[-16,25],[-10,29],[-3],[-8,12]]
 ];
 
-// 使用中午12点来避免时区和夏令时问题，确保日期计算精确
-const startDate = new Date(1951, 0, 8, 12, 0, 0);  // 1951/1/8 12:00
-const endDate = new Date(2051, 1, 11, 12, 0, 0);   // 2051/2/11 12:00
+// 支持范围按公历日期计算：1951-01-08 为第 0 天，2051-02-11 为第 36559 天。
+// startDate / endDate 保留为本地中午的 Date，供界面比较和夹取日期使用；历法换算不依赖它们。
+const startDate = new Date(1951, 0, 8, 12, 0, 0);
+const endDate = new Date(2051, 1, 11, 12, 0, 0);
+const MS_PER_DAY = 86400000;
+const ZANGLI_FIRST_DAY = Date.UTC(1951, 0, 8) / MS_PER_DAY;
 
 // 中文藏历日期使用历书中常见的月、日名称。集中维护，避免界面把每一天都拼成“初+数字”。
 const zangliMonthOrdinals = Object.freeze(["正", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二"]);
@@ -138,136 +141,198 @@ function getZangliDayName(dayNumber) {
 	return trans(zangliDayNames[Number(dayNumber) - 1] || String(dayNumber));
 }
 
+/* 节日口径（见 docs/DECISIONS.md D011）
+ * - 按真实藏历月号、日号匹配，不使用含闰月的数组位置。
+ * - 年度节日只落在非闰月；每月例行的殊胜日在闰月照常出现。
+ * - 重日只在第一次出现时标注节日。
+ * - 缺日的节日提前到前一个公历日，事件带 shifted 标记。
+ */
+const zangliMonthlyObservances = Object.freeze([
+	{ id: "samadhi-king", day: 1, title: "禅定胜王佛节日", merit: "作何善恶成百倍" },
+	{ id: "medicine-buddha", day: 8, title: "药师佛节日", merit: "作何善恶成千倍" },
+	{ id: "guru-rinpoche", day: 10, title: "莲师荟供日", merit: "作何善恶成十万倍" },
+	{ id: "amitabha", day: 15, title: "阿弥陀佛节日", merit: "作何善恶成百万倍" },
+	{ id: "chenrezig", day: 18, title: "观音菩萨节日", merit: "作何善恶成千万倍" },
+	{ id: "kshitigarbha", day: 21, title: "地藏王菩萨节日", merit: "作何善恶成亿倍" },
+	{ id: "dakini", day: 25, title: "空行母荟供日", merit: "" },
+	{ id: "shakyamuni", day: 30, title: "释迦牟尼佛节日", merit: "作何善恶成九亿倍" }
+]);
+
+// 年度节日在同一天取代当月例行殊胜日。
+const zangliAnnualObservances = Object.freeze([
+	{ id: "chotrul", month: 1, day: 1, title: "神变节", merit: "" },
+	{ id: "buddha-birth", month: 4, day: 7, title: "释迦牟尼佛诞辰", merit: "" },
+	{ id: "saka-dawa", month: 4, day: 15, title: "释迦牟尼佛<br>成道日涅槃日", merit: "" },
+	{ id: "chokhor", month: 6, day: 4, title: "释迦牟尼佛<br>初转法轮日", merit: "" },
+	{ id: "buddha-conception", month: 6, day: 15, title: "释迦牟尼佛入胎日", merit: "" },
+	{ id: "lhabab", month: 9, day: 22, title: "释迦牟尼佛天降日", merit: "" }
+]);
+
+function zangliObservancesFor(monthNumber, monthLeap, dayNumber) {
+	const annual = monthLeap ? undefined : zangliAnnualObservances.find(rule => rule.month === monthNumber && rule.day === dayNumber);
+	if (annual) return [annual];
+	return zangliMonthlyObservances.filter(rule => rule.day === dayNumber);
+}
+
+/* 预先展开历书表。
+ * zangliMonths：每个实际月的藏历年序、真实月号、是否闰月和起始日序。
+ * zangliDays：每个公历日序对应的藏历日号、第几次出现，以及同月内紧接其前被跳过的日号。
+ * zangliShiftedObservances：缺日节日提前后所在的日序。
+ */
+const zangliCalendar = (function () {
+	const months = [];
+	const days = [];
+	const shifted = new Map();
+	for (let yearIndex = 0; yearIndex < specialDays.length; yearIndex++) {
+		// 第一个年块只有 1950 藏历年（铁虎年）的十二月。
+		let monthNumber = yearIndex === 0 ? 12 - specialDays[0].length : 0;
+		for (const exceptions of specialDays[yearIndex]) {
+			const monthLeap = exceptions.includes(0);
+			if (!monthLeap) monthNumber++;
+			const monthIndex = months.length;
+			months.push({ yearIndex, monthNumber, monthLeap, start: days.length });
+			let omittedBefore = [];
+			for (let dayNumber = 1; dayNumber <= 30; dayNumber++) {
+				if (exceptions.includes(-dayNumber)) {
+					omittedBefore.push(dayNumber);
+					const target = days.length - 1;
+					if (target >= 0) {
+						const moved = shifted.get(target) || [];
+						for (const rule of zangliObservancesFor(monthNumber, monthLeap, dayNumber)) {
+							moved.push({ rule, yearIndex, monthNumber, monthLeap, dayNumber });
+						}
+						if (moved.length) shifted.set(target, moved);
+					}
+					continue;
+				}
+				days.push({ monthIndex, dayNumber, occurrence: 1, omittedBefore });
+				omittedBefore = [];
+				if (exceptions.includes(dayNumber)) days.push({ monthIndex, dayNumber, occurrence: 2, omittedBefore: [] });
+			}
+		}
+	}
+	return { months, days, shifted };
+})();
+
+function zangliError(message) {
+	console.error(trans(message));
+	return { value: "error", error: message, events: [], extraInfo: "", extraInfo2: "", toString: function () { return this.value; } };
+}
+
+function isValidCivilDate(year, month, day) {
+	if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(day)) return false;
+	const date = new Date(Date.UTC(2000, month - 1, day));
+	date.setUTCFullYear(year);
+	return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
+}
+
+/* 把各种输入落成一个公历日期 {year, month, day}。
+ * - {year, month, day} 与 “YYYY-MM-DD”/“YYYY/M/D” 字符串按纯日期处理，不经过时区。
+ * - Date、时间戳和带时间的字符串表示瞬时，取运行环境本地时区的日期。
+ */
+function toZangliCivilDate(p) {
+	let input = p;
+	if (typeof input === "undefined" || input === "") input = new Date();
+	if (typeof input === "string") {
+		const match = input.trim().match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+		if (match) {
+			const civil = { year: Number(match[1]), month: Number(match[2]), day: Number(match[3]) };
+			return isValidCivilDate(civil.year, civil.month, civil.day) ? civil : { error: `错误：“${p}”不是有效的公历日期` };
+		}
+		input = new Date(input);
+		if (Number.isNaN(input.getTime())) return { error: `错误：“${p}”字符串的日期格式不对` };
+	}
+	if (typeof input === "number") {
+		if (!Number.isFinite(input)) return { error: `错误：${p} 不是有效的时间戳` };
+		input = new Date(input);
+	}
+	// 不用 instanceof：来自其他 realm（iframe、vm）的 Date 也要接受。
+	if (Object.prototype.toString.call(input) === "[object Date]") {
+		if (Number.isNaN(input.getTime())) return { error: "错误：无效的日期对象" };
+		return { year: input.getFullYear(), month: input.getMonth() + 1, day: input.getDate() };
+	}
+	if (input && typeof input === "object" && "year" in input && "month" in input && "day" in input) {
+		const civil = { year: Number(input.year), month: Number(input.month), day: Number(input.day) };
+		return isValidCivilDate(civil.year, civil.month, civil.day) ? civil : { error: "错误：年月日不是有效的公历日期" };
+	}
+	return { error: "错误：只能接受日期、时间戳、YYYY-MM-DD 字符串或 {year, month, day}" };
+}
+
+// 公历日期到支持范围内的整数日序；只做纯日期运算，结果与运行时区无关。
+function zangliDayOrdinal(year, month, day) {
+	const date = new Date(Date.UTC(2000, month - 1, day));
+	date.setUTCFullYear(year);
+	return Math.round(date.getTime() / MS_PER_DAY) - ZANGLI_FIRST_DAY;
+}
+
+function zangliMakeEvent(rule, target, shiftedEvent) {
+	return {
+		id: rule.id,
+		title: trans(rule.title),
+		merit: rule.merit ? trans(rule.merit) : "",
+		yearIndex: target.yearIndex,
+		monthNumber: target.monthNumber,
+		monthLeap: target.monthLeap,
+		dayNumber: target.dayNumber,
+		shifted: shiftedEvent
+	};
+}
+
 /*方法说明
  *@method getZangli
- *@param{String,Date,Number}p 可以转换成标准日期的入参
+ *@param {Date|Number|String|Object} p 公历日期；省略时为当前本地日期
  *@return {
- * @value 藏历日期
- * @extraInfo 附加信息
- * @month 藏历月份信息
- * @tMonth 藏历月份名
- * @day 藏历日期
- * @dayLeap 这一天为闰日
+ * @value 藏历日期文字，非法或超出范围时为 "error"（另有 error 说明）
+ * @yearIndex/@elementIndex/@animalIndex 藏历年序与五行、生肖序号
+ * @year 藏历年名
+ * @monthNumber/@month/@tMonth 真实月号、月份文字、传统月名
+ * @dayNumber/@day 日号与日期文字
  * @monthLeap 这个月是闰月
- * @dayMiss 这一天藏历缺日，往后顺推一天
- * } 
+ * @dayLeap 这一天是重日的第二次出现（dayOccurrence 为 2）
+ * @dayMiss 同月内紧接这一天之前有缺日；被跳过的日号见 omittedDaysBefore
+ * @events 节日事件列表；shifted 为 true 表示因缺日提前到本日
+ * @extraInfo/@extraInfo2 由 events 汇总的节日名与功德说明，兼容旧界面
+ * }
 */
 function getZangli(p) {
-	let d = p;
-	if (typeof d === "undefined" || d === "") {
-		d = new Date();
-	}
-	if (typeof d === "string") {
-		d = new Date(d);
-		if ("Invalid Date" === d.toString()) {
-			console.error(trans(`错误：\"${p}\" 字符串的日期格式不对`));
-			return { value: "error" };
+	const civil = toZangliCivilDate(p);
+	if (civil.error) return zangliError(civil.error);
+	const ordinal = zangliDayOrdinal(civil.year, civil.month, civil.day);
+	if (ordinal < 0) return zangliError("错误:不能转换早于1951年1月8日的日期");
+	if (ordinal >= zangliCalendar.days.length) return zangliError("错误:不能转换晚于2051年2月11日的日期");
+
+	const entry = zangliCalendar.days[ordinal];
+	const month = zangliCalendar.months[entry.monthIndex];
+	const years = month.yearIndex;
+	const result = {};
+	result.yearIndex = years;
+	result.elementIndex = Math.floor(years / 2) % 5;
+	result.animalIndex = years % 12;
+	result.monthNumber = month.monthNumber;
+	result.dayNumber = entry.dayNumber;
+	result.monthLeap = month.monthLeap;
+	result.dayOccurrence = entry.occurrence;
+	result.dayLeap = entry.occurrence === 2;
+	result.omittedDaysBefore = entry.omittedBefore.slice();
+	result.dayMiss = entry.omittedBefore.length > 0;
+	result.year = trans(`铁水木火土`.substr(result.elementIndex, 1) + `虎兔龙蛇马羊猴鸡狗猪鼠牛`.substr(result.animalIndex, 1));
+	result.month = trans((month.monthLeap ? "闰" : "") + zangliMonthOrdinals[month.monthNumber - 1]);
+	result.tMonth = trans((month.monthLeap ? "闰" : "") + zangliTraditionalMonths[month.monthNumber - 1]);
+	result.day = trans((result.dayLeap ? "闰" : "") + zangliDayNames[entry.dayNumber - 1]);
+	result.value = trans(`${result.year}年${result.month}月(${result.tMonth}月)${result.day}`);
+
+	const events = [];
+	if (entry.occurrence === 1) {
+		for (const rule of zangliObservancesFor(month.monthNumber, month.monthLeap, entry.dayNumber)) {
+			events.push(zangliMakeEvent(rule, { yearIndex: years, monthNumber: month.monthNumber, monthLeap: month.monthLeap, dayNumber: entry.dayNumber }, false));
 		}
 	}
-	if (typeof d === "number") {
-		console.warn(trans(`警告：尝试把数字 ${p} 按毫秒转换成日期`));
-		d = new Date(d);
-	}
-	if (!(d instanceof Date)) {
-		console.error(trans(`错误：只能接受日期类型数字类型或者标准格式的字符串类型输入,当前输入的是${p.constructor.toString()}`));
-		return { value: "error" };
-	}
-	if (d.getTime() < startDate.getTime()) {
-		console.error(trans(`错误:不能转换早于${startDate.getFullYear()}年${startDate.getMonth() + 1}月${startDate.getDate()}日的日期`));
-		return { value: "error" };
-	}
-	if (d.getTime() >= (endDate.getTime() + 86400000)) {
-		console.error(trans(`错误:不能转换晚于${endDate.getFullYear()}年${endDate.getMonth() + 1}月${endDate.getDate()}日的日期`));
-		return { value: "error" };
-	}
-	// 将输入时间标准化为当天中午12点，与 startDate 一致，避免时区和夏令时影响
-	const standardizedDate = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0);
-	// 由于两个日期都在中午12点，差值应该是精确的整数天
-	const days = Math.round((standardizedDate - startDate) / 86400 / 1000);
-	let countingDays = 0;
-	for (let years = 0; years < specialDays.length; years++) {
-		let leapMonths = 0;
-		for (let months = 0; months < specialDays[years].length; months++) {
-			let tDays = 30;
-			for (let i = 0; i < specialDays[years][months].length; i++) {
-				if (specialDays[years][months][i] < 0) tDays--;
-				else if (specialDays[years][months][i] > 0) tDays++;
-				else if (specialDays[years][months][i] === 0) leapMonths++;
-			}
-			if (countingDays + tDays <= days) {
-				countingDays += tDays;
-			} else {
-				let dayLeap = false, dayMiss = false, monthLeap = false;
-				let tDays2 = days - countingDays;
-				for (let i = 0; i < specialDays[years][months].length; i++) {
-					if (specialDays[years][months][i] === 0) {
-						monthLeap = true;
-					} else {
-						const sd = specialDays[years][months][i];
-						if (sd + 1 === -tDays2) {
-							dayMiss = true;
-							tDays2++;
-						} else if (sd === tDays2) {
-							dayLeap = true;
-							tDays2--;
-						} else if (sd > 0 && sd < tDays2) {
-							tDays2--;
-						} else if (sd < 0 && -sd - 1 < tDays2) {
-							tDays2++;
-						}
-					}
-				}
-				
-				if (years === 0) {
-					months = 12 - specialDays[0].length;
-				}
-				const result = {};
-				result.yearIndex = years;
-				result.elementIndex = Math.floor(years / 2) % 5;
-				result.animalIndex = years % 12;
-				result.monthNumber = months - leapMonths + 1;
-				result.year = trans(`铁水木火土`.substr(Math.floor((years) / 2) % 5, 1) + `虎兔龙蛇马羊猴鸡狗猪鼠牛`.substr(years % 12, 1));
-				result.month = trans((monthLeap ? "闰" : "") + zangliMonthOrdinals[result.monthNumber - 1]);
-				result.tMonth = trans((monthLeap ? "闰" : "") + zangliTraditionalMonths[result.monthNumber - 1]);
-				
-				// Ensure tDays2 is within valid range for the day names array
-				if (tDays2 < 0) tDays2 = 0;
-				if (tDays2 > 29) tDays2 = 29;
-				result.dayNumber = tDays2 + 1;
-				
-				result.day = trans((dayLeap ? "闰" : "") + zangliDayNames[result.dayNumber - 1]);
-				result.dayLeap = dayLeap;
-				result.monthLeap = monthLeap;
-				result.dayMiss = dayMiss;
-				result.value = trans(`${result.year}年${result.month}月(${result.tMonth}月)${result.day}`);
-				let extraInfo = "";
-				let extraInfo2 = "";
-				if (!dayLeap) switch (tDays2) {
-					case 0:
-						if (months === 0) extraInfo = trans("神变节"); else { extraInfo = trans("禅定胜王佛节日"); extraInfo2 = trans("作何善恶成百倍"); }
-						break;
-					case 3: if (months === 5) extraInfo = trans("释迦牟尼佛<br>初转法轮日"); break;
-					case 6: if (months === 3) extraInfo = trans("释迦牟尼佛诞辰"); break;
-					case 7: extraInfo = trans("药师佛节日"); extraInfo2 = trans("作何善恶成千倍"); break;
-					case 9: extraInfo = trans("莲师荟供日"); extraInfo2 = trans("作何善恶成十万倍"); break;
-					case 14:
-						if (months === 3) extraInfo = trans("释迦牟尼佛<br>成道日涅槃日");
-						else if (months === 5) extraInfo = trans("释迦牟尼佛入胎日");
-						else { extraInfo = trans("阿弥陀佛节日"); extraInfo2 = trans("作何善恶成百万倍"); }
-						break;
-					case 17: extraInfo = trans("观音菩萨节日"); extraInfo2 = trans("作何善恶成千万倍"); break;
-					case 19: if (months === 8) extraInfo = trans("释迦牟尼佛天降日"); break;
-					case 20: extraInfo = trans("地藏王菩萨节日"); extraInfo2 = trans("作何善恶成亿倍"); break;
-					case 24: extraInfo = trans("空行母荟供日"); break;
-					case 29: extraInfo = trans("释迦牟尼佛节日"); extraInfo2 = trans("作何善恶成九亿倍"); break;
-				}
-				result.extraInfo = extraInfo;
-				result.extraInfo2 = extraInfo2;
-				result.toString = function () { return this.value; };
-				return result;
-			}
-		}
-	}
+	for (const moved of zangliCalendar.shifted.get(ordinal) || []) events.push(zangliMakeEvent(moved.rule, moved, true));
+	result.events = events;
+	result.extraInfo = events.map(event => event.title).join(" · ");
+	result.extraInfo2 = events.map(event => event.merit).filter(Boolean).join(" · ");
+	result.toString = function () { return this.value; };
+	return result;
 }
 
 if (typeof zangli_callback === "function") {

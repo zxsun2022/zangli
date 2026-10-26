@@ -1,0 +1,61 @@
+{
+  "description": "独立来源黄金样本。预期值人工摘录自下列来源，不能由 getZangli() 输出生成。year 使用藏历年五行、生肖；events 只列来源明确写出的节日。",
+  "sources": {
+    "shechen-2025": {
+      "title": "Shechen Pocket Calendar 2025",
+      "url": "https://shechen.org/wp/wp-content/uploads/2025/03/Shechen-Pocket-Calendar-2025-Complete.pdf"
+    },
+    "rikon-2019": {
+      "title": "Tibet-Institut Rikon, Saka Dawa prayer announcement 2019",
+      "url": "https://www.tibetswiss.ch/event-detail/saka-dawa-prayer-announcement.html"
+    },
+    "sakya-2019": {
+      "title": "Sakya Monastery, 11th Annual Saka Dawa Retreat (2019)",
+      "url": "https://www.sakya.org/2019/05/11th-annual-saka-dawa-retreat/"
+    },
+    "fpmt-dates": {
+      "title": "FPMT, Dharma dates explained",
+      "url": "https://fpmt.org/media/resources/dharma-dates/dates-explained/"
+    }
+  },
+  "samples": [
+    {
+      "date": "2019-06-17",
+      "expect": { "monthNumber": 4, "monthLeap": false, "dayNumber": 15, "events": ["saka-dawa"] },
+      "evidence": [
+        { "source": "rikon-2019", "locator": "正文日期 2019-06-17，藏文正文为四月十五（页面标题 17.07 为排版矛盾）" },
+        { "source": "sakya-2019", "locator": "Saka Dawa 活动 2019-06-16–17" }
+      ]
+    },
+    {
+      "date": "2025-02-28",
+      "expect": { "year": ["木", "蛇"], "monthNumber": 1, "monthLeap": false, "dayNumber": 1, "dayOccurrence": 1 },
+      "evidence": [{ "source": "shechen-2025", "locator": "PDF 第 3 页（从 1 计）：木蛇年新年，正月初一" }]
+    },
+    {
+      "date": "2025-11-11",
+      "expect": { "monthNumber": 9, "monthLeap": false, "dayNumber": 22, "events": ["lhabab"] },
+      "evidence": [
+        { "source": "shechen-2025", "locator": "PDF 第 46 页：九月廿二，天降日；第 67 页节日表列九月廿二" },
+        { "source": "fpmt-dates", "locator": "Lhabab Düchen：九月廿二" }
+      ]
+    },
+    {
+      "date": "2025-11-19",
+      "expect": { "monthNumber": 9, "monthLeap": false, "dayNumber": 30, "dayOccurrence": 1 },
+      "evidence": [{ "source": "shechen-2025", "locator": "PDF 第 47 页：九月三十连续出现两次，第一次" }]
+    },
+    {
+      "date": "2025-11-20",
+      "expect": { "monthNumber": 9, "monthLeap": false, "dayNumber": 30, "dayOccurrence": 2 },
+      "evidence": [{ "source": "shechen-2025", "locator": "PDF 第 47 页：九月三十连续出现两次，第二次" }]
+    }
+  ],
+  "absent": [
+    {
+      "date": "2019-05-18",
+      "events": ["saka-dawa"],
+      "evidence": [{ "source": "rikon-2019", "locator": "2019 年萨嘎达瓦为 6 月 17 日；每年只有一个四月十五" }]
+    }
+  ]
+}

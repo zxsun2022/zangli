@@ -147,10 +147,10 @@ for (const file of ['css/style.css','css/widget.css','js/app.js','js/widget.js',
 }
 
 const ics = read('calendar/zangli-special-days.ics');
-assert.equal((ics.match(/BEGIN:VEVENT/g) || []).length, 501);
-assert.equal((ics.match(/END:VEVENT/g) || []).length, 501);
-assert.equal((ics.match(/BEGIN:VALARM/g) || []).length, 501);
+assert.equal((ics.match(/BEGIN:VEVENT/g) || []).length, 514);
+assert.equal((ics.match(/END:VEVENT/g) || []).length, 514);
+assert.equal((ics.match(/BEGIN:VALARM/g) || []).length, 514);
 assert.ok(ics.endsWith('END:VCALENDAR\r\n'));
 assert.ok(ics.split('\r\n').every(line => Buffer.byteLength(line, 'utf8') <= 75), 'ICS lines must be folded at 75 octets');
 
-console.log('Product checks passed: locale data, time zones, pages, PWA assets and 501 subscription events.');
+console.log('Product checks passed: locale data, time zones, pages, PWA assets and 514 subscription events.');

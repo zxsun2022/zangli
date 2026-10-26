@@ -29,7 +29,8 @@ const messages = {
 	eclipseArchive: '日月食按北京时间日期归档；能否看到以及当地接触时刻取决于地理位置。',
 	calendarExported: '日历文件已生成', reminderExported: '提醒文件已生成，可导入系统日历',
 	installUnavailable: '可通过浏览器菜单将页面安装到桌面。', offlineReady: '页面已可离线使用',
-	copied: '日期信息已复制', linkCopied: '分享链接已复制',
+	copied: '日期信息已复制', linkCopied: '分享内容已复制',
+	shiftedObservance: '{title}：藏历{day}缺日，提前至本日',
 	festival: '节日', multiplier: '功德增广日', eclipse: '日月食', all: '全部',
 	annualUpcoming: '{year} 年共 {count} 个匹配日期 · 显示今天起 {days} 天内的 {shown} 个',
 	noUpcoming: '未来 {days} 天内没有匹配日期。', expandYear: '展开全年', collapseUpcoming: '收起至近期',
@@ -46,7 +47,7 @@ const messages = {
 
 const englishMessages = {
 	selectedDate:'Selected date',today:'Today',localBasis:'Device-local date',beijingBasis:'Beijing date',lookupNote:'Gregorian date used to query the published crosswalk',deviceZone:'Device time zone',
-	discrepancy:'Your local date is {local}; the Beijing date is {beijing}. This page is using “{basis}.”',basisCompact:'Using {basis} · {zone}',nextIn:'In {days} days',nextToday:'Today',noNext:'No later observance was found in the supported range',viewDate:'View date',events:'{count} matching dates in {year}',noEvents:'No dates match this filter.',annualUpcoming:'{count} matching dates in {year} · showing {shown} in the next {days} days',noUpcoming:'No matching dates in the next {days} days.',expandYear:'Show full year',collapseUpcoming:'Show upcoming only',backToListTop:'Back to list top',commonObservance:'Observance · Multiplier day',reverseFound:'Found {count} matching dates',reverseNone:'No date was found. The Tibetan day may be skipped or outside the selected Gregorian year.',repeated:'Repeated day',skipped:'Skipped day',leapMonth:'Leap month',localEclipse:'Your time zone',beijingEclipse:'Beijing time',eclipseArchive:'Eclipses are filed by Beijing date. Visibility and local contact times depend on location.',calendarExported:'Calendar file created',reminderExported:'Reminder file created; import it into your calendar',installUnavailable:'Use your browser menu to install this page.',offlineReady:'Offline access is ready',copied:'Date details copied',linkCopied:'Share link copied',festival:'Observance',multiplier:'Multiplier day',eclipse:'Eclipse',all:'All',gregorian:'Gregorian',tibetan:'Tibetan',sourceBadge:'Published crosswalk',dateBasis:'Date basis',yearSuffix:'',monthSuffix:'',daySuffix:'',weekdayPrefix:'',monthTitle:'{month} {year}',monthShort:'Month {month}',dayShort:'Day {day}',viewDetails:'View details',observance:'Observance',source:'Source & method',localModeDetail:'“Local” only decides which Gregorian day to look up. It does not recalculate local Tibetan astronomical parameters.',icsDescription:'Tibetan calendar: {tibetan}. {detail}',openSource:'Open-source data',copiedTitle:'Tibetan Calendar',install:'Install',themeDark:'Switch to dark mode',themeLight:'Switch to light mode'
+	discrepancy:'Your local date is {local}; the Beijing date is {beijing}. This page is using “{basis}.”',basisCompact:'Using {basis} · {zone}',nextIn:'In {days} days',nextToday:'Today',noNext:'No later observance was found in the supported range',viewDate:'View date',events:'{count} matching dates in {year}',noEvents:'No dates match this filter.',annualUpcoming:'{count} matching dates in {year} · showing {shown} in the next {days} days',noUpcoming:'No matching dates in the next {days} days.',expandYear:'Show full year',collapseUpcoming:'Show upcoming only',backToListTop:'Back to list top',commonObservance:'Observance · Multiplier day',reverseFound:'Found {count} matching dates',reverseNone:'No date was found. The Tibetan day may be skipped or outside the selected Gregorian year.',repeated:'Repeated day',skipped:'Skipped day',leapMonth:'Leap month',localEclipse:'Your time zone',beijingEclipse:'Beijing time',eclipseArchive:'Eclipses are filed by Beijing date. Visibility and local contact times depend on location.',calendarExported:'Calendar file created',reminderExported:'Reminder file created; import it into your calendar',installUnavailable:'Use your browser menu to install this page.',offlineReady:'Offline access is ready',copied:'Date details copied',linkCopied:'Share text copied',shiftedObservance:'{title}: Tibetan day {day} is skipped this month, so it is observed one day early',festival:'Observance',multiplier:'Multiplier day',eclipse:'Eclipse',all:'All',gregorian:'Gregorian',tibetan:'Tibetan',sourceBadge:'Published crosswalk',dateBasis:'Date basis',yearSuffix:'',monthSuffix:'',daySuffix:'',weekdayPrefix:'',monthTitle:'{month} {year}',monthShort:'Month {month}',dayShort:'Day {day}',viewDetails:'View details',observance:'Observance',source:'Source & method',localModeDetail:'“Local” only decides which Gregorian day to look up. It does not recalculate local Tibetan astronomical parameters.',icsDescription:'Tibetan calendar: {tibetan}. {detail}',openSource:'Open-source data',copiedTitle:'Tibetan Calendar',install:'Install',themeDark:'Switch to dark mode',themeLight:'Switch to light mode'
 };
 
 const tibetanMessages = {
@@ -434,7 +435,10 @@ function buildDetailHTML(date) {
 	const zangli = getZangli(date);
 	const eclipse = getEclipse(date);
 	let html = `<p class="section-kicker">${escapeHTML(msg('selectedDate'))} · ${escapeHTML(msg('gregorian'))}</p><h2 id="detailTitle">${escapeHTML(formatGregorian(date, { weekday:true }))}</h2><section class="detail-section"><h3>${escapeHTML(msg('tibetan'))}</h3><p class="detail-tibetan">${escapeHTML(formatTibetanDate(zangli))}</p><div class="status-row">${zangli.monthLeap ? `<span>${escapeHTML(msg('leapMonth'))}</span>` : ''}${zangli.dayLeap ? `<span>${escapeHTML(msg('repeated'))}</span>` : ''}${zangli.dayMiss ? `<span>${escapeHTML(msg('skipped'))}</span>` : ''}</div></section>`;
-	if (cleanInfo(zangli.extraInfo) || cleanInfo(zangli.extraInfo2)) html += `<section class="detail-section accent-section"><h3>${escapeHTML(msg('observance'))}</h3>${cleanInfo(zangli.extraInfo) ? `<p class="detail-event">${escapeHTML(cleanInfo(zangli.extraInfo))}</p>` : ''}${cleanInfo(zangli.extraInfo2) ? `<p>${escapeHTML(cleanInfo(zangli.extraInfo2))}</p>` : ''}</section>`;
+	if (cleanInfo(zangli.extraInfo) || cleanInfo(zangli.extraInfo2)) {
+		const shiftedNotes = zangli.events.filter(event => event.shifted).map(event => `<p class="fine-print">${escapeHTML(msg('shiftedObservance', { title: cleanInfo(event.title), day: locale === 'en' || locale === 'bo' ? String(event.dayNumber) : getZangliDayName(event.dayNumber) }))}</p>`).join('');
+		html += `<section class="detail-section accent-section"><h3>${escapeHTML(msg('observance'))}</h3>${cleanInfo(zangli.extraInfo) ? `<p class="detail-event">${escapeHTML(cleanInfo(zangli.extraInfo))}</p>` : ''}${cleanInfo(zangli.extraInfo2) ? `<p>${escapeHTML(cleanInfo(zangli.extraInfo2))}</p>` : ''}${shiftedNotes}</section>`;
+	}
 	if (eclipse.value) {
 		html += `<section class="detail-section eclipse-section"><h3>${escapeHTML(msg('eclipse'))}</h3><p class="detail-event">${escapeHTML(eclipse.value)}</p>`;
 		if (eclipse.maximumTimestamp) html += `<dl class="time-grid"><div><dt>${escapeHTML(msg('localEclipse'))}</dt><dd>${escapeHTML(eclipseTime(eclipse.maximumTimestamp, deviceTimeZone))}</dd></div><div><dt>${escapeHTML(msg('beijingEclipse'))}</dt><dd>${escapeHTML(eclipseTime(eclipse.maximumTimestamp, BEIJING_TIME_ZONE))}</dd></div></dl>`;
@@ -503,12 +507,14 @@ function activeDateText() {
 
 function copyDateInfo() { copyText(activeDateText(), msg('copied')); }
 
+// 链接并入正文、只分享一段文本：iOS 把单独的 url 字段作为第二个附件交给微信等应用，
+// 收到的人会看到文本和一个无法识别的小文件。
 function shareDate() {
 	if (!state.activeDate) return;
 	const url = `${location.origin}${basePath}date/${formatDate(state.activeDate)}`;
-	const data = { title: msg('copiedTitle'), text: activeDateText(), url };
-	if (navigator.share) navigator.share(data).catch(error => { if (error.name !== 'AbortError') copyText(url, msg('linkCopied')); });
-	else copyText(url, msg('linkCopied'));
+	const text = `${activeDateText()}\n${url}`;
+	if (navigator.share) navigator.share({ title: msg('copiedTitle'), text }).catch(error => { if (error.name !== 'AbortError') copyText(text, msg('linkCopied')); });
+	else copyText(text, msg('linkCopied'));
 }
 
 function escapeIcs(value) { return String(value).replaceAll('\\', '\\\\').replaceAll(';', '\\;').replaceAll(',', '\\,').replaceAll('\n', '\\n'); }
