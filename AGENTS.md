@@ -4,12 +4,13 @@
 
 ## 当前快照
 
-- 快照日期：2026-08-10。
-- 当前开发分支：`codex/compact-first-screen`。
+- 快照日期：2026-10-26。
+- 当前开发分支：`claude/nifty-wozniak-hhixaj`。
+- 历法核心：2026-10-26 按[审计报告](docs/audits/CALENDAR_CORE_AUDIT_2026-10-26.md)修复节日口径、输入与日序计算、日月食时间尺度，见 `docs/DECISIONS.md` D011–D014。
 - 本轮界面基线：最大内容宽度 1120px；年度殊胜日、藏历反查和计算口径默认收起；年度列表首次打开时才生成。
 - 已验证视口：1440×900 与 390×844，日期摘要和完整月历均能进入首屏。
 - 当前技术：无框架原生 JavaScript、HTML、CSS、Service Worker；Node.js 只用于生成和测试。
-- TypeScript 7：已评估，暂不迁移。先完成 `docs/TODO.md` 的 P0 历法正确性测试。
+- TypeScript 7：已评估，暂不迁移。先补齐 `docs/TODO.md` 的 P0 独立来源样本。
 - 当前公开语言：简体中文、繁体中文、英文。藏文 `/bo/` 是隐藏 Beta。
 
 快照可能随提交变化。每次接手仍要运行：
@@ -25,8 +26,9 @@ npm run verify
 
 - 支持日期：1951-01-08 至 2051-02-11。
 - 藏历数据来源：《藏历、公历、农历对照百年历书（1951–2050）》。
-- `zangli.js` 提供 `getZangli(date)`，处理藏历月日、闰月、缺日、重日和节日。
-- `eclipse.js` 提供 `getEclipse(date)`，按北京时间日期索引 NASA 日月食数据。
+- `zangli.js` 提供 `getZangli(date)`，处理藏历月日、闰月、缺日、重日，并返回节日事件 `events[]`。节日口径：真实月日匹配、年度节日不进闰月、重日取第一天、缺日提前一天。
+- `eclipse.js` 提供 `getEclipse(date)`，把 NASA 食甚 TD 换算为 UT 后按北京时间日期索引。
+- 不合并上游 `stonelf/zangli` 的前端、小程序或整个 `zangli.js`；审计结论见 `docs/audits/`。
 - “设备本地日期 / 北京时间日期”只决定查询哪个公历日，不会重新计算所在地藏历。
 - 页面依赖固定的全局脚本顺序：`i18n-data.js` → `i18n.js` → `zangli.js` → `eclipse.js` → `app.js`。
 
@@ -54,6 +56,7 @@ Logo、SEO、语言和 Windows Chrome 专题报告保留的是历史过程，不
 | 日月食 | `eclipse.js` |
 | 订阅文件 | `scripts/generate-subscription.js` |
 | 资源缓存版本 | `scripts/release-config.js` |
+| 历法测试与黄金样本 | `scripts/test-calendar.js`、`tests/fixtures/zangli-golden.json` |
 | 产品与生成物测试 | `scripts/test-product.js`、`scripts/check-generated.js` |
 
 以下 7 个文件由脚本维护并应随源码一起提交：
@@ -105,7 +108,7 @@ git diff --check
 
 ## 已知缺口
 
-当前测试能证明 36,560 个支持日期都返回结构合法的结果，但不能证明每个结果都与原始历书一致。跨年代、闰月、缺日、重日、节日和边界日期的来源可追溯黄金样本是最高优先级工作。
+当前测试能证明 36,560 个支持日期的解码与节日规则自洽、不受时区影响，并通过少量独立来源样本（2019、2025 年），但不能证明每个结果都与原始历书一致。项目负责人没有原历书；跨年代、闰月和边界日期的独立来源样本仍是最高优先级工作。
 
 浏览器首屏、折叠面板、离线和焦点行为做过人工/无头浏览器验证，但尚未全部纳入 CI 端到端测试。
 

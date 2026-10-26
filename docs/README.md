@@ -36,6 +36,7 @@ npm run verify
 - 修改模板、公共资源或缓存策略时，先更新 `scripts/release-config.js`，再运行 `npm run generate`。
 - `zangli.js` 和 `eclipse.js` 是历法与日月食核心。修改前先补充来源可追溯的正确性测试。
 - 项目目前仍使用原生 JavaScript。TypeScript 7 迁移已评估，但需在历法正确性测试增强后单独进行。
+- 历法黄金样本在 `tests/fixtures/zangli-golden.json`，每条必须附来源与页码；`npm run test:calendar` 单独运行历法测试。
 
 ## 文档入口
 
@@ -46,9 +47,10 @@ npm run verify
 - [生产部署检查清单](DEPLOYMENT_CHECKLIST.md)
 - [TypeScript 7 迁移评估](TYPESCRIPT_7_MIGRATION.md)
 - [当前优化状态报告](OPTIMIZATION_REPORT.md)
+- [历法核心审计（2026-10-26）](audits/CALENDAR_CORE_AUDIT_2026-10-26.md)
 
 ## 数据口径
 
-藏历对照来自《藏历、公历、农历对照百年历书（1951–2050）》。设备本地日期模式只决定查询哪个公历日，不会按用户所在地重新推算藏历天文参数。不同寺院、传承或历书的日期可能存在差异；日月食按北京时间日期归档，实际可见性取决于所在地。
+藏历对照来自《藏历、公历、农历对照百年历书（1951–2050）》。设备本地日期模式只决定查询哪个公历日，不会按用户所在地重新推算藏历天文参数。不同寺院、传承或历书的日期可能存在差异。节日按藏历真实月日标注：年度节日不落在闰月，重日只在第一天标注，缺日的节日提前一天（见 [D011](DECISIONS.md)）。日月食按北京时间日期归档，食甚时间已由力学时换算为世界时，实际可见性取决于所在地。
 
 原项目：[stonelf/zangli](https://github.com/stonelf/zangli)。许可证见 [LICENSE.md](../LICENSE.md)。

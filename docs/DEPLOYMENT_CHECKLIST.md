@@ -9,7 +9,7 @@
 - [ ] 确认 `git status --short` 没有意外改动或漏掉的生成物。
 - [ ] 如果 JS、CSS、页面模板或缓存策略变化，更新 `scripts/release-config.js` 的 `ASSET_VERSION`。
 - [ ] 运行 `npm run generate`。
-- [ ] 运行 `npm run verify`，确认 14 个 JavaScript 文件、产品测试、501 条订阅事件和 7 个生成物检查通过。
+- [ ] 运行 `npm run verify`，确认 15 个 JavaScript 文件、历法测试、产品测试、514 条订阅事件和 7 个生成物检查通过。
 - [ ] 运行 `git diff --check`。
 - [ ] 确认 `index.html`、`tw/index.html`、`en/index.html`、`bo/index.html`、`widget/index.html` 和 `sw.js` 的资源版本一致。
 

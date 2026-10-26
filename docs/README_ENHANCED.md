@@ -1,6 +1,6 @@
 # 百年藏历：项目与维护指南
 
-本文档描述 2026-08-10 的当前实现。它替代本文件早期关于“美化版”、横屏优先、渐变背景和未来再添加 PWA/英文版的说明。
+本文档描述 2026-10-26 的当前实现。它替代本文件早期关于“美化版”、横屏优先、渐变背景和未来再添加 PWA/英文版的说明。
 
 ## 1. 项目定位与当前状态
 
@@ -13,8 +13,8 @@
 - 隐藏测试语言：藏文 `/bo/`，使用 `noindex, follow`，不出现在语言菜单、`hreflang` 或 sitemap。
 - 兼容入口：`/zh-tw/` 永久跳转或静态回退到 `/tw/`。
 - 资源版本：由 `scripts/release-config.js` 统一控制。
-- 自动验证：JavaScript 语法、历法结构、时区、语言、页面结构、PWA、路由配置、生成物一致性和 501 条订阅事件。
-- 当前主要缺口：历法测试以结构性检查为主，尚未形成覆盖跨年代、闰月、缺日、重日和边界日期的来源可追溯黄金样本库，见 [TODO.md](TODO.md)。
+- 自动验证：JavaScript 语法、独立来源黄金样本、节日口径、历书表结构与连续性、四个时区一致性、语言、页面结构、PWA、路由配置、生成物一致性和 514 条订阅事件。
+- 当前主要缺口：黄金样本只有 2019、2025 年的少量独立来源，尚未覆盖每个年代、闰月和边界日期；原历书无法逐页核对，见 [TODO.md](TODO.md)。
 
 ## 2. 用户看到什么
 
@@ -67,8 +67,9 @@ npm run verify
 预期结果包含：
 
 ```text
-JavaScript syntax checks passed for 14 files.
-Product checks passed: locale data, time zones, pages, PWA assets and 501 subscription events.
+JavaScript syntax checks passed for 15 files.
+Calendar checks passed: 6 sourced samples, 36560 days, observance policy and 4 time zones.
+Product checks passed: locale data, time zones, pages, PWA assets and 514 subscription events.
 Generated-file checks passed for 7 files.
 ```
 
@@ -97,8 +98,8 @@ js/app.js
 
 | 文件 | 责任 | 关键公开接口或产物 |
 |---|---|---|
-| `zangli.js` | 公历到藏历对照、闰月、缺日、重日、节日 | `startDate`、`endDate`、`getZangli(date)` |
-| `eclipse.js` | NASA 日月食数据、北京时间日期索引 | `getEclipse(date)` |
+| `zangli.js` | 公历到藏历对照、闰月、缺日、重日、节日事件 | `startDate`、`endDate`、`getZangli(date)`（返回 `events[]`）、`toZangliCivilDate()` |
+| `eclipse.js` | NASA 日月食数据、TD→UT 换算、北京时间日期索引 | `getEclipse(date)` |
 | `js/i18n-data.js` | 简繁转换表、英文和藏文词典 | `window.ZANGLI_*` |
 | `js/i18n.js` | 根据路径确定语言并提供翻译 | `window.ZANGLI_LOCALE`、`trans()` |
 | `js/langDetect.js` | 根路径首次语言选择、`/zh-tw` 兼容 | `localStorage.zangli-language` |
@@ -141,7 +142,11 @@ js/app.js
 
 “设备本地日期”和“北京时间日期”只决定把哪一个公历日传给 `getZangli()`。它们不会按所在地重新推算藏历。
 
-日月食数据按北京时间日期建立索引。详情页可以同时展示设备时区和北京时间，但可见性仍取决于实际地理位置。不要把页面显示的时间描述成用户所在地一定可见的观测预报。
+`getZangli()` 接受 `Date`、时间戳、`YYYY-MM-DD` 字符串或 `{year, month, day}`。纯日期入参不经过时区；`Date` 与时间戳取运行环境的本地日期；内部用整数日序换算，结果不受运行时区影响（见 DECISIONS D012）。
+
+节日规则见 DECISIONS D011：按真实月日匹配，年度节日不落在闰月，重日取第一天，缺日提前一天并在详情中说明。
+
+日月食数据按北京时间日期建立索引，食甚时间先由 TD 按 NASA 目录的 ΔT 多项式换算为 UT（见 DECISIONS D013）。详情页可以同时展示设备时区和北京时间，但可见性仍取决于实际地理位置。不要把页面显示的时间描述成用户所在地一定可见的观测预报。
 
 ## 8. PWA 与缓存
 
@@ -156,17 +161,21 @@ js/app.js
 
 `npm run verify` 当前覆盖：
 
-- 14 个 JavaScript 文件语法有效。
-- 36,560 个支持范围内日期都能返回合法的藏历月、日结构。
-- 基础历日、日月食和跨时区样本。
+- 15 个 JavaScript 文件语法有效。
+- `tests/fixtures/zangli-golden.json` 中的独立来源黄金样本（Shechen 2025、Rikon/Sakya 2019、FPMT）。
+- 历书表结构、按另一种写法展开同一张表的全范围对照、相邻日期推进规则。
+- 节日口径：每个藏历年各年度节日恰好一次且月日正确；重日、缺日、闰月规则。
+- 输入契约：边界日、非法日期、`null`/`NaN`、等价入参。
+- UTC、上海、温哥华、Apia 四个时区全范围结果一致。
+- 日月食类型与 TD→UT 样本。
 - 简体、繁体、英文、藏文页面结构及藏文隐藏策略。
 - 日期深链接服务器配置。
 - 本地存储不可用时的安全回退代码路径。
 - 原生 `dialog`、紧凑首屏、工具默认折叠和事件标记布局约束。
-- 501 条 2026–2030 订阅事件及 RFC 行折叠要求。
+- 514 条 2026–2030 订阅事件及 RFC 行折叠要求。
 - 7 个生成文件无漂移。
 
-结构合法不等于历法内容已经逐条与原始历书校验。任何核心历法重构前，先完成 [TODO.md](TODO.md) 的 P0 正确性测试计划。
+全范围对照与性质测试只能证明解码和规则自洽，不等于历法内容已经逐条与原始历书校验。新增黄金样本必须人工摘录自独立来源并写明页码，不能由 `getZangli()` 输出生成。
 
 ## 10. 已确认的维护方向
 
