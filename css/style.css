@@ -352,8 +352,8 @@ main { padding: 8px 0 24px; }
 	transition: background-color .14s ease;
 }
 .calendar-table td:last-child { border-right: 0; }
-.calendar-table td[role='button']:hover { background: var(--tint); }
-.calendar-table td[role='button']:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; z-index: 2; }
+.calendar-table td[data-date]:hover { background: var(--tint); }
+.calendar-table td[data-date]:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; z-index: 2; }
 .calendar-table td.empty-cell { cursor: default; background: color-mix(in srgb, var(--paper) 55%, transparent); }
 .calendar-table td.out-of-range { cursor: not-allowed; color: var(--ink-faint); opacity: .5; }
 .day-number {
@@ -366,8 +366,9 @@ main { padding: 8px 0 24px; }
 	border-radius: 999px;
 	font: 600 1.05rem/1 var(--serif);
 }
-.calendar-table td.today[role='button'] { background: color-mix(in srgb, var(--red-soft) 60%, transparent); box-shadow: inset 0 0 0 2px var(--red); }
-.calendar-table td.selected .day-number { background: var(--ink); color: var(--surface-strong); }
+/* 形状分工：圆 = 今天，框 = 选中，蓝色外框 = 键盘焦点。 */
+.calendar-table td.today[data-date] { background: color-mix(in srgb, var(--red-soft) 90%, transparent); }
+.calendar-table td.selected[data-date] { box-shadow: inset 0 0 0 1.5px var(--ink); }
 .calendar-table td.today .day-number { background: var(--red); color: #fff; }
 .calendar-table td.today .lunar-date { color: var(--red); }
 :root[data-theme='dark'] .calendar-table td.today .day-number { color: #1d1210; }

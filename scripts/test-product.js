@@ -79,6 +79,7 @@ for (const [file, language] of [['index.html','zh-CN'],['tw/index.html','zh-TW']
 	assert.ok(html.indexOf('id="languageSelect"') < html.indexOf('id="themeButton"'), `${file} should show language before theme`);
 	assert.ok(html.indexOf('id="dateDiscrepancy"') > html.indexOf('id="settingsDialog"'), `${file} should keep the detailed date discrepancy inside settings`);
 	assert.ok(html.includes('<dialog id="detailDialog"'), `${file} should use the native modal dialog`);
+	assert.ok(html.includes('<table class="calendar-table" role="grid" aria-labelledby="monthTitle">'), `${file} should expose the month as a navigable grid`);
 	assert.ok(!html.includes('id="detailMask"'), `${file} should not retain the custom modal backdrop`);
 	assert.ok(html.includes('id="annualTab" type="button" aria-expanded="false"'), `${file} should keep annual observances collapsed by default`);
 	assert.ok(html.includes('id="annualPanel" class="tool-panel" role="region" aria-labelledby="annualTab" hidden'), `${file} should hide the annual list until requested`);
@@ -127,9 +128,12 @@ assert.ok(style.includes('.site-shell { width: min(1120px, calc(100% - 32px));')
 assert.ok(style.includes('.header-basis-status { display: none; }'), 'Mobile should hide the compact date-basis status');
 assert.ok(style.includes('.calendar-table td { height: 58px;'), 'Mobile calendar cells should stay compact enough for first-screen scanning');
 assert.ok(style.includes('.calendar-toolbar { min-height: 54px;'), 'Mobile month controls should remain on a compact row');
-assert.ok(style.includes('box-shadow: inset 0 0 0 2px var(--red);'), 'Today should be framed as a whole cell, not only by its day number');
-assert.ok(style.indexOf('td.selected .day-number') < style.indexOf('td.today .day-number'), 'Today styling should win when the selected date is today');
+assert.ok(style.includes('.calendar-table td.selected[data-date] { box-shadow: inset 0 0 0 1.5px var(--ink); }'), 'The selected date should be a frame so it is not mistaken for another today');
+assert.ok(!/td\.today\[data-date\] \{[^}]*box-shadow/.test(style), 'Today is the circle and tint; the frame belongs to the selected date');
 assert.ok(app.includes('function markSelected(date)') && !app.includes('selectedCell'), 'The last opened date should stay marked after its detail closes');
+assert.ok(app.includes("cell.setAttribute('role', 'gridcell');") && app.includes('cell.tabIndex = -1;') && app.includes('function setRovingCell(cell)'), 'The month grid should be a single Tab stop with roving focus');
+assert.ok(app.includes("case 'ArrowDown': return addDays(date, 7);") && app.includes("case 'PageDown': return shiftMonths(date, event.shiftKey ? 12 : 1);"), 'Arrow keys and Page keys should move focus through days, weeks, months and years');
+assert.ok(app.includes("cell.setAttribute('aria-selected'"), 'Assistive technology should hear which date is selected');
 assert.ok(style.includes('.calendar-table td:last-child { border-right: 0; }'), 'Calendar cells should keep column rules so each day reads as one unit');
 assert.ok(style.includes('.cell-event:empty, .cell-markers:empty { display: none; }'), 'Empty calendar metadata should not reserve space');
 assert.ok(style.includes('-webkit-line-clamp: 1;'), 'Calendar event labels should stay on one line above their markers');

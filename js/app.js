@@ -65,6 +65,7 @@ const state = {
 	basis: readStorage('zangli-date-basis', 'local') === 'beijing' ? 'beijing' : 'local',
 	theme: readStorage('zangli-theme', 'system'),
 	selectedDate: null,
+	focusDate: null,
 	activeDate: null,
 	previousFocus: null,
 	detailCloseTimer: null,
@@ -325,6 +326,8 @@ function renderCalendar(date) {
 	const firstDay = createLocalDate(date.getFullYear(), date.getMonth() + 1, 1);
 	const lastDay = createLocalDate(date.getFullYear(), date.getMonth() + 2, 0) || new Date(date.getFullYear(), date.getMonth() + 1, 0, 12);
 	const today = getToday();
+	const inMonth = candidate => candidate && candidate.getFullYear() === date.getFullYear() && candidate.getMonth() === date.getMonth() && isSupportedDate(candidate);
+	const rovingDate = [state.focusDate, state.selectedDate, today].find(inMonth);
 	let row = tbody.insertRow();
 	for (let index = 0; index < firstDay.getDay(); index++) row.insertCell().className = 'empty-cell';
 	for (let day = 1; day <= lastDay.getDate(); day++) {
@@ -338,8 +341,9 @@ function renderCalendar(date) {
 		const eclipse = getEclipse(current);
 		const types = eventTypes(zangli, eclipse);
 		cell.dataset.date = formatDate(current);
-		cell.tabIndex = 0;
-		cell.setAttribute('role', 'button');
+		cell.tabIndex = -1;
+		cell.setAttribute('role', 'gridcell');
+		cell.setAttribute('aria-selected', String(isSameDate(current, state.selectedDate)));
 		cell.classList.toggle('today', isSameDate(current, today));
 		if (isSameDate(current, today)) cell.setAttribute('aria-current', 'date');
 		cell.classList.toggle('selected', isSameDate(current, state.selectedDate));
@@ -353,6 +357,18 @@ function renderCalendar(date) {
 		cell.innerHTML = `<span class="day-number">${day}</span><span class="lunar-date">${escapeHTML(shortTibetan)}</span><span class="cell-meta"><span class="cell-event wide">${escapeHTML(cleanInfo(zangli.extraInfo) || eclipse.value || '')}</span><span class="cell-markers" aria-hidden="true">${types.map(type => `<i class="${type}-marker"></i>`).join('')}</span></span>`;
 	}
 	while (row.cells.length < 7) row.insertCell().className = 'empty-cell';
+	const rovingCell = (rovingDate && calendarCell(rovingDate)) || tbody.querySelector('td[data-date]');
+	if (rovingCell) rovingCell.tabIndex = 0;
+}
+
+function calendarCell(date) {
+	return document.querySelector(`.calendar-table td[data-date="${formatDate(date)}"]`);
+}
+
+// 月历整体只占一个 Tab 停靠点，落在最近操作的格子上。
+function setRovingCell(cell) {
+	document.querySelectorAll('.calendar-table td[tabindex="0"]').forEach(other => { other.tabIndex = -1; });
+	cell.tabIndex = 0;
 }
 
 function annualEventIndicators(event) {
@@ -471,7 +487,7 @@ function slideMonth(direction) {
 
 function changeMonth(delta) { navigateTo(Number($('year').value), Number($('month').value) + delta); }
 function changeYear(delta) { navigateTo(Number($('year').value) + delta, Number($('month').value)); }
-function goToToday() { const today = getToday(); state.selectedDate = null; navigateTo(today.getFullYear(), today.getMonth() + 1, today.getDate()); }
+function goToToday() { const today = getToday(); state.selectedDate = null; state.focusDate = null; navigateTo(today.getFullYear(), today.getMonth() + 1, today.getDate()); }
 
 function parseDataDate(value) {
 	const match = String(value).match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -500,8 +516,13 @@ function buildDetailHTML(date) {
 // 选中状态在关闭详情后保留，标出“刚才看的是哪天”；只改相关格子，不重绘月历，以免丢失焦点恢复目标。
 function markSelected(date) {
 	state.selectedDate = date;
-	document.querySelectorAll('.calendar-table td.selected').forEach(cell => cell.classList.remove('selected'));
-	document.querySelector(`.calendar-table td[data-date="${formatDate(date)}"]`)?.classList.add('selected');
+	for (const cell of document.querySelectorAll('.calendar-table td[data-date]')) {
+		const selected = cell.dataset.date === formatDate(date);
+		cell.classList.toggle('selected', selected);
+		cell.setAttribute('aria-selected', String(selected));
+	}
+	const cell = calendarCell(date);
+	if (cell) setRovingCell(cell);
 	updateTodayButton();
 }
 
@@ -678,9 +699,42 @@ function handleDocumentClick(event) {
 	if (tab) activatePanel(tab);
 }
 
+function shiftMonths(date, months) {
+	const first = new Date(date.getFullYear(), date.getMonth() + months, 1, 12);
+	const lastDay = new Date(first.getFullYear(), first.getMonth() + 1, 0, 12).getDate();
+	return createLocalDate(first.getFullYear(), first.getMonth() + 1, Math.min(date.getDate(), lastDay));
+}
+
+function calendarKeyTarget(date, event) {
+	switch (event.key) {
+		case 'ArrowLeft': return addDays(date, -1);
+		case 'ArrowRight': return addDays(date, 1);
+		case 'ArrowUp': return addDays(date, -7);
+		case 'ArrowDown': return addDays(date, 7);
+		case 'Home': return addDays(date, -date.getDay());
+		case 'End': return addDays(date, 6 - date.getDay());
+		case 'PageUp': return shiftMonths(date, event.shiftKey ? -12 : -1);
+		case 'PageDown': return shiftMonths(date, event.shiftKey ? 12 : 1);
+		default: return null;
+	}
+}
+
+// 方向键只移动焦点，越过月界时翻月；选中只在 Enter / 空格打开详情时改变。
+function moveCalendarFocus(target) {
+	if (!isSupportedDate(target)) return;
+	state.focusDate = target;
+	if (target.getFullYear() !== Number($('year').value) || target.getMonth() + 1 !== Number($('month').value)) navigateTo(target.getFullYear(), target.getMonth() + 1, target.getDate());
+	const cell = calendarCell(target);
+	if (cell) { setRovingCell(cell); cell.focus(); }
+}
+
 function handleDocumentKeydown(event) {
 	const cell = event.target.closest?.('.calendar-table td[data-date]');
-	if (cell && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); openDateFromElement(cell); }
+	if (!cell) return;
+	if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openDateFromElement(cell); return; }
+	if (event.altKey || event.ctrlKey || event.metaKey) return;
+	const target = calendarKeyTarget(parseDataDate(cell.dataset.date), event);
+	if (target) { event.preventDefault(); moveCalendarFocus(target); }
 }
 
 function handleHistory() {
