@@ -15,7 +15,6 @@
   "categories": ["utilities", "lifestyle", "education"],
   "lang": "zh-CN",
   "shortcuts": [
-    { "name": "今天", "url": "/", "icons": [{ "src": "/logo-192x192-circle.png", "sizes": "192x192" }] },
-    { "name": "桌面小组件", "url": "/widget/", "icons": [{ "src": "/logo-192x192-circle.png", "sizes": "192x192" }] }
+    { "name": "今天", "url": "/", "icons": [{ "src": "/logo-192x192-circle.png", "sizes": "192x192" }] }
   ]
 }

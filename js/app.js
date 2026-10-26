@@ -28,7 +28,12 @@ const messages = {
 	repeated: '重日', skipped: '缺日', leapMonth: '闰月', localEclipse: '你的时区', beijingEclipse: '北京时区',
 	eclipseArchive: '日月食按北京时间日期归档；能否看到以及当地接触时刻取决于地理位置。',
 	calendarExported: '日历文件已生成', reminderExported: '提醒文件已生成，可导入系统日历',
-	installUnavailable: '可通过浏览器菜单将页面安装到桌面。', offlineReady: '页面已可离线使用',
+	installShare: '点浏览器的“分享”按钮', installAddHome: '选择“添加到主屏幕”', installConfirm: '点“添加”完成',
+	installShareToolbar: '点工具栏的“分享”按钮', installAddDock: '选择“添加到程序坞”',
+	installMenu: '打开浏览器菜单', installAndroidAdd: '选择“安装应用”或“添加到主屏幕”',
+	installAddressBar: '点地址栏右侧的安装图标', installDesktopMenu: '或在浏览器菜单中选择“安装百年藏历”',
+	installInAppMenu: '点右上角的“···”', installOpenBrowser: '选择“在浏览器中打开”', installThen: '再按这里的步骤安装',
+	installed: '已安装到桌面', offlineReady: '页面已可离线使用',
 	copied: '日期信息已复制', linkCopied: '分享内容已复制',
 	shiftedObservance: '{title}：藏历{day}缺日，提前至本日',
 	festival: '节日', multiplier: '功德增广日', eclipse: '日月食', all: '全部',
@@ -46,7 +51,7 @@ const messages = {
 
 const englishMessages = {
 	today:'Today',localBasis:'Device-local date',beijingBasis:'Beijing date',lookupNote:'Gregorian date used to query the published crosswalk',deviceZone:'Device time zone',
-	discrepancy:'Your local date is {local}; the Beijing date is {beijing}. This page is using “{basis}.”',basisCompact:'{basis} · {zone}',nextIn:'In {days} days',nextTomorrow:'Tomorrow',noNext:'No later observance was found in the supported range',events:'{count} matching dates in {year}',noEvents:'No dates match this filter.',annualUpcoming:'{count} matching dates in {year} · showing {shown} in the next {days} days',noUpcoming:'No matching dates in the next {days} days.',expandYear:'Show full year',collapseUpcoming:'Show upcoming only',backToListTop:'Back to list top',reverseFound:'Found {count} matching dates',reverseNone:'No date was found. The Tibetan day may be skipped or outside the selected Gregorian year.',repeated:'Repeated day',skipped:'Skipped day',leapMonth:'Leap month',localEclipse:'Your time zone',beijingEclipse:'Beijing time',eclipseArchive:'Eclipses are filed by Beijing date. Visibility and local contact times depend on location.',calendarExported:'Calendar file created',reminderExported:'Reminder file created; import it into your calendar',installUnavailable:'Use your browser menu to install this page.',offlineReady:'Offline access is ready',copied:'Date details copied',linkCopied:'Share text copied',shiftedObservance:'{title}: Tibetan day {day} is skipped this month, so it is observed one day early',festival:'Observance',multiplier:'Multiplier day',eclipse:'Eclipse',all:'All',gregorian:'Gregorian',tibetan:'Tibetan',sourceBadge:'Published crosswalk',dateBasis:'Date basis',yearSuffix:'',monthSuffix:'',daySuffix:'',weekdayPrefix:'',monthTitle:'{month} {year}',monthShort:'Month {month}',dayShort:'Day {day}',viewDetails:'View details',observance:'Observance',icsDescription:'Tibetan calendar: {tibetan}. {detail}',openSource:'Open-source data',copiedTitle:'Tibetan Calendar',install:'Install',themeDark:'Switch to dark mode',themeLight:'Switch to light mode'
+	discrepancy:'Your local date is {local}; the Beijing date is {beijing}. This page is using “{basis}.”',basisCompact:'{basis} · {zone}',nextIn:'In {days} days',nextTomorrow:'Tomorrow',noNext:'No later observance was found in the supported range',events:'{count} matching dates in {year}',noEvents:'No dates match this filter.',annualUpcoming:'{count} matching dates in {year} · showing {shown} in the next {days} days',noUpcoming:'No matching dates in the next {days} days.',expandYear:'Show full year',collapseUpcoming:'Show upcoming only',backToListTop:'Back to list top',reverseFound:'Found {count} matching dates',reverseNone:'No date was found. The Tibetan day may be skipped or outside the selected Gregorian year.',repeated:'Repeated day',skipped:'Skipped day',leapMonth:'Leap month',localEclipse:'Your time zone',beijingEclipse:'Beijing time',eclipseArchive:'Eclipses are filed by Beijing date. Visibility and local contact times depend on location.',calendarExported:'Calendar file created',reminderExported:'Reminder file created; import it into your calendar',installShare:'Tap the browser’s Share button',installAddHome:'Choose “Add to Home Screen”',installConfirm:'Tap “Add”',installShareToolbar:'Click Share in the toolbar',installAddDock:'Choose “Add to Dock”',installMenu:'Open the browser menu',installAndroidAdd:'Choose “Install app” or “Add to Home screen”',installAddressBar:'Click the install icon at the right of the address bar',installDesktopMenu:'Or choose “Install Tibetan Calendar” in the browser menu',installInAppMenu:'Tap “···” in the top-right corner',installOpenBrowser:'Choose “Open in browser”',installThen:'Then follow these steps again',installed:'Installed',offlineReady:'Offline access is ready',copied:'Date details copied',linkCopied:'Share text copied',shiftedObservance:'{title}: Tibetan day {day} is skipped this month, so it is observed one day early',festival:'Observance',multiplier:'Multiplier day',eclipse:'Eclipse',all:'All',gregorian:'Gregorian',tibetan:'Tibetan',sourceBadge:'Published crosswalk',dateBasis:'Date basis',yearSuffix:'',monthSuffix:'',daySuffix:'',weekdayPrefix:'',monthTitle:'{month} {year}',monthShort:'Month {month}',dayShort:'Day {day}',viewDetails:'View details',observance:'Observance',icsDescription:'Tibetan calendar: {tibetan}. {detail}',openSource:'Open-source data',copiedTitle:'Tibetan Calendar',install:'Install',themeDark:'Switch to dark mode',themeLight:'Switch to light mode'
 };
 
 const tibetanMessages = {
@@ -750,13 +755,64 @@ function initSettings() {
 	}));
 }
 
+const stepIcon = paths => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
+const installIcons = {
+	share: stepIcon('<path d="M12 15V4M8 8l4-4 4 4M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/>'),
+	addHome: stepIcon('<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8.5v7M8.5 12h7"/>'),
+	check: stepIcon('<path d="m5 12.5 4.5 4.5L19 7.5"/>'),
+	dock: stepIcon('<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M7 20h10M9 12h1.5M13.5 12H15"/>'),
+	menu: stepIcon('<circle cx="12" cy="5.5" r="1.2" fill="currentColor"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/><circle cx="12" cy="18.5" r="1.2" fill="currentColor"/>'),
+	dots: stepIcon('<circle cx="5.5" cy="12" r="1.2" fill="currentColor"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/><circle cx="18.5" cy="12" r="1.2" fill="currentColor"/>'),
+	install: stepIcon('<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M12 7.5v6M9.5 11l2.5 2.5 2.5-2.5M8 20h8"/>'),
+	browser: stepIcon('<circle cx="12" cy="12" r="8"/><path d="m15 9-4 2-2 4 4-2z"/>')
+};
+
+// 只有部分浏览器提供安装弹窗；其余平台按设备给出两三步图示。
+function installPlatform() {
+	const ua = navigator.userAgent;
+	if (/MicroMessenger|Weibo|QQ\/|DingTalk|AlipayClient/i.test(ua)) return 'inApp';
+	if (/iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)) return 'ios';
+	if (/Macintosh/.test(ua) && /Safari\//.test(ua) && !/Chrome|Chromium|Edg|Firefox/.test(ua)) return 'macSafari';
+	if (/Android/.test(ua)) return 'android';
+	if (/Firefox\//.test(ua)) return null;
+	return 'desktop';
+}
+
+const installGuides = {
+	ios: [['share', 'installShare'], ['addHome', 'installAddHome'], ['check', 'installConfirm']],
+	macSafari: [['share', 'installShareToolbar'], ['dock', 'installAddDock']],
+	android: [['menu', 'installMenu'], ['addHome', 'installAndroidAdd']],
+	desktop: [['install', 'installAddressBar'], ['menu', 'installDesktopMenu']],
+	inApp: [['dots', 'installInAppMenu'], ['browser', 'installOpenBrowser'], ['addHome', 'installThen']]
+};
+
+function isInstalled() {
+	return matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+}
+
+async function startInstall() {
+	if (state.deferredInstallPrompt) {
+		const prompt = state.deferredInstallPrompt;
+		state.deferredInstallPrompt = null;
+		prompt.prompt();
+		await prompt.userChoice.catch(() => {});
+		return;
+	}
+	$('installSteps').innerHTML = installGuides[installPlatform()].map(([icon, key]) => `<li><span class="step-icon">${installIcons[icon]}</span><span>${escapeHTML(msg(key))}</span></li>`).join('');
+	$('installDialog').showModal();
+}
+
 function initPwa() {
 	if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').then(() => console.info(msg('offlineReady'))).catch(() => {});
+	$('installButton').hidden = isInstalled() || !installPlatform();
 	window.addEventListener('beforeinstallprompt', event => { event.preventDefault(); state.deferredInstallPrompt = event; $('installButton').hidden = false; });
-	$('installButton').addEventListener('click', async () => {
-		if (!state.deferredInstallPrompt) { showToast(msg('installUnavailable')); return; }
-		state.deferredInstallPrompt.prompt(); await state.deferredInstallPrompt.userChoice; state.deferredInstallPrompt = null; $('installButton').hidden = true;
+	window.addEventListener('appinstalled', () => {
+		state.deferredInstallPrompt = null;
+		$('installButton').hidden = true;
+		if ($('installDialog').open) $('installDialog').close();
+		showToast(msg('installed'));
 	});
+	$('installButton').addEventListener('click', startInstall);
 }
 
 function initApp() {
