@@ -64,7 +64,7 @@ function msg(key, values = {}) {
 const state = {
 	basis: readStorage('zangli-date-basis', 'local') === 'beijing' ? 'beijing' : 'local',
 	theme: readStorage('zangli-theme', 'system'),
-	selectedCell: null,
+	selectedDate: null,
 	activeDate: null,
 	previousFocus: null,
 	detailCloseTimer: null,
@@ -341,7 +341,8 @@ function renderCalendar(date) {
 		cell.tabIndex = 0;
 		cell.setAttribute('role', 'button');
 		cell.classList.toggle('today', isSameDate(current, today));
-		cell.classList.toggle('selected', state.activeDate && isSameDate(current, state.activeDate));
+		if (isSameDate(current, today)) cell.setAttribute('aria-current', 'date');
+		cell.classList.toggle('selected', isSameDate(current, state.selectedDate));
 		cell.classList.toggle('month-start', isTibetanMonthStart(zangli));
 		for (const type of types) cell.classList.add(`has-${type}`);
 		const shortTibetan = formatTibetanCalendarCell(zangli);
@@ -432,15 +433,21 @@ function renderApp(date = getRequestedDate()) {
 	$('year').value = date.getFullYear();
 	$('month').value = date.getMonth() + 1;
 	$('monthTitle').textContent = formatMonthTitle(date);
-	const today = getToday();
-	const viewingToday = date.getFullYear() === today.getFullYear() && date.getMonth() === today.getMonth();
-	$('todayButton').classList.toggle('is-current', viewingToday);
-	$('todayButton').setAttribute('aria-disabled', String(viewingToday));
 	renderBasis();
 	renderSelectedDay();
 	renderCalendar(date);
 	renderNextEvent();
+	updateTodayButton();
 	if (!$('annualPanel').hidden) renderAnnualList();
+}
+
+// 已在今天所在月份且没有选中其他日期时，“今天”按钮无事可做，显示为淡色。
+function updateTodayButton() {
+	const today = getToday();
+	const atToday = Number($('year').value) === today.getFullYear() && Number($('month').value) === today.getMonth() + 1
+		&& (!state.selectedDate || isSameDate(state.selectedDate, today));
+	$('todayButton').classList.toggle('is-current', atToday);
+	$('todayButton').setAttribute('aria-disabled', String(atToday));
 }
 
 function navigateTo(year, month, day = 1) {
@@ -465,7 +472,7 @@ function slideMonth(direction) {
 
 function changeMonth(delta) { navigateTo(Number($('year').value), Number($('month').value) + delta); }
 function changeYear(delta) { navigateTo(Number($('year').value) + delta, Number($('month').value)); }
-function goToToday() { const today = getToday(); navigateTo(today.getFullYear(), today.getMonth() + 1, today.getDate()); }
+function goToToday() { const today = getToday(); state.selectedDate = null; navigateTo(today.getFullYear(), today.getMonth() + 1, today.getDate()); }
 
 function parseDataDate(value) {
 	const match = String(value).match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -491,9 +498,18 @@ function buildDetailHTML(date) {
 	return html;
 }
 
+// 选中状态在关闭详情后保留，标出“刚才看的是哪天”；只改相关格子，不重绘月历，以免丢失焦点恢复目标。
+function markSelected(date) {
+	state.selectedDate = date;
+	document.querySelectorAll('.calendar-table td.selected').forEach(cell => cell.classList.remove('selected'));
+	document.querySelector(`.calendar-table td[data-date="${formatDate(date)}"]`)?.classList.add('selected');
+	updateTodayButton();
+}
+
 function openDetail(date, anchor) {
 	if (!isSupportedDate(date)) return;
 	state.activeDate = date;
+	markSelected(date);
 	state.previousFocus = anchor || document.activeElement;
 	$('detailContent').innerHTML = buildDetailHTML(date);
 	const dialog = $('detailDialog');

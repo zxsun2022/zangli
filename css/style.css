@@ -367,6 +367,7 @@ main { padding: 8px 0 24px; }
 	font: 600 1.05rem/1 var(--serif);
 }
 .calendar-table td.today[role='button'] { background: color-mix(in srgb, var(--red-soft) 60%, transparent); box-shadow: inset 0 0 0 2px var(--red); }
+.calendar-table td.selected .day-number { background: var(--ink); color: var(--surface-strong); }
 .calendar-table td.today .day-number { background: var(--red); color: #fff; }
 .calendar-table td.today .lunar-date { color: var(--red); }
 :root[data-theme='dark'] .calendar-table td.today .day-number { color: #1d1210; }

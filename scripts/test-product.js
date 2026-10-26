@@ -128,6 +128,8 @@ assert.ok(style.includes('.header-basis-status { display: none; }'), 'Mobile sho
 assert.ok(style.includes('.calendar-table td { height: 58px;'), 'Mobile calendar cells should stay compact enough for first-screen scanning');
 assert.ok(style.includes('.calendar-toolbar { min-height: 54px;'), 'Mobile month controls should remain on a compact row');
 assert.ok(style.includes('box-shadow: inset 0 0 0 2px var(--red);'), 'Today should be framed as a whole cell, not only by its day number');
+assert.ok(style.indexOf('td.selected .day-number') < style.indexOf('td.today .day-number'), 'Today styling should win when the selected date is today');
+assert.ok(app.includes('function markSelected(date)') && !app.includes('selectedCell'), 'The last opened date should stay marked after its detail closes');
 assert.ok(style.includes('.calendar-table td:last-child { border-right: 0; }'), 'Calendar cells should keep column rules so each day reads as one unit');
 assert.ok(style.includes('.cell-event:empty, .cell-markers:empty { display: none; }'), 'Empty calendar metadata should not reserve space');
 assert.ok(style.includes('-webkit-line-clamp: 1;'), 'Calendar event labels should stay on one line above their markers');
