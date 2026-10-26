@@ -1,8 +1,8 @@
-const CACHE_NAME = 'zangli-20261026-1';
+const CACHE_NAME = 'zangli-20261026-2';
 const APP_SHELL = [
 	'/', '/tw/', '/en/', '/bo/', '/widget/',
-	'/css/style.css?v=20261026-1', '/css/widget.css?v=20261026-1', '/js/i18n-data.js?v=20261026-1', '/js/i18n.js?v=20261026-1',
-	'/js/app.js?v=20261026-1', '/js/widget.js?v=20261026-1', '/zangli.js?v=20261026-1', '/eclipse.js?v=20261026-1',
+	'/css/style.css?v=20261026-2', '/css/widget.css?v=20261026-2', '/js/i18n-data.js?v=20261026-2', '/js/i18n.js?v=20261026-2',
+	'/js/app.js?v=20261026-2', '/js/widget.js?v=20261026-2', '/zangli.js?v=20261026-2', '/eclipse.js?v=20261026-2',
 	'/manifest.json', '/logo-192x192-circle.png', '/logo-512x512-circle.png',
 	'/calendar/zangli-special-days.ics'
 ];

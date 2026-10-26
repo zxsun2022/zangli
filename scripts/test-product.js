@@ -72,12 +72,14 @@ for (const [file, language] of [['index.html','zh-CN'],['tw/index.html','zh-TW']
 	assert.ok(!html.includes('class="hero-context"'), `${file} should not give date-basis metadata a full-width hero row`);
 	assert.ok(!html.includes('class="hero-copy"'), `${file} should not repeat a visible page title above the primary cards`);
 	assert.ok(html.includes('<h1 id="pageTitle" class="sr-only">'), `${file} should retain an accessible page heading`);
-	assert.ok(html.includes(`id="settingsButton" class="text-button settings-button" type="button" aria-label="`), `${file} should keep an accessible settings name when its mobile label is hidden`);
+	assert.ok(html.includes(`id="settingsButton" class="icon-button settings-button" type="button" aria-label="`), `${file} should give the icon-only settings button an accessible name`);
+	assert.ok(!html.includes('class="install-card"'), `${file} should keep install and widget links in the footer instead of a promotional block`);
 	assert.ok(html.indexOf('id="basisLabel"') < html.indexOf('id="settingsButton"'), `${file} should show date basis before settings`);
 	assert.ok(html.indexOf('id="settingsButton"') < html.indexOf('id="languageSelect"'), `${file} should show settings before language`);
 	assert.ok(html.indexOf('id="languageSelect"') < html.indexOf('id="themeButton"'), `${file} should show language before theme`);
 	assert.ok(html.indexOf('id="dateDiscrepancy"') > html.indexOf('id="settingsDialog"'), `${file} should keep the detailed date discrepancy inside settings`);
 	assert.ok(html.includes('<dialog id="detailDialog"'), `${file} should use the native modal dialog`);
+	assert.ok(html.includes('<table class="calendar-table" role="grid" aria-labelledby="monthTitle">'), `${file} should expose the month as a navigable grid`);
 	assert.ok(!html.includes('id="detailMask"'), `${file} should not retain the custom modal backdrop`);
 	assert.ok(html.includes('id="annualTab" type="button" aria-expanded="false"'), `${file} should keep annual observances collapsed by default`);
 	assert.ok(html.includes('id="annualPanel" class="tool-panel" role="region" aria-labelledby="annualTab" hidden'), `${file} should hide the annual list until requested`);
@@ -120,17 +122,24 @@ for (const route of ['en', 'bo']) {
 }
 
 const style = read('css/style.css');
-assert.ok(style.includes('grid-template-columns: max-content minmax(0, 1fr)'), 'Date labels should size to their translated text');
 assert.ok(style.includes(':root:not([data-theme])'), 'System dark mode should have a CSS-only first-paint fallback');
 assert.ok(style.includes('grid-template-columns: repeat(3, minmax(0, 1fr))'), 'All three tool tabs should fit in the narrow mobile layout');
 assert.ok(style.includes('.site-shell { width: min(1120px, calc(100% - 32px));'), 'Desktop content should stay within a readable 1120px canvas');
-assert.ok(style.includes('.brand small, .header-basis-status, .header-actions-divider { display: none; }'), 'Mobile should hide the compact date-basis status');
-assert.ok(style.includes('.settings-icon { display: inline-block; }'), 'Mobile should retain settings as an icon button');
+assert.ok(style.includes('.header-basis-status { display: none; }'), 'Mobile should hide the compact date-basis status');
 assert.ok(style.includes('.calendar-table td { height: 58px;'), 'Mobile calendar cells should stay compact enough for first-screen scanning');
 assert.ok(style.includes('.calendar-toolbar { min-height: 54px;'), 'Mobile month controls should remain on a compact row');
+assert.ok(style.includes('.calendar-table td.selected[data-date] { box-shadow: inset 0 0 0 1.5px var(--ink); }'), 'The selected date should be a frame so it is not mistaken for another today');
+assert.ok(!/td\.today\[data-date\] \{[^}]*box-shadow/.test(style), 'Today is the circle and tint; the frame belongs to the selected date');
+assert.ok(app.includes('function markSelected(date)') && !app.includes('selectedCell'), 'The last opened date should stay marked after its detail closes');
+assert.ok(app.includes("cell.setAttribute('role', 'gridcell');") && app.includes('cell.tabIndex = -1;') && app.includes('function setRovingCell(cell)'), 'The month grid should be a single Tab stop with roving focus');
+assert.ok(app.includes("case 'ArrowDown': return addDays(date, 7);") && app.includes("case 'PageDown': return shiftMonths(date, event.shiftKey ? 12 : 1);"), 'Arrow keys and Page keys should move focus through days, weeks, months and years');
+assert.ok(app.includes("cell.setAttribute('aria-selected'"), 'Assistive technology should hear which date is selected');
+assert.ok(style.includes('.calendar-table td:last-child { border-right: 0; }'), 'Calendar cells should keep column rules so each day reads as one unit');
 assert.ok(style.includes('.cell-event:empty, .cell-markers:empty { display: none; }'), 'Empty calendar metadata should not reserve space');
 assert.ok(style.includes('-webkit-line-clamp: 1;'), 'Calendar event labels should stay on one line above their markers');
 assert.ok(app.includes('<span class="cell-meta"><span class="cell-event wide">'), 'Calendar event labels and markers should share one non-overlapping metadata region');
+assert.ok(app.includes('scanEvents(addDays(today, 1), addDays(today, 370))'), 'The next-observance card should not repeat today, which the summary card already shows');
+assert.ok(app.includes("if (workspace.getBoundingClientRect().top < 0) workspace.scrollIntoView("), 'Changing months should not scroll the summary cards out of view');
 assert.ok(app.includes("if (!$('annualPanel').hidden) renderAnnualList();"), 'Annual observances should render lazily only when their panel is visible');
 assert.ok(read('js/app.js').includes("timeZoneName:'shortOffset'"), 'The compact date-basis label should use a language-neutral GMT offset');
 
@@ -138,6 +147,13 @@ const luminance = hex => {
 	const channels = hex.match(/[a-f\d]{2}/gi).map(channel => parseInt(channel, 16) / 255).map(channel => channel <= .04045 ? channel / 12.92 : ((channel + .055) / 1.055) ** 2.4);
 	return .2126 * channels[0] + .7152 * channels[1] + .0722 * channels[2];
 };
+assert.ok(!app.includes("'aria-disabled'"), 'The Today button stays clickable, so it must not be announced as disabled');
+const faintText = style.match(/^[^\n]*[;{]\s*color: var\(--ink-faint\)[^\n]*$/gm) || [];
+assert.deepEqual(faintText.map(line => line.trim().split(' {')[0]), ['.tibetan-notes span + span::before', '.calendar-table td.out-of-range'], 'Readable text must not use --ink-faint; it is for separators and disabled dates only');
+for (const [ink, surface] of [['6b645b', 'ffffff'], ['6b645b', 'f4f1ea'], ['b3aba0', '24221f'], ['b3aba0', '171614']]) {
+	const ratio = (Math.max(luminance(ink), luminance(surface)) + .05) / (Math.min(luminance(ink), luminance(surface)) + .05);
+	assert.ok(ratio >= 4.5, `Secondary text #${ink} on #${surface} should reach 4.5:1, received ${ratio.toFixed(2)}:1`);
+}
 const festivalContrast = (luminance('f4aaa2') + .05) / (luminance('4b2926') + .05);
 assert.ok(festivalContrast >= 4.5, `Dark festival label contrast should be at least 4.5:1, received ${festivalContrast.toFixed(2)}:1`);
 

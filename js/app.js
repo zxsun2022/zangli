@@ -18,12 +18,12 @@ function writeStorage(key, value) {
 }
 
 const messages = {
-	selectedDate: '所选日期', today: '今天', localBasis: '设备本地日期', beijingBasis: '北京时间日期',
+	today: '今天', localBasis: '设备本地日期', beijingBasis: '北京时间日期',
 	lookupNote: '查询《百年历书》的公历日期', deviceZone: '设备时区',
 	discrepancy: '当前本地日期为 {local}，北京日期为 {beijing}。页面按“{basis}”显示。',
-	basisCompact: '按{basis} · {zone}',
-	nextIn: '{days} 天后', nextToday: '就是今天', noNext: '支持范围内没有找到下一殊胜日',
-	viewDate: '查看日期', events: '{year} 年共 {count} 个匹配日期', noEvents: '这个筛选条件下没有日期。',
+	basisCompact: '{basis} · {zone}',
+	nextIn: '{days} 天后', nextTomorrow: '明天', noNext: '支持范围内没有找到下一殊胜日',
+	events: '{year} 年共 {count} 个匹配日期', noEvents: '这个筛选条件下没有日期。',
 	reverseFound: '找到 {count} 个对应日期', reverseNone: '没有找到对应日期；藏历可能有缺日，或结果位于所选公历年份之外。',
 	repeated: '重日', skipped: '缺日', leapMonth: '闰月', localEclipse: '你的时区', beijingEclipse: '北京时区',
 	eclipseArchive: '日月食按北京时间日期归档；能否看到以及当地接触时刻取决于地理位置。',
@@ -34,24 +34,23 @@ const messages = {
 	festival: '节日', multiplier: '功德增广日', eclipse: '日月食', all: '全部',
 	annualUpcoming: '{year} 年共 {count} 个匹配日期 · 显示今天起 {days} 天内的 {shown} 个',
 	noUpcoming: '未来 {days} 天内没有匹配日期。', expandYear: '展开全年', collapseUpcoming: '收起至近期',
-	backToListTop: '回到列表顶部', commonObservance: '节日 · 功德增广日',
+	backToListTop: '回到列表顶部',
 	gregorian: '公历', tibetan: '藏历', sourceBadge: '历书对照', dateBasis: '日期口径',
 	yearSuffix: '年', monthSuffix: '月', daySuffix: '日', weekdayPrefix: '周',
 	monthTitle: '{year} 年 {month} 月', monthShort: '{month}月', dayShort: '{day}',
-	viewDetails: '查看详情', observance: '殊胜日', source: '来源与口径',
-	localModeDetail: '“本地”只决定今天查哪一个公历日期，不会重新计算所在地的藏历天文参数。',
+	viewDetails: '查看详情', observance: '殊胜日',
 	icsDescription: '百年藏历：{tibetan}。{detail}',
 	openSource: '数据开源', copiedTitle: '百年藏历',
 	install: '安装', themeDark: '切换到深色模式', themeLight: '切换到浅色模式'
 };
 
 const englishMessages = {
-	selectedDate:'Selected date',today:'Today',localBasis:'Device-local date',beijingBasis:'Beijing date',lookupNote:'Gregorian date used to query the published crosswalk',deviceZone:'Device time zone',
-	discrepancy:'Your local date is {local}; the Beijing date is {beijing}. This page is using “{basis}.”',basisCompact:'Using {basis} · {zone}',nextIn:'In {days} days',nextToday:'Today',noNext:'No later observance was found in the supported range',viewDate:'View date',events:'{count} matching dates in {year}',noEvents:'No dates match this filter.',annualUpcoming:'{count} matching dates in {year} · showing {shown} in the next {days} days',noUpcoming:'No matching dates in the next {days} days.',expandYear:'Show full year',collapseUpcoming:'Show upcoming only',backToListTop:'Back to list top',commonObservance:'Observance · Multiplier day',reverseFound:'Found {count} matching dates',reverseNone:'No date was found. The Tibetan day may be skipped or outside the selected Gregorian year.',repeated:'Repeated day',skipped:'Skipped day',leapMonth:'Leap month',localEclipse:'Your time zone',beijingEclipse:'Beijing time',eclipseArchive:'Eclipses are filed by Beijing date. Visibility and local contact times depend on location.',calendarExported:'Calendar file created',reminderExported:'Reminder file created; import it into your calendar',installUnavailable:'Use your browser menu to install this page.',offlineReady:'Offline access is ready',copied:'Date details copied',linkCopied:'Share text copied',shiftedObservance:'{title}: Tibetan day {day} is skipped this month, so it is observed one day early',festival:'Observance',multiplier:'Multiplier day',eclipse:'Eclipse',all:'All',gregorian:'Gregorian',tibetan:'Tibetan',sourceBadge:'Published crosswalk',dateBasis:'Date basis',yearSuffix:'',monthSuffix:'',daySuffix:'',weekdayPrefix:'',monthTitle:'{month} {year}',monthShort:'Month {month}',dayShort:'Day {day}',viewDetails:'View details',observance:'Observance',source:'Source & method',localModeDetail:'“Local” only decides which Gregorian day to look up. It does not recalculate local Tibetan astronomical parameters.',icsDescription:'Tibetan calendar: {tibetan}. {detail}',openSource:'Open-source data',copiedTitle:'Tibetan Calendar',install:'Install',themeDark:'Switch to dark mode',themeLight:'Switch to light mode'
+	today:'Today',localBasis:'Device-local date',beijingBasis:'Beijing date',lookupNote:'Gregorian date used to query the published crosswalk',deviceZone:'Device time zone',
+	discrepancy:'Your local date is {local}; the Beijing date is {beijing}. This page is using “{basis}.”',basisCompact:'{basis} · {zone}',nextIn:'In {days} days',nextTomorrow:'Tomorrow',noNext:'No later observance was found in the supported range',events:'{count} matching dates in {year}',noEvents:'No dates match this filter.',annualUpcoming:'{count} matching dates in {year} · showing {shown} in the next {days} days',noUpcoming:'No matching dates in the next {days} days.',expandYear:'Show full year',collapseUpcoming:'Show upcoming only',backToListTop:'Back to list top',reverseFound:'Found {count} matching dates',reverseNone:'No date was found. The Tibetan day may be skipped or outside the selected Gregorian year.',repeated:'Repeated day',skipped:'Skipped day',leapMonth:'Leap month',localEclipse:'Your time zone',beijingEclipse:'Beijing time',eclipseArchive:'Eclipses are filed by Beijing date. Visibility and local contact times depend on location.',calendarExported:'Calendar file created',reminderExported:'Reminder file created; import it into your calendar',installUnavailable:'Use your browser menu to install this page.',offlineReady:'Offline access is ready',copied:'Date details copied',linkCopied:'Share text copied',shiftedObservance:'{title}: Tibetan day {day} is skipped this month, so it is observed one day early',festival:'Observance',multiplier:'Multiplier day',eclipse:'Eclipse',all:'All',gregorian:'Gregorian',tibetan:'Tibetan',sourceBadge:'Published crosswalk',dateBasis:'Date basis',yearSuffix:'',monthSuffix:'',daySuffix:'',weekdayPrefix:'',monthTitle:'{month} {year}',monthShort:'Month {month}',dayShort:'Day {day}',viewDetails:'View details',observance:'Observance',icsDescription:'Tibetan calendar: {tibetan}. {detail}',openSource:'Open-source data',copiedTitle:'Tibetan Calendar',install:'Install',themeDark:'Switch to dark mode',themeLight:'Switch to light mode'
 };
 
 const tibetanMessages = {
-	selectedDate:'བདམས་པའི་ཚེས།',today:'དེ་རིང་།',localBasis:'ས་གནས་ཀྱི་ཚེས།',beijingBasis:'པེ་ཅིང་གི་ཚེས།',nextToday:'དེ་རིང་།',viewDate:'ཚེས་ལ་བལྟ་བ།',festival:'དུས་ཆེན།',multiplier:'དགེ་བ་འཕེལ་བའི་ཉིན།',eclipse:'ཉི་ཟླ་འཛིན་པ།',gregorian:'སྤྱི་ལོ།',tibetan:'བོད་ཟླ།',dateBasis:'ཚེས་གྲངས་ཀྱི་གཞི།',monthShort:'ཟླ་ {month}',dayShort:'ཚེས་ {day}',repeated:'ཚེས་ལྷག།',skipped:'ཚེས་ཆད།',leapMonth:'ཟླ་བཤོལ།',viewDetails:'ཞིབ་ཕྲ།',observance:'དུས་ཆེན།',install:'Install'
+	today:'དེ་རིང་།',localBasis:'ས་གནས་ཀྱི་ཚེས།',beijingBasis:'པེ་ཅིང་གི་ཚེས།',festival:'དུས་ཆེན།',multiplier:'དགེ་བ་འཕེལ་བའི་ཉིན།',eclipse:'ཉི་ཟླ་འཛིན་པ།',gregorian:'སྤྱི་ལོ།',tibetan:'བོད་ཟླ།',dateBasis:'ཚེས་གྲངས་ཀྱི་གཞི།',monthShort:'ཟླ་ {month}',dayShort:'ཚེས་ {day}',repeated:'ཚེས་ལྷག།',skipped:'ཚེས་ཆད།',leapMonth:'ཟླ་བཤོལ།',viewDetails:'ཞིབ་ཕྲ།',observance:'དུས་ཆེན།',install:'Install'
 };
 
 function msg(key, values = {}) {
@@ -65,7 +64,8 @@ function msg(key, values = {}) {
 const state = {
 	basis: readStorage('zangli-date-basis', 'local') === 'beijing' ? 'beijing' : 'local',
 	theme: readStorage('zangli-theme', 'system'),
-	selectedCell: null,
+	selectedDate: null,
+	focusDate: null,
 	activeDate: null,
 	previousFocus: null,
 	detailCloseTimer: null,
@@ -73,6 +73,7 @@ const state = {
 	annualExpanded: false,
 	annualRenderedYear: null,
 	deferredInstallPrompt: null,
+	nextLabel: '',
 	historyLocation: `${location.pathname}${location.search}${location.hash}`
 };
 
@@ -170,8 +171,28 @@ function formatTibetanDate(zangli, compact = false) {
 	return `${year}${leapMonth}${getZangliMonthOrdinal(zangli.monthNumber)}${trans('月')}（${getZangliTraditionalMonth(zangli.monthNumber)}${trans('月')}）${getZangliDayName(zangli.dayNumber)}${repeatedStatus}`;
 }
 
+// 主行只写月日；传统月名、年份与重日、缺日退为旁注，首屏、详情和列表共用同一层次。
+function tibetanParts(zangli) {
+	const month = zangli.monthNumber, day = zangli.dayNumber;
+	const status = [zangli.dayLeap ? msg('repeated') : '', zangli.dayMiss ? msg('skipped') : ''].filter(Boolean);
+	if (locale === 'en') return { main: `${zangli.monthLeap ? 'Leap ' : ''}Month ${month} · Day ${day}`, notes: [getYearLabel(zangli), ...status] };
+	if (locale === 'bo') return { main: `${zangli.monthLeap ? 'ཟླ་བཤོལ་ ' : ''}ཟླ་ ${toTibetanDigits(month)} · ཚེས་ ${toTibetanDigits(day)}`, notes: [getYearLabel(zangli), ...status] };
+	return {
+		main: `${zangli.monthLeap ? trans('闰') : ''}${getZangliMonthOrdinal(month)}${trans('月')}${getZangliDayName(day)}`,
+		notes: [`${getZangliTraditionalMonth(month)}${trans('月')}`, `${getYearLabel(zangli)}${trans('年')}`, ...status]
+	};
+}
+
+function tibetanNotesHTML(zangli) {
+	return `<p class="tibetan-notes">${tibetanParts(zangli).notes.map(note => `<span>${escapeHTML(note)}</span>`).join('')}</p>`;
+}
+
+function isTibetanMonthStart(zangli) {
+	return zangli.dayNumber === 1 || (zangli.dayNumber === 2 && zangli.dayMiss);
+}
+
 function formatTibetanCalendarCell(zangli) {
-	const showMonth = zangli.dayNumber === 1 || (zangli.dayNumber === 2 && zangli.dayMiss);
+	const showMonth = isTibetanMonthStart(zangli);
 	if (locale === 'en') return showMonth
 		? msg('monthShort', { month: `${zangli.monthLeap ? 'Leap ' : ''}${zangli.monthNumber}` })
 		: msg('dayShort', { day: String(zangli.dayNumber) });
@@ -191,6 +212,10 @@ function formatMonthTitle(date) {
 	if (locale === 'en') return new Intl.DateTimeFormat('en-CA', { year:'numeric', month:'long' }).format(date);
 	if (locale === 'bo') return `${date.getFullYear()} · ཟླ་ ${date.getMonth() + 1}`;
 	return msg('monthTitle', { year: String(date.getFullYear()), month: String(date.getMonth() + 1) });
+}
+
+function formatShortGregorian(date, weekday = false) {
+	return new Intl.DateTimeFormat(intlLocale, { month:'short', day:'numeric', ...(weekday ? { weekday:'short' } : {}) }).format(date);
 }
 
 function formatAnnualMonth(date) {
@@ -251,25 +276,34 @@ function renderBasis() {
 	document.querySelectorAll('input[name="dateBasis"]').forEach(input => { input.checked = input.value === state.basis; });
 }
 
-function renderSelectedDay(date) {
-	const zangli = getZangli(date);
+function dayEventsHTML(zangli, eclipse) {
 	const festival = cleanInfo(zangli.extraInfo);
 	const multiplier = cleanInfo(zangli.extraInfo2);
-	const dayLabel = isSameDate(date, getToday()) ? msg('today') : msg('selectedDate');
-	$('selectedDayContent').innerHTML = `<p class="section-kicker">${escapeHTML(dayLabel)} · ${escapeHTML(msg('tibetan'))}</p><p class="tibetan-date">${escapeHTML(formatTibetanDate(zangli))}</p><p class="gregorian-date"><span class="calendar-system-label">${escapeHTML(msg('gregorian'))}</span>${escapeHTML(formatGregorian(date, { weekday:true }))}</p>${festival ? `<p class="selected-event">${escapeHTML(festival)}</p>` : ''}${multiplier ? `<p class="selected-multiplier">${escapeHTML(multiplier)}</p>` : ''}`;
+	const lines = [];
+	if (festival || multiplier) lines.push(`<p class="day-event ${festival ? 'festival' : 'multiplier'}"><strong>${escapeHTML(festival || multiplier)}</strong>${festival && multiplier ? `<span>${escapeHTML(multiplier)}</span>` : ''}</p>`);
+	if (eclipse.value) lines.push(`<p class="day-event eclipse"><strong>${escapeHTML(eclipse.value)}</strong></p>`);
+	return lines.join('');
 }
 
+// 首屏卡片始终是“今天”；其他日期通过月历打开详情查看，翻月不会改变这里。
+function renderSelectedDay() {
+	const today = clampDate(getToday());
+	const zangli = getZangli(today);
+	$('selectedDayContent').innerHTML = `<p class="today-line"><span class="section-kicker">${escapeHTML(msg('today'))}</span><span>${escapeHTML(formatGregorian(today, { weekday:true }))}</span></p><p class="tibetan-date">${escapeHTML(tibetanParts(zangli).main)}</p>${tibetanNotesHTML(zangli)}${dayEventsHTML(zangli, getEclipse(today))}`;
+}
+
+// 今天的殊胜日已在首屏卡片中，这里从明天起找下一个。
 function renderNextEvent() {
 	const today = clampDate(getToday());
-	const events = scanEvents(today, addDays(today, 370));
-	const event = events[0];
+	const event = scanEvents(addDays(today, 1), addDays(today, 370))[0];
 	if (!event) {
-		$('nextSpecialDay').innerHTML = `<p class="section-kicker">${escapeHTML(msg('observance'))}</p><p>${escapeHTML(msg('noNext'))}</p>`;
+		$('nextSpecialDay').innerHTML = `<p class="section-kicker">${escapeHTML(state.nextLabel)}</p><p class="next-empty">${escapeHTML(msg('noNext'))}</p>`;
 		return;
 	}
 	const days = Math.round((event.date - today) / 86400000);
-	const distance = days === 0 ? msg('nextToday') : msg('nextIn', { days: String(days) });
-	$('nextSpecialDay').innerHTML = `<p class="section-kicker">${escapeHTML(distance)}</p><h2>${escapeHTML(eventTitle(event))}</h2><p><span class="calendar-system-label">${escapeHTML(msg('gregorian'))}</span>${escapeHTML(formatGregorian(event.date, { weekday:true }))}</p><p class="muted"><span class="calendar-system-label">${escapeHTML(msg('tibetan'))}</span>${escapeHTML(formatTibetanDate(event.zangli, true))}</p><button class="inline-link" type="button" data-open-date="${formatDate(event.date)}">${escapeHTML(msg('viewDate'))} →</button>`;
+	const distance = days === 1 ? msg('nextTomorrow') : msg('nextIn', { days: String(days) });
+	const typeClass = event.types.includes('festival') ? 'festival' : event.types[0];
+	$('nextSpecialDay').innerHTML = `<button class="next-link ${typeClass}" type="button" data-open-date="${formatDate(event.date)}"><span class="next-head"><span class="section-kicker">${escapeHTML(state.nextLabel)}</span><span class="next-distance">${escapeHTML(distance)}</span></span><strong class="next-title">${escapeHTML(eventTitle(event))}</strong><span class="next-date">${escapeHTML(formatShortGregorian(event.date, true))} · ${escapeHTML(tibetanParts(event.zangli).main)}</span></button>`;
 }
 
 function populatePeriodSelects(date) {
@@ -292,6 +326,8 @@ function renderCalendar(date) {
 	const firstDay = createLocalDate(date.getFullYear(), date.getMonth() + 1, 1);
 	const lastDay = createLocalDate(date.getFullYear(), date.getMonth() + 2, 0) || new Date(date.getFullYear(), date.getMonth() + 1, 0, 12);
 	const today = getToday();
+	const inMonth = candidate => candidate && candidate.getFullYear() === date.getFullYear() && candidate.getMonth() === date.getMonth() && isSupportedDate(candidate);
+	const rovingDate = [state.focusDate, state.selectedDate, today].find(inMonth);
 	let row = tbody.insertRow();
 	for (let index = 0; index < firstDay.getDay(); index++) row.insertCell().className = 'empty-cell';
 	for (let day = 1; day <= lastDay.getDate(); day++) {
@@ -305,10 +341,13 @@ function renderCalendar(date) {
 		const eclipse = getEclipse(current);
 		const types = eventTypes(zangli, eclipse);
 		cell.dataset.date = formatDate(current);
-		cell.tabIndex = 0;
-		cell.setAttribute('role', 'button');
+		cell.tabIndex = -1;
+		cell.setAttribute('role', 'gridcell');
+		cell.setAttribute('aria-selected', String(isSameDate(current, state.selectedDate)));
 		cell.classList.toggle('today', isSameDate(current, today));
-		cell.classList.toggle('selected', state.activeDate && isSameDate(current, state.activeDate));
+		if (isSameDate(current, today)) cell.setAttribute('aria-current', 'date');
+		cell.classList.toggle('selected', isSameDate(current, state.selectedDate));
+		cell.classList.toggle('month-start', isTibetanMonthStart(zangli));
 		for (const type of types) cell.classList.add(`has-${type}`);
 		const shortTibetan = formatTibetanCalendarCell(zangli);
 		const eventLabel = eventTitle({ zangli, eclipse }, false);
@@ -318,14 +357,22 @@ function renderCalendar(date) {
 		cell.innerHTML = `<span class="day-number">${day}</span><span class="lunar-date">${escapeHTML(shortTibetan)}</span><span class="cell-meta"><span class="cell-event wide">${escapeHTML(cleanInfo(zangli.extraInfo) || eclipse.value || '')}</span><span class="cell-markers" aria-hidden="true">${types.map(type => `<i class="${type}-marker"></i>`).join('')}</span></span>`;
 	}
 	while (row.cells.length < 7) row.insertCell().className = 'empty-cell';
+	const rovingCell = (rovingDate && calendarCell(rovingDate)) || tbody.querySelector('td[data-date]');
+	if (rovingCell) rovingCell.tabIndex = 0;
+}
+
+function calendarCell(date) {
+	return document.querySelector(`.calendar-table td[data-date="${formatDate(date)}"]`);
+}
+
+// 月历整体只占一个 Tab 停靠点，落在最近操作的格子上。
+function setRovingCell(cell) {
+	document.querySelectorAll('.calendar-table td[tabindex="0"]').forEach(other => { other.tabIndex = -1; });
+	cell.tabIndex = 0;
 }
 
 function annualEventIndicators(event) {
-	if (event.types.includes('eclipse')) return `<i class="type-pill eclipse">${escapeHTML(msg('eclipse'))}</i>`;
-	if (event.types.includes('festival') && event.types.includes('multiplier')) {
-		return `<span class="type-dot" aria-label="${escapeHTML(msg('commonObservance'))}" title="${escapeHTML(msg('commonObservance'))}"><i class="legend-dot multiplier-dot" aria-hidden="true"></i></span>`;
-	}
-	return event.types.map(type => `<i class="type-pill ${type}">${escapeHTML(msg(type))}</i>`).join('');
+	return `<span class="cell-markers" aria-label="${escapeHTML(event.types.map(type => msg(type)).join(' · '))}">${event.types.map(type => `<i class="${type}-marker"></i>`).join('')}</span>`;
 }
 
 function renderAnnualControls(isCurrentYear) {
@@ -391,7 +438,7 @@ function renderAnnualList() {
 		}
 		const item = document.createElement('li');
 		item.className = 'event-row';
-		item.innerHTML = `<button type="button" data-open-date="${formatDate(event.date)}"><time datetime="${formatDate(event.date)}"><span class="date-line date-line-gregorian"><i>${escapeHTML(msg('gregorian'))}</i><strong>${escapeHTML(new Intl.DateTimeFormat(intlLocale, { month:'short', day:'numeric' }).format(event.date))}</strong></span><span class="date-line date-line-tibetan"><i>${escapeHTML(msg('tibetan'))}</i><span>${escapeHTML(formatTibetanDate(event.zangli, true))}</span></span></time><span class="event-copy"><strong>${escapeHTML(eventTitle(event))}</strong><span>${annualEventIndicators(event)}</span></span><span aria-hidden="true">→</span></button>`;
+		item.innerHTML = `<button type="button" data-open-date="${formatDate(event.date)}"><time datetime="${formatDate(event.date)}"><strong>${escapeHTML(formatShortGregorian(event.date, true))}</strong><span>${escapeHTML(tibetanParts(event.zangli).main)}</span></time><span class="event-copy">${annualEventIndicators(event)}<strong>${escapeHTML(eventTitle(event))}</strong></span></button>`;
 		list.appendChild(item);
 	}
 }
@@ -403,24 +450,44 @@ function renderApp(date = getRequestedDate()) {
 	$('month').value = date.getMonth() + 1;
 	$('monthTitle').textContent = formatMonthTitle(date);
 	renderBasis();
-	renderSelectedDay(date);
+	renderSelectedDay();
 	renderCalendar(date);
 	renderNextEvent();
+	updateTodayButton();
 	if (!$('annualPanel').hidden) renderAnnualList();
+}
+
+// 已在今天所在月份且没有选中其他日期时，“今天”按钮无事可做，只在视觉上弱化；它仍可点击，所以不标 aria-disabled。
+function updateTodayButton() {
+	const today = getToday();
+	const atToday = Number($('year').value) === today.getFullYear() && Number($('month').value) === today.getMonth() + 1
+		&& (!state.selectedDate || isSameDate(state.selectedDate, today));
+	$('todayButton').classList.toggle('is-current', atToday);
 }
 
 function navigateTo(year, month, day = 1) {
 	const target = clampDate(new Date(year, month - 1, day, 12, 0, 0));
 	const hash = `#${target.getFullYear()}/${target.getMonth() + 1}/${target.getDate()}`;
+	const monthDelta = target.getFullYear() * 12 + target.getMonth() + 1 - (Number($('year').value) * 12 + Number($('month').value));
 	if (location.pathname !== basePath) history.replaceState({}, '', `${basePath}${hash}`);
 	else if (location.hash !== hash) history.pushState({}, '', hash);
 	renderApp(target);
-	$('calendarWorkspace').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start' });
+	if (monthDelta) slideMonth(monthDelta > 0 ? 'next' : 'prev');
+	// 只有月历顶部已滚出视口时才回滚，避免翻月把首屏卡片推走。
+	const workspace = $('calendarWorkspace');
+	if (workspace.getBoundingClientRect().top < 0) workspace.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start' });
+}
+
+function slideMonth(direction) {
+	const body = document.querySelector('.calendar-table tbody');
+	body.classList.remove('slide-next', 'slide-prev');
+	void body.offsetWidth;
+	body.classList.add(`slide-${direction}`);
 }
 
 function changeMonth(delta) { navigateTo(Number($('year').value), Number($('month').value) + delta); }
 function changeYear(delta) { navigateTo(Number($('year').value) + delta, Number($('month').value)); }
-function goToToday() { const today = getToday(); navigateTo(today.getFullYear(), today.getMonth() + 1, today.getDate()); }
+function goToToday() { const today = getToday(); state.selectedDate = null; state.focusDate = null; navigateTo(today.getFullYear(), today.getMonth() + 1, today.getDate()); }
 
 function parseDataDate(value) {
 	const match = String(value).match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -434,23 +501,35 @@ function eclipseTime(timestamp, timeZone) {
 function buildDetailHTML(date) {
 	const zangli = getZangli(date);
 	const eclipse = getEclipse(date);
-	let html = `<p class="section-kicker">${escapeHTML(msg('selectedDate'))} · ${escapeHTML(msg('gregorian'))}</p><h2 id="detailTitle">${escapeHTML(formatGregorian(date, { weekday:true }))}</h2><section class="detail-section"><h3>${escapeHTML(msg('tibetan'))}</h3><p class="detail-tibetan">${escapeHTML(formatTibetanDate(zangli))}</p><div class="status-row">${zangli.monthLeap ? `<span>${escapeHTML(msg('leapMonth'))}</span>` : ''}${zangli.dayLeap ? `<span>${escapeHTML(msg('repeated'))}</span>` : ''}${zangli.dayMiss ? `<span>${escapeHTML(msg('skipped'))}</span>` : ''}</div></section>`;
-	if (cleanInfo(zangli.extraInfo) || cleanInfo(zangli.extraInfo2)) {
+	let html = `<h2 id="detailTitle">${escapeHTML(formatGregorian(date, { weekday:true }))}</h2><p class="detail-tibetan">${escapeHTML(tibetanParts(zangli).main)}</p>${tibetanNotesHTML(zangli)}`;
+	const events = dayEventsHTML(zangli, eclipse);
+	if (events) {
 		const shiftedNotes = zangli.events.filter(event => event.shifted).map(event => `<p class="fine-print">${escapeHTML(msg('shiftedObservance', { title: cleanInfo(event.title), day: locale === 'en' || locale === 'bo' ? String(event.dayNumber) : getZangliDayName(event.dayNumber) }))}</p>`).join('');
-		html += `<section class="detail-section accent-section"><h3>${escapeHTML(msg('observance'))}</h3>${cleanInfo(zangli.extraInfo) ? `<p class="detail-event">${escapeHTML(cleanInfo(zangli.extraInfo))}</p>` : ''}${cleanInfo(zangli.extraInfo2) ? `<p>${escapeHTML(cleanInfo(zangli.extraInfo2))}</p>` : ''}${shiftedNotes}</section>`;
-	}
-	if (eclipse.value) {
-		html += `<section class="detail-section eclipse-section"><h3>${escapeHTML(msg('eclipse'))}</h3><p class="detail-event">${escapeHTML(eclipse.value)}</p>`;
+		html += `<section class="detail-section">${events}${shiftedNotes}`;
 		if (eclipse.maximumTimestamp) html += `<dl class="time-grid"><div><dt>${escapeHTML(msg('localEclipse'))}</dt><dd>${escapeHTML(eclipseTime(eclipse.maximumTimestamp, deviceTimeZone))}</dd></div><div><dt>${escapeHTML(msg('beijingEclipse'))}</dt><dd>${escapeHTML(eclipseTime(eclipse.maximumTimestamp, BEIJING_TIME_ZONE))}</dd></div></dl>`;
-		html += `<p class="fine-print">${escapeHTML(msg('eclipseArchive'))}</p></section>`;
+		if (eclipse.value) html += `<p class="fine-print">${escapeHTML(msg('eclipseArchive'))}</p>`;
+		html += '</section>';
 	}
-	html += `<section class="detail-section source-section"><h3>${escapeHTML(msg('source'))}</h3><p>${escapeHTML(msg('localModeDetail'))}</p></section>`;
 	return html;
+}
+
+// 选中状态在关闭详情后保留，标出“刚才看的是哪天”；只改相关格子，不重绘月历，以免丢失焦点恢复目标。
+function markSelected(date) {
+	state.selectedDate = date;
+	for (const cell of document.querySelectorAll('.calendar-table td[data-date]')) {
+		const selected = cell.dataset.date === formatDate(date);
+		cell.classList.toggle('selected', selected);
+		cell.setAttribute('aria-selected', String(selected));
+	}
+	const cell = calendarCell(date);
+	if (cell) setRovingCell(cell);
+	updateTodayButton();
 }
 
 function openDetail(date, anchor) {
 	if (!isSupportedDate(date)) return;
 	state.activeDate = date;
+	markSelected(date);
 	state.previousFocus = anchor || document.activeElement;
 	$('detailContent').innerHTML = buildDetailHTML(date);
 	const dialog = $('detailDialog');
@@ -576,7 +655,7 @@ function runReverseLookup(event) {
 	}
 	const container = $('reverseResults');
 	if (!results.length) { container.innerHTML = `<p class="empty-state">${escapeHTML(msg('reverseNone'))}</p>`; return; }
-	container.innerHTML = `<p class="panel-summary">${escapeHTML(msg('reverseFound', { count:String(results.length) }))}</p><div class="result-grid">${results.map(result => `<button type="button" data-open-date="${formatDate(result.date)}"><strong><small class="calendar-system-label">${escapeHTML(msg('gregorian'))}</small>${escapeHTML(formatGregorian(result.date, { weekday:true }))}</strong><span><small class="calendar-system-label">${escapeHTML(msg('tibetan'))}</small>${escapeHTML(formatTibetanDate(result.zangli))}</span>${result.zangli.dayLeap ? `<i>${escapeHTML(msg('repeated'))}</i>` : ''}${result.zangli.dayMiss ? `<i>${escapeHTML(msg('skipped'))}</i>` : ''}</button>`).join('')}</div>`;
+	container.innerHTML = `<p class="panel-summary">${escapeHTML(msg('reverseFound', { count:String(results.length) }))}</p><div class="result-grid">${results.map(result => `<button type="button" data-open-date="${formatDate(result.date)}"><strong>${escapeHTML(formatGregorian(result.date, { weekday:true }))}</strong><span>${escapeHTML(formatTibetanDate(result.zangli))}</span>${result.zangli.dayLeap ? `<i>${escapeHTML(msg('repeated'))}</i>` : ''}${result.zangli.dayMiss ? `<i>${escapeHTML(msg('skipped'))}</i>` : ''}</button>`).join('')}</div>`;
 }
 
 function showToast(message) {
@@ -620,9 +699,42 @@ function handleDocumentClick(event) {
 	if (tab) activatePanel(tab);
 }
 
+function shiftMonths(date, months) {
+	const first = new Date(date.getFullYear(), date.getMonth() + months, 1, 12);
+	const lastDay = new Date(first.getFullYear(), first.getMonth() + 1, 0, 12).getDate();
+	return createLocalDate(first.getFullYear(), first.getMonth() + 1, Math.min(date.getDate(), lastDay));
+}
+
+function calendarKeyTarget(date, event) {
+	switch (event.key) {
+		case 'ArrowLeft': return addDays(date, -1);
+		case 'ArrowRight': return addDays(date, 1);
+		case 'ArrowUp': return addDays(date, -7);
+		case 'ArrowDown': return addDays(date, 7);
+		case 'Home': return addDays(date, -date.getDay());
+		case 'End': return addDays(date, 6 - date.getDay());
+		case 'PageUp': return shiftMonths(date, event.shiftKey ? -12 : -1);
+		case 'PageDown': return shiftMonths(date, event.shiftKey ? 12 : 1);
+		default: return null;
+	}
+}
+
+// 方向键只移动焦点，越过月界时翻月；选中只在 Enter / 空格打开详情时改变。
+function moveCalendarFocus(target) {
+	if (!isSupportedDate(target)) return;
+	state.focusDate = target;
+	if (target.getFullYear() !== Number($('year').value) || target.getMonth() + 1 !== Number($('month').value)) navigateTo(target.getFullYear(), target.getMonth() + 1, target.getDate());
+	const cell = calendarCell(target);
+	if (cell) { setRovingCell(cell); cell.focus(); }
+}
+
 function handleDocumentKeydown(event) {
 	const cell = event.target.closest?.('.calendar-table td[data-date]');
-	if (cell && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); openDateFromElement(cell); }
+	if (!cell) return;
+	if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openDateFromElement(cell); return; }
+	if (event.altKey || event.ctrlKey || event.metaKey) return;
+	const target = calendarKeyTarget(parseDataDate(cell.dataset.date), event);
+	if (target) { event.preventDefault(); moveCalendarFocus(target); }
 }
 
 function handleHistory() {
@@ -648,6 +760,7 @@ function initPwa() {
 }
 
 function initApp() {
+	state.nextLabel = document.querySelector('#nextSpecialDay .section-kicker')?.textContent || msg('observance');
 	applyTheme();
 	$('languageSelect').addEventListener('change', event => switchLanguage(event.target.value));
 	$('themeButton').addEventListener('click', toggleTheme);
