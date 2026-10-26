@@ -65,7 +65,7 @@ assert.equal(dayIn('Asia/Shanghai'), '2026-07-16');
 for (const [file, language] of [['index.html','zh-CN'],['tw/index.html','zh-TW'],['en/index.html','en'],['bo/index.html','bo']]) {
 	const html = read(file);
 	assert.ok(html.includes(`<html lang="${language}">`), `${file} language`);
-	for (const id of ['basisLabel','settingsButton','languageSelect','themeButton','selectedDay','selectedDayContent','nextSpecialDay','calendarWorkspace','annualPanel','annualRangeControls','reversePanel','aboutPanel','settingsDialog','dateDiscrepancy']) {
+	for (const id of ['basisLabel','settingsButton','languageSelect','themeButton','selectedDay','selectedDayContent','nextSpecialDay','calendarWorkspace','annualPanel','annualYear','annualRoutine','reversePanel','reverseResults','aboutPanel','settingsDialog','dateDiscrepancy']) {
 		assert.ok(html.includes(`id="${id}"`), `${file} missing ${id}`);
 	}
 	assert.ok(html.includes(`v=${ASSET_VERSION}`));
@@ -74,6 +74,8 @@ for (const [file, language] of [['index.html','zh-CN'],['tw/index.html','zh-TW']
 	assert.ok(html.includes('<h1 id="pageTitle" class="sr-only">'), `${file} should retain an accessible page heading`);
 	assert.ok(html.includes(`id="settingsButton" class="icon-button settings-button" type="button" aria-label="`), `${file} should give the icon-only settings button an accessible name`);
 	assert.ok(!html.includes('class="install-card"'), `${file} should keep the install entry in the footer instead of a promotional block`);
+	assert.ok(!html.includes('id="reverseYear"') && !html.includes('id="reverseLeap"') && !html.includes('type="submit"'), `${file} reverse lookup should answer on change without year, leap or submit controls`);
+	assert.ok(html.includes('<dl class="about-list">') && html.includes('data-open-settings'), `${file} method notes should be short labelled items with a link to the date basis`);
 	assert.ok(!html.includes('href="/widget/"'), `${file} should not link the redundant widget page`);
 	assert.ok(html.includes('<dialog id="installDialog"') && html.includes('id="installSteps"'), `${file} should guide installation where the browser has no install prompt`);
 	assert.ok(html.indexOf('id="basisLabel"') < html.indexOf('id="settingsButton"'), `${file} should show date basis before settings`);
@@ -142,6 +144,9 @@ assert.ok(style.includes('-webkit-line-clamp: 1;'), 'Calendar event labels shoul
 assert.ok(app.includes('<span class="cell-meta"><span class="cell-event wide">'), 'Calendar event labels and markers should share one non-overlapping metadata region');
 assert.ok(app.includes('scanEvents(addDays(today, 1), addDays(today, 370))'), 'The next-observance card should not repeat today, which the summary card already shows');
 assert.ok(app.includes("if (workspace.getBoundingClientRect().top < 0) workspace.scrollIntoView("), 'Changing months should not scroll the summary cards out of view');
+assert.ok(app.includes("$('annualRoutine').checked ? state.annualEvents : state.annualEvents.filter(isAnnualEvent)"), 'The annual list should default to annual observances and eclipses, with monthly days opt-in');
+assert.ok(app.includes('const year = state.annualYear;'), 'The annual list should keep its own year rather than follow the month grid');
+assert.ok(app.includes('zangli.yearIndex > firstYear + 4') && app.includes('omittedDaysBefore.includes(day)'), 'Reverse lookup should cover five Tibetan years and report skipped days one day early');
 assert.ok(app.includes("if (!$('annualPanel').hidden) renderAnnualList();"), 'Annual observances should render lazily only when their panel is visible');
 assert.ok(read('js/app.js').includes("timeZoneName:'shortOffset'"), 'The compact date-basis label should use a language-neutral GMT offset');
 
