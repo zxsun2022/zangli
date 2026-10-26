@@ -73,7 +73,9 @@ for (const [file, language] of [['index.html','zh-CN'],['tw/index.html','zh-TW']
 	assert.ok(!html.includes('class="hero-copy"'), `${file} should not repeat a visible page title above the primary cards`);
 	assert.ok(html.includes('<h1 id="pageTitle" class="sr-only">'), `${file} should retain an accessible page heading`);
 	assert.ok(html.includes(`id="settingsButton" class="icon-button settings-button" type="button" aria-label="`), `${file} should give the icon-only settings button an accessible name`);
-	assert.ok(!html.includes('class="install-card"'), `${file} should keep install and widget links in the footer instead of a promotional block`);
+	assert.ok(!html.includes('class="install-card"'), `${file} should keep the install entry in the footer instead of a promotional block`);
+	assert.ok(!html.includes('href="/widget/"'), `${file} should not link the redundant widget page`);
+	assert.ok(html.includes('<dialog id="installDialog"') && html.includes('id="installSteps"'), `${file} should guide installation where the browser has no install prompt`);
 	assert.ok(html.indexOf('id="basisLabel"') < html.indexOf('id="settingsButton"'), `${file} should show date basis before settings`);
 	assert.ok(html.indexOf('id="settingsButton"') < html.indexOf('id="languageSelect"'), `${file} should show settings before language`);
 	assert.ok(html.indexOf('id="languageSelect"') < html.indexOf('id="themeButton"'), `${file} should show language before theme`);
@@ -147,6 +149,9 @@ const luminance = hex => {
 	const channels = hex.match(/[a-f\d]{2}/gi).map(channel => parseInt(channel, 16) / 255).map(channel => channel <= .04045 ? channel / 12.92 : ((channel + .055) / 1.055) ** 2.4);
 	return .2126 * channels[0] + .7152 * channels[1] + .0722 * channels[2];
 };
+for (const platform of ['ios', 'macSafari', 'android', 'desktop', 'inApp']) assert.ok(app.includes(`${platform}: [[`), `Install guide should cover ${platform}`);
+assert.ok(app.includes("matchMedia('(display-mode: standalone)')") && app.includes("'appinstalled'"), 'The install entry should disappear once the app runs installed');
+for (const file of ['manifest.json', 'tw/manifest.json', 'en/manifest.json', 'bo/manifest.json']) assert.ok(!read(file).includes('/widget/'), `${file} should not offer the widget shortcut`);
 assert.ok(!app.includes("'aria-disabled'"), 'The Today button stays clickable, so it must not be announced as disabled');
 const faintText = style.match(/^[^\n]*[;{]\s*color: var\(--ink-faint\)[^\n]*$/gm) || [];
 assert.deepEqual(faintText.map(line => line.trim().split(' {')[0]), ['.tibetan-notes span + span::before', '.calendar-table td.out-of-range'], 'Readable text must not use --ink-faint; it is for separators and disabled dates only');
