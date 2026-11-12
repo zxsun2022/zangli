@@ -26,6 +26,9 @@ npm run generate
 
 # 3. 提交前运行完整验证
 npm run verify
+
+# 发布目录（只含站点文件）
+npm run build
 ```
 
 打开 `http://127.0.0.1:4173/`。这个静态服务器不会模拟生产环境的日期深链接重写；相关规则位于 `_redirects`、`.htaccess` 和 `nginx.conf`。

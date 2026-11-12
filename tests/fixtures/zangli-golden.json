@@ -16,46 +16,887 @@
     "fpmt-dates": {
       "title": "FPMT, Dharma dates explained",
       "url": "https://fpmt.org/media/resources/dharma-dates/dates-explained/"
+    },
+    "zanghan-2027": {
+      "title": "《2027 藏汉月历（查阅版）》（火羊年；项目负责人 2026-11 提供的 PDF，共 15 页，每月一页）",
+      "url": ""
     }
   },
   "samples": [
     {
       "date": "2019-06-17",
-      "expect": { "monthNumber": 4, "monthLeap": false, "dayNumber": 15, "events": ["saka-dawa"] },
+      "expect": {
+        "monthNumber": 4,
+        "monthLeap": false,
+        "dayNumber": 15,
+        "events": [
+          "saka-dawa"
+        ]
+      },
       "evidence": [
-        { "source": "rikon-2019", "locator": "正文日期 2019-06-17，藏文正文为四月十五（页面标题 17.07 为排版矛盾）" },
-        { "source": "sakya-2019", "locator": "Saka Dawa 活动 2019-06-16–17" }
+        {
+          "source": "rikon-2019",
+          "locator": "正文日期 2019-06-17，藏文正文为四月十五（页面标题 17.07 为排版矛盾）"
+        },
+        {
+          "source": "sakya-2019",
+          "locator": "Saka Dawa 活动 2019-06-16–17"
+        }
       ]
     },
     {
       "date": "2025-02-28",
-      "expect": { "year": ["木", "蛇"], "monthNumber": 1, "monthLeap": false, "dayNumber": 1, "dayOccurrence": 1 },
-      "evidence": [{ "source": "shechen-2025", "locator": "PDF 第 3 页（从 1 计）：木蛇年新年，正月初一" }]
+      "expect": {
+        "year": [
+          "木",
+          "蛇"
+        ],
+        "monthNumber": 1,
+        "monthLeap": false,
+        "dayNumber": 1,
+        "dayOccurrence": 1
+      },
+      "evidence": [
+        {
+          "source": "shechen-2025",
+          "locator": "PDF 第 3 页（从 1 计）：木蛇年新年，正月初一"
+        }
+      ]
     },
     {
       "date": "2025-11-11",
-      "expect": { "monthNumber": 9, "monthLeap": false, "dayNumber": 22, "events": ["lhabab"] },
+      "expect": {
+        "monthNumber": 9,
+        "monthLeap": false,
+        "dayNumber": 22,
+        "events": [
+          "lhabab"
+        ]
+      },
       "evidence": [
-        { "source": "shechen-2025", "locator": "PDF 第 46 页：九月廿二，天降日；第 67 页节日表列九月廿二" },
-        { "source": "fpmt-dates", "locator": "Lhabab Düchen：九月廿二" }
+        {
+          "source": "shechen-2025",
+          "locator": "PDF 第 46 页：九月廿二，天降日；第 67 页节日表列九月廿二"
+        },
+        {
+          "source": "fpmt-dates",
+          "locator": "Lhabab Düchen：九月廿二"
+        }
       ]
     },
     {
       "date": "2025-11-19",
-      "expect": { "monthNumber": 9, "monthLeap": false, "dayNumber": 30, "dayOccurrence": 1 },
-      "evidence": [{ "source": "shechen-2025", "locator": "PDF 第 47 页：九月三十连续出现两次，第一次" }]
+      "expect": {
+        "monthNumber": 9,
+        "monthLeap": false,
+        "dayNumber": 30,
+        "dayOccurrence": 1
+      },
+      "evidence": [
+        {
+          "source": "shechen-2025",
+          "locator": "PDF 第 47 页：九月三十连续出现两次，第一次"
+        }
+      ]
     },
     {
       "date": "2025-11-20",
-      "expect": { "monthNumber": 9, "monthLeap": false, "dayNumber": 30, "dayOccurrence": 2 },
-      "evidence": [{ "source": "shechen-2025", "locator": "PDF 第 47 页：九月三十连续出现两次，第二次" }]
+      "expect": {
+        "monthNumber": 9,
+        "monthLeap": false,
+        "dayNumber": 30,
+        "dayOccurrence": 2
+      },
+      "evidence": [
+        {
+          "source": "shechen-2025",
+          "locator": "PDF 第 47 页：九月三十连续出现两次，第二次"
+        }
+      ]
+    },
+    {
+      "date": "2027-01-27",
+      "expect": {
+        "monthNumber": 12,
+        "monthLeap": false,
+        "dayNumber": 20,
+        "dayOccurrence": 1
+      },
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 2 页（1 月）：十二月二十，次日为廿二（廿一缺日）"
+        }
+      ]
+    },
+    {
+      "date": "2027-01-28",
+      "expect": {
+        "monthNumber": 12,
+        "monthLeap": false,
+        "dayNumber": 22,
+        "dayOccurrence": 1
+      },
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 2 页（1 月）：十二月廿二"
+        }
+      ]
+    },
+    {
+      "date": "2027-01-31",
+      "expect": {
+        "monthNumber": 12,
+        "monthLeap": false,
+        "dayNumber": 24,
+        "dayOccurrence": 2
+      },
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 2 页（1 月）：十二月闰廿四（重日第二次）"
+        }
+      ]
+    },
+    {
+      "date": "2027-02-06",
+      "expect": {
+        "monthNumber": 12,
+        "monthLeap": false,
+        "dayNumber": 30,
+        "dayOccurrence": 1
+      },
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 3 页（2 月）：十二月三十，火马年最后一天"
+        }
+      ]
+    },
+    {
+      "date": "2027-02-07",
+      "expect": {
+        "year": [
+          "火",
+          "羊"
+        ],
+        "monthNumber": 1,
+        "monthLeap": false,
+        "dayNumber": 1,
+        "dayOccurrence": 1,
+        "events": [
+          "losar"
+        ]
+      },
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 3 页（2 月）：藏历新年，火羊年正月初一"
+        }
+      ]
+    },
+    {
+      "date": "2027-02-20",
+      "expect": {
+        "monthNumber": 1,
+        "monthLeap": false,
+        "dayNumber": 15,
+        "dayOccurrence": 1,
+        "events": [
+          "chotrul"
+        ]
+      },
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 3 页（2 月）：正月十五（十四缺日），释迦牟尼佛神变日"
+        }
+      ]
+    },
+    {
+      "date": "2027-04-06",
+      "expect": {
+        "monthNumber": 2,
+        "monthLeap": false,
+        "dayNumber": 30,
+        "dayOccurrence": 1
+      },
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 5 页（4 月）：二月三十，闰月之前的正常月"
+        }
+      ]
+    },
+    {
+      "date": "2027-04-07",
+      "expect": {
+        "monthNumber": 2,
+        "monthLeap": true,
+        "dayNumber": 1,
+        "dayOccurrence": 1
+      },
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 5 页（4 月）：闰二月初一（正常二月在前，闰二月在后）"
+        }
+      ]
+    },
+    {
+      "date": "2027-04-27",
+      "expect": {
+        "monthNumber": 2,
+        "monthLeap": true,
+        "dayNumber": 21,
+        "dayOccurrence": 2
+      },
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 5 页（4 月）：闰二月闰廿一"
+        }
+      ]
+    },
+    {
+      "date": "2027-05-06",
+      "expect": {
+        "monthNumber": 2,
+        "monthLeap": true,
+        "dayNumber": 30,
+        "dayOccurrence": 1
+      },
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 6 页（5 月）：闰二月三十"
+        }
+      ]
+    },
+    {
+      "date": "2027-05-07",
+      "expect": {
+        "monthNumber": 3,
+        "monthLeap": false,
+        "dayNumber": 1,
+        "dayOccurrence": 1
+      },
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 6 页（5 月）：三月初一"
+        }
+      ]
+    },
+    {
+      "date": "2027-06-11",
+      "expect": {
+        "monthNumber": 4,
+        "monthLeap": false,
+        "dayNumber": 7,
+        "dayOccurrence": 1,
+        "events": [
+          "buddha-birth"
+        ]
+      },
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 7 页（6 月）：四月初七，释迦牟尼佛诞辰日"
+        }
+      ]
+    },
+    {
+      "date": "2027-06-13",
+      "expect": {
+        "monthNumber": 4,
+        "monthLeap": false,
+        "dayNumber": 9,
+        "dayOccurrence": 1,
+        "events": [
+          "guru-rinpoche"
+        ]
+      },
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 7 页（6 月）：四月初九（初十缺日），莲师荟供日提前至此"
+        }
+      ]
+    },
+    {
+      "date": "2027-06-18",
+      "expect": {
+        "monthNumber": 4,
+        "monthLeap": false,
+        "dayNumber": 15,
+        "dayOccurrence": 1,
+        "events": [
+          "saka-dawa"
+        ]
+      },
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 7 页（6 月）：四月十五，释迦牟尼佛成道日涅槃日"
+        }
+      ]
+    },
+    {
+      "date": "2027-08-06",
+      "expect": {
+        "monthNumber": 6,
+        "monthLeap": false,
+        "dayNumber": 4,
+        "dayOccurrence": 1,
+        "events": [
+          "chokhor"
+        ]
+      },
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 9 页（8 月）：六月初四，释迦牟尼佛初转法轮日"
+        }
+      ]
+    },
+    {
+      "date": "2027-08-15",
+      "expect": {
+        "monthNumber": 6,
+        "monthLeap": false,
+        "dayNumber": 13,
+        "dayOccurrence": 2
+      },
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 9 页（8 月）：六月闰十三"
+        }
+      ]
+    },
+    {
+      "date": "2027-08-17",
+      "expect": {
+        "monthNumber": 6,
+        "monthLeap": false,
+        "dayNumber": 15,
+        "dayOccurrence": 1,
+        "events": [
+          "buddha-conception"
+        ]
+      },
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 9 页（8 月）：六月十五，释迦牟尼佛入胎日"
+        }
+      ]
+    },
+    {
+      "date": "2027-10-01",
+      "expect": {
+        "monthNumber": 8,
+        "monthLeap": false,
+        "dayNumber": 2,
+        "dayOccurrence": 1
+      },
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 11 页（10 月）：八月初二（初一缺日，9 月 30 日为七月三十）"
+        }
+      ]
+    },
+    {
+      "date": "2027-11-20",
+      "expect": {
+        "monthNumber": 9,
+        "monthLeap": false,
+        "dayNumber": 22,
+        "dayOccurrence": 1,
+        "events": [
+          "lhabab"
+        ]
+      },
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 12 页（11 月）：九月廿二，天降日"
+        }
+      ]
+    },
+    {
+      "date": "2027-11-30",
+      "expect": {
+        "monthNumber": 10,
+        "monthLeap": false,
+        "dayNumber": 2,
+        "dayOccurrence": 2
+      },
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 12 页（11 月）：十月闰初二"
+        }
+      ]
+    },
+    {
+      "date": "2027-12-31",
+      "expect": {
+        "monthNumber": 11,
+        "monthLeap": false,
+        "dayNumber": 4,
+        "dayOccurrence": 1
+      },
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 13 页（12 月）：十一月初四"
+        }
+      ]
+    },
+    {
+      "date": "2027-12-22",
+      "expect": {
+        "monthNumber": 10,
+        "monthLeap": false,
+        "dayNumber": 25,
+        "dayOccurrence": 1,
+        "events": [
+          "ganden-ngamcho"
+        ]
+      },
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 13 页（12 月）：十月廿五，燃灯节、宗喀巴大师圆寂纪念日"
+        }
+      ]
     }
   ],
   "absent": [
     {
       "date": "2019-05-18",
-      "events": ["saka-dawa"],
-      "evidence": [{ "source": "rikon-2019", "locator": "2019 年萨嘎达瓦为 6 月 17 日；每年只有一个四月十五" }]
+      "events": [
+        "saka-dawa"
+      ],
+      "evidence": [
+        {
+          "source": "rikon-2019",
+          "locator": "2019 年萨嘎达瓦为 6 月 17 日；每年只有一个四月十五"
+        }
+      ]
+    },
+    {
+      "date": "2027-02-07",
+      "events": [
+        "chotrul"
+      ],
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 3 页（2 月）：正月初一是藏历新年，神变日在正月十五（2 月 20 日）"
+        }
+      ]
+    }
+  ],
+  "dayNotes": [
+    {
+      "date": "2027-01-03",
+      "haircut": "增上安乐",
+      "flagAvoid": false,
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 2 页：十一月廿六，理发吉日：增上安乐"
+        }
+      ]
+    },
+    {
+      "date": "2027-01-08",
+      "haircut": "",
+      "flagAvoid": true,
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 2 页：十二月初一，飞幡日"
+        }
+      ]
+    },
+    {
+      "date": "2027-01-20",
+      "haircut": "精进于佛法修持，最上",
+      "flagAvoid": true,
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 2 页：十二月十三，飞幡日，理发吉日"
+        }
+      ]
+    },
+    {
+      "date": "2027-02-01",
+      "haircut": "",
+      "flagAvoid": false,
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 3 页：十二月廿五，无飞幡日标记"
+        }
+      ]
+    },
+    {
+      "date": "2027-02-16",
+      "haircut": "增上欢喜",
+      "flagAvoid": true,
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 3 页：正月初十，飞幡日，理发吉日：增上欢喜"
+        }
+      ]
+    },
+    {
+      "date": "2027-02-27",
+      "haircut": "",
+      "flagAvoid": true,
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 3 页：正月廿二，飞幡日"
+        }
+      ]
+    },
+    {
+      "date": "2027-04-13",
+      "haircut": "",
+      "flagAvoid": true,
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 5 页：闰二月初七，飞幡日（闰月照算）"
+        }
+      ]
+    },
+    {
+      "date": "2027-04-14",
+      "haircut": "长寿",
+      "flagAvoid": false,
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 5 页：闰二月初八，理发吉日：长寿"
+        }
+      ]
+    },
+    {
+      "date": "2027-05-10",
+      "haircut": "怀业增上，容光焕发",
+      "flagAvoid": true,
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 6 页：三月初四，飞幡日，理发吉日"
+        }
+      ]
+    },
+    {
+      "date": "2027-06-13",
+      "haircut": "易遇佳人",
+      "flagAvoid": false,
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 7 页：四月初九（初十缺日），只列初九的理发吉日，不提前初十的"
+        }
+      ]
+    },
+    {
+      "date": "2027-08-14",
+      "haircut": "精进于佛法修持，最上",
+      "flagAvoid": false,
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 9 页：六月十三第一次"
+        }
+      ]
+    },
+    {
+      "date": "2027-08-15",
+      "haircut": "",
+      "flagAvoid": false,
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 9 页：六月闰十三，不列理发吉日"
+        }
+      ]
+    },
+    {
+      "date": "2027-10-13",
+      "haircut": "精进于佛法修持，最上",
+      "flagAvoid": true,
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 11 页：八月十三，飞幡日"
+        }
+      ]
+    },
+    {
+      "date": "2027-10-24",
+      "haircut": "",
+      "flagAvoid": false,
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 11 页：八月廿五，无飞幡日标记"
+        }
+      ]
+    },
+    {
+      "date": "2027-12-31",
+      "haircut": "怀业增上，容光焕发",
+      "flagAvoid": true,
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 13 页：十一月初四，飞幡日，理发吉日"
+        }
+      ]
+    },
+    {
+      "date": "2027-09-30",
+      "haircut": "",
+      "flagAvoid": false,
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 10 页（9 月）：七月三十，无飞幡日标记；次日八月初一（飞幡日）缺日，飞幡日不提前"
+        }
+      ]
+    },
+    {
+      "date": "2027-10-01",
+      "haircut": "",
+      "flagAvoid": false,
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 11 页（10 月）：八月初二，无飞幡日标记"
+        }
+      ]
+    }
+  ],
+  "yearLists": [
+    {
+      "year": 2027,
+      "note": "全年名单：哪些公历日有理发吉日、哪些是飞幡日。逐格人工摘录自 PDF 各月页面。理发吉日的寓意只由藏历日号决定，已由 dayNotes 抽查。",
+      "haircut": [
+        "2027-01-03",
+        "2027-01-04",
+        "2027-01-10",
+        "2027-01-11",
+        "2027-01-12",
+        "2027-01-15",
+        "2027-01-16",
+        "2027-01-17",
+        "2027-01-18",
+        "2027-01-20",
+        "2027-01-21",
+        "2027-01-22",
+        "2027-01-26",
+        "2027-01-29",
+        "2027-02-02",
+        "2027-02-03",
+        "2027-02-09",
+        "2027-02-10",
+        "2027-02-11",
+        "2027-02-14",
+        "2027-02-15",
+        "2027-02-16",
+        "2027-02-17",
+        "2027-02-19",
+        "2027-02-20",
+        "2027-02-24",
+        "2027-02-28",
+        "2027-03-03",
+        "2027-03-04",
+        "2027-03-11",
+        "2027-03-12",
+        "2027-03-13",
+        "2027-03-16",
+        "2027-03-17",
+        "2027-03-18",
+        "2027-03-20",
+        "2027-03-21",
+        "2027-03-22",
+        "2027-03-26",
+        "2027-03-30",
+        "2027-04-02",
+        "2027-04-03",
+        "2027-04-09",
+        "2027-04-10",
+        "2027-04-11",
+        "2027-04-14",
+        "2027-04-15",
+        "2027-04-16",
+        "2027-04-17",
+        "2027-04-18",
+        "2027-04-19",
+        "2027-04-20",
+        "2027-04-24",
+        "2027-04-29",
+        "2027-05-02",
+        "2027-05-03",
+        "2027-05-09",
+        "2027-05-10",
+        "2027-05-11",
+        "2027-05-13",
+        "2027-05-14",
+        "2027-05-15",
+        "2027-05-16",
+        "2027-05-18",
+        "2027-05-19",
+        "2027-05-20",
+        "2027-05-24",
+        "2027-05-28",
+        "2027-05-31",
+        "2027-06-01",
+        "2027-06-07",
+        "2027-06-08",
+        "2027-06-09",
+        "2027-06-12",
+        "2027-06-13",
+        "2027-06-14",
+        "2027-06-16",
+        "2027-06-17",
+        "2027-06-18",
+        "2027-06-23",
+        "2027-06-27",
+        "2027-06-30",
+        "2027-07-01",
+        "2027-07-06",
+        "2027-07-07",
+        "2027-07-08",
+        "2027-07-11",
+        "2027-07-12",
+        "2027-07-13",
+        "2027-07-14",
+        "2027-07-16",
+        "2027-07-17",
+        "2027-07-18",
+        "2027-07-22",
+        "2027-07-26",
+        "2027-07-29",
+        "2027-07-30",
+        "2027-08-05",
+        "2027-08-06",
+        "2027-08-09",
+        "2027-08-10",
+        "2027-08-11",
+        "2027-08-12",
+        "2027-08-14",
+        "2027-08-16",
+        "2027-08-17",
+        "2027-08-21",
+        "2027-08-25",
+        "2027-08-28",
+        "2027-08-29",
+        "2027-09-03",
+        "2027-09-04",
+        "2027-09-05",
+        "2027-09-08",
+        "2027-09-09",
+        "2027-09-10",
+        "2027-09-11",
+        "2027-09-13",
+        "2027-09-14",
+        "2027-09-15",
+        "2027-09-19",
+        "2027-09-23",
+        "2027-09-26",
+        "2027-09-27",
+        "2027-10-02",
+        "2027-10-03",
+        "2027-10-04",
+        "2027-10-07",
+        "2027-10-08",
+        "2027-10-10",
+        "2027-10-11",
+        "2027-10-13",
+        "2027-10-14",
+        "2027-10-15",
+        "2027-10-19",
+        "2027-10-23",
+        "2027-10-25",
+        "2027-10-26",
+        "2027-11-01",
+        "2027-11-02",
+        "2027-11-03",
+        "2027-11-06",
+        "2027-11-07",
+        "2027-11-08",
+        "2027-11-09",
+        "2027-11-11",
+        "2027-11-12",
+        "2027-11-14",
+        "2027-11-17",
+        "2027-11-21",
+        "2027-11-24",
+        "2027-11-25",
+        "2027-12-01",
+        "2027-12-02",
+        "2027-12-03",
+        "2027-12-06",
+        "2027-12-07",
+        "2027-12-08",
+        "2027-12-09",
+        "2027-12-11",
+        "2027-12-12",
+        "2027-12-13",
+        "2027-12-17",
+        "2027-12-20",
+        "2027-12-23",
+        "2027-12-24",
+        "2027-12-30",
+        "2027-12-31"
+      ],
+      "flagAvoid": [
+        "2027-01-08",
+        "2027-01-20",
+        "2027-02-16",
+        "2027-02-27",
+        "2027-03-15",
+        "2027-03-26",
+        "2027-04-13",
+        "2027-04-24",
+        "2027-05-10",
+        "2027-05-21",
+        "2027-06-05",
+        "2027-06-16",
+        "2027-07-13",
+        "2027-07-25",
+        "2027-08-08",
+        "2027-08-21",
+        "2027-09-04",
+        "2027-09-16",
+        "2027-10-13",
+        "2027-11-08",
+        "2027-11-20",
+        "2027-12-05",
+        "2027-12-17",
+        "2027-12-31"
+      ],
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 2–13 页（1–12 月），每格“理发吉日”文字与红色“飞幡日”标签"
+        }
+      ]
     }
   ]
 }

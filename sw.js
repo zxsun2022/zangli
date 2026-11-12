@@ -1,8 +1,8 @@
-const CACHE_NAME = 'zangli-20261026-6';
+const CACHE_NAME = 'zangli-20261112-2';
 const APP_SHELL = [
 	'/', '/tw/', '/en/', '/bo/', '/widget/',
-	'/css/style.css?v=20261026-6', '/css/widget.css?v=20261026-6', '/js/i18n-data.js?v=20261026-6', '/js/i18n.js?v=20261026-6',
-	'/js/app.js?v=20261026-6', '/js/widget.js?v=20261026-6', '/zangli.js?v=20261026-6', '/eclipse.js?v=20261026-6',
+	'/css/style.css?v=20261112-2', '/css/widget.css?v=20261112-2', '/js/i18n-data.js?v=20261112-2', '/js/i18n.js?v=20261112-2',
+	'/js/langDetect.js?v=20261112-2', '/js/app.js?v=20261112-2', '/js/widget.js?v=20261112-2', '/zangli.js?v=20261112-2', '/eclipse.js?v=20261112-2',
 	'/manifest.json', '/logo-192x192-circle.png', '/logo-512x512-circle.png',
 	'/calendar/zangli-special-days.ics'
 ];
@@ -24,8 +24,9 @@ function cacheResponse(request, response) {
 self.addEventListener('fetch', event => {
 	if (event.request.method !== 'GET' || new URL(event.request.url).origin !== location.origin) return;
 	if (event.request.mode === 'navigate') {
-		event.respondWith(fetch(event.request).then(response => cacheResponse(event.request, response)).catch(async () => {
-			const path = new URL(event.request.url).pathname;
+		const path = new URL(event.request.url).pathname;
+		// 日期深链接有三万多个，内容就是语言入口，不逐个缓存；断网时由下面的回退接住。
+		event.respondWith(fetch(event.request).then(response => path.includes('/date/') ? response : cacheResponse(event.request, response)).catch(async () => {
 			const fallback = path.startsWith('/tw/') ? '/tw/' : path.startsWith('/en/') ? '/en/' : path.startsWith('/bo/') ? '/bo/' : path.startsWith('/widget/') ? '/widget/' : '/';
 			return caches.match(fallback);
 		}));

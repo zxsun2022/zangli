@@ -258,6 +258,11 @@ main { padding: 8px 0 24px; }
 .day-event.multiplier::before { background: var(--saffron); }
 .day-event.eclipse::before { background: var(--blue); }
 .day-event strong { font-weight: 650; }
+.day-notes { margin: 10px 0 0; display: grid; gap: 3px; font-size: .86rem; }
+.day-notes div { display: flex; flex-wrap: wrap; gap: 0 8px; }
+.day-notes dt { color: var(--ink-soft); }
+.day-notes dd { margin: 0; }
+.detail-section .day-notes { margin-top: 0; }
 .day-event span { color: var(--ink-soft); font-size: .86rem; }
 
 .next-link {
@@ -321,7 +326,25 @@ main { padding: 8px 0 24px; }
 	gap: 16px;
 	padding: 10px 14px 10px 22px;
 }
-.calendar-toolbar h2 { margin: 0; font-family: var(--serif); font-size: 1.4rem; font-weight: 600; white-space: nowrap; }
+/* 年、月直接可选：一百年的历书不能只靠逐月翻页。 */
+.period-selects { display: flex; align-items: center; gap: 2px; min-width: 0; }
+.period-select {
+	min-height: 40px;
+	padding: 0 6px;
+	border: 0;
+	border-radius: var(--radius);
+	background: transparent;
+	font-family: var(--serif);
+	font-size: 1.4rem;
+	font-weight: 600;
+	cursor: pointer;
+	appearance: none;
+	-webkit-appearance: none;
+	text-decoration: underline dotted var(--line-strong);
+	text-underline-offset: 6px;
+}
+.period-select:hover { background: var(--tint); }
+html:lang(en) #month { order: -1; }
 .period-controls { display: flex; align-items: center; gap: 2px; }
 .today-button {
 	height: 32px;
@@ -546,6 +569,14 @@ footer p { margin: 0; }
 .footer-links a:hover, .footer-links .link-button:hover { color: var(--red); }
 .noscript { padding: 18px; border: 1px solid var(--red); border-radius: var(--radius); }
 
+/* 404 */
+.not-found { padding: 64px 0 80px; text-align: center; }
+.not-found h1 { margin: 0 0 10px; font-family: var(--serif); font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 600; }
+.not-found p { margin: 0 0 24px; color: var(--ink-soft); }
+.not-found .not-found-languages { display: flex; justify-content: center; gap: 18px; margin: 28px 0 0; font-size: .88rem; }
+.not-found-languages a { color: var(--ink-soft); }
+.not-found-languages a:hover { color: var(--red); }
+
 /* Date detail */
 #detailDialog {
 	position: fixed;
@@ -664,13 +695,17 @@ footer p { margin: 0; }
 	.next-title { font-size: 1.04rem; }
 	.next-date { font-size: .8rem; }
 	.calendar-toolbar { min-height: 54px; padding: 6px 6px 6px 16px; gap: 6px; }
-	.calendar-toolbar h2 { font-size: 1.14rem; }
+	.period-select { font-size: 1.14rem; padding: 0 3px; }
+	.icon-button, .step-button { width: 40px; height: 40px; }
 	.year-step { display: none; }
-	.today-button { margin: 0 2px; padding: 0 12px; }
-	.calendar-table th { height: 26px; padding: 0 0 4px; font-size: .62rem; letter-spacing: .02em; text-align: center; }
+	.today-button { height: 36px; margin: 0 2px; padding: 0 12px; }
+	.footer-links .link-button { padding: 10px 8px; }
+	.day-notes { margin-top: 8px; font-size: .8rem; }
+	.calendar-table th { height: 26px; padding: 0 0 4px; font-size: .68rem; letter-spacing: .02em; text-align: center; }
 	.calendar-table td { height: 58px; padding: 7px 2px 4px; text-align: center; }
 	.day-number { height: 1.75em; margin: -.25em 0 0; font-size: .92rem; }
-	.lunar-date { position: static; display: block; font-size: .64rem; }
+	.lunar-date { position: static; display: block; font-size: .7rem; }
+	html:lang(en) .lunar-date, html:lang(bo) .lunar-date { font-size: .64rem; }
 	.cell-event { display: none; }
 	.cell-meta { position: static; margin-top: 3px; }
 	.cell-markers { justify-content: center; gap: 3px; }
@@ -707,8 +742,9 @@ footer p { margin: 0; }
 @media (max-width: 430px) {
 	.brand strong { font-size: .96rem; letter-spacing: 0; }
 	.calendar-table td { height: 54px; }
-	.calendar-table th { font-size: .58rem; letter-spacing: 0; }
-	.lunar-date { font-size: .6rem; line-height: 1.4; }
+	.calendar-table th { font-size: .66rem; letter-spacing: 0; }
+	.lunar-date { font-size: .68rem; line-height: 1.4; }
+	html:lang(en) .lunar-date, html:lang(bo) .lunar-date { font-size: .6rem; }
 	.calendar-legend { font-size: .68rem; }
 	.tool-tab { font-size: .74rem; }
 	.time-grid { grid-template-columns: 1fr; }

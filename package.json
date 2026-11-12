@@ -5,6 +5,7 @@
   "description": "Static Gregorian–Tibetan calendar for 1951–2051",
   "scripts": {
     "generate": "node scripts/generate-pages.js && node scripts/generate-subscription.js",
+    "build": "npm run generate && node scripts/build-site.js",
     "check:syntax": "node scripts/check-javascript.js",
     "check:generated": "node scripts/check-generated.js",
     "test:calendar": "node scripts/test-calendar.js",
