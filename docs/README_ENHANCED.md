@@ -70,7 +70,7 @@ npm run verify
 JavaScript syntax checks passed for 15 files.
 Calendar checks passed: 6 sourced samples, 36560 days, observance policy and 4 time zones.
 Product checks passed: locale data, time zones, pages, PWA assets and 514 subscription events.
-Generated-file checks passed for 11 files.
+Generated-file checks passed for 12 files.
 ```
 
 ## 4. 架构
@@ -124,7 +124,7 @@ js/app.js
 | `sw.js` | 原文件模板加统一资源版本与缓存名替换 |
 | `calendar/zangli-special-days.ics` | `scripts/generate-subscription.js` |
 
-`npm run check:generated` 会在临时目录重新生成这 11 个文件并逐字节比较。生成结果只取决于源码和 `ASSET_VERSION`，不读取系统时钟。生成物漂移时，运行 `npm run generate`，不要在检查脚本中绕过差异。
+`npm run check:generated` 会在临时目录重新生成这 12 个文件（含 `sitemap.xml`）并逐字节比较。生成结果只取决于源码和 `ASSET_VERSION`，不读取系统时钟。生成物漂移时，运行 `npm run generate`，不要在检查脚本中绕过差异。
 
 ## 6. 路由与语言
 
@@ -174,8 +174,10 @@ js/app.js
 - 本地存储不可用时的安全回退代码路径。
 - 原生 `dialog`、紧凑首屏、工具默认折叠和事件标记布局约束。
 - 514 条 2026–2030 订阅事件及 RFC 行折叠要求。
-- 11 个生成文件无漂移。
+- 12 个生成文件无漂移；`npm run build` 的输出只含站点文件。
 - 语言跳转（浏览器语言、手动选择、爬虫、非根路径）和各语言 404 页。
+
+独立来源的覆盖范围：历书日期有 2019、2025、2027 三年的样本，其中 2027 年是全年逐日核对。节日、理发吉日和飞幡日都是按藏历月日推算的规则，对所有年份生效，但规则本身只用这三年（理发吉日、飞幡日只用 2027 年）核对过。各项改动的生效范围见 [D019](DECISIONS.md)，待复核的边界情况和对应日期见 [TODO](TODO.md)“只用 2027 年核对的规则”。
 
 全范围对照与性质测试只能证明解码和规则自洽，不等于历法内容已经逐条与原始历书校验。新增黄金样本必须人工摘录自独立来源并写明页码，不能由 `getZangli()` 输出生成。
 

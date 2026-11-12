@@ -3,7 +3,7 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 
 const root = path.resolve(__dirname, '..');
-const excluded = new Set(['.git', '.claude', '.gstack', 'node_modules']);
+const excluded = new Set(['.git', '.claude', '.gstack', 'node_modules', 'dist']);
 const files = [];
 
 function collect(directory) {

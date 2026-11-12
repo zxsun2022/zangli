@@ -1,6 +1,9 @@
 # OS metadata
 .DS_Store
 
+# Build output (only site files; see scripts/build-site.js)
+dist/
+
 # Dependencies
 **/node_modules/
 

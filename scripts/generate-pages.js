@@ -79,6 +79,14 @@ function renderNotFound(locale, s) {
 `;
 }
 
+// 只给读屏器和键盘用户的标签，同样要跟随页面语言。
+const accessibleLabels = {
+	'zh-cn': { skip: '跳到月历', language: '语言', theme: '切换深色模式', tools: '更多工具', year: '年份', month: '月份' },
+	tw: { skip: '跳到月曆', language: '語言', theme: '切換深色模式', tools: '更多工具', year: '年份', month: '月份' },
+	en: { skip: 'Skip to calendar', language: 'Language', theme: 'Toggle dark mode', tools: 'Calendar tools', year: 'Year', month: 'Month' },
+	bo: { skip: 'Skip to calendar', language: 'Language', theme: 'Toggle dark mode', tools: 'Calendar tools', year: 'Year', month: 'Month' }
+};
+
 const icons = {
 	left: svg('<path d="m14.5 6-6 6 6 6"/>'),
 	right: svg('<path d="m9.5 6 6 6-6 6"/>'),
@@ -95,9 +103,8 @@ function render(locale, s) {
 	const hiddenCurrentLanguage = locale === 'bo' ? '<option value="bo" selected hidden>བོད་ཡིག</option>' : '';
 	const languageOptions = hiddenCurrentLanguage + [['zh-cn','简体'],['tw','繁體'],['en','English']]
 		.map(([value, label]) => `<option value="${value}"${value === locale ? ' selected' : ''}>${label}</option>`).join('');
-	const monthOrdinals = locale === 'tw'
-		? ['正','二','三','四','五','六','七','八','九','十','十一','十二']
-		: ['正','二','三','四','五','六','七','八','九','十','十一','十二'];
+	const monthOrdinals = ['正','二','三','四','五','六','七','八','九','十','十一','十二'];
+	const a = accessibleLabels[locale];
 	const traditionalMonths = locale === 'tw'
 		? ['神變','苦行','具香','薩嘎','作淨','明淨','具醉','具賢','天降','持眾','莊嚴','滿意']
 		: ['神变','苦行','具香','萨嘎','作净','明净','具醉','具贤','天降','持众','庄严','满意'];
@@ -136,13 +143,13 @@ function render(locale, s) {
 	<script defer src="/js/i18n-data.js?v=${ASSET_VERSION}"></script><script defer src="/js/i18n.js?v=${ASSET_VERSION}"></script><script defer src="/zangli.js?v=${ASSET_VERSION}"></script><script defer src="/eclipse.js?v=${ASSET_VERSION}"></script><script defer src="/js/app.js?v=${ASSET_VERSION}"></script>
 </head>
 <body>
-	<a class="skip-link" href="#calendarWorkspace">Skip to calendar</a>
+	<a class="skip-link" href="#calendarWorkspace">${a.skip}</a>
 	<div class="site-shell">
-		<header class="site-header"><a class="brand" href="${prefix}" aria-label="${s.name}"><span class="brand-mark" aria-hidden="true">ལོ</span><strong>${s.name}</strong>${s.boBeta}</a><div class="header-actions"><span id="basisLabel" class="header-basis-status" aria-live="polite">—</span><button id="settingsButton" class="icon-button settings-button" type="button" aria-label="${s.settings}" title="${s.settings}">${icons.settings}</button><label class="sr-only" for="languageSelect">Language</label><select id="languageSelect" class="quiet-select">${languageOptions}</select><button id="themeButton" class="icon-button" type="button" aria-label="Toggle dark mode">${icons.theme}</button></div></header>
+		<header class="site-header"><a class="brand" href="${prefix}" aria-label="${s.name}"><span class="brand-mark" aria-hidden="true">ལོ</span><strong>${s.name}</strong>${s.boBeta}</a><div class="header-actions"><span id="basisLabel" class="header-basis-status" aria-live="polite">—</span><button id="settingsButton" class="icon-button settings-button" type="button" aria-label="${s.settings}" title="${s.settings}">${icons.settings}</button><label class="sr-only" for="languageSelect">${a.language}</label><select id="languageSelect" class="quiet-select">${languageOptions}</select><button id="themeButton" class="icon-button" type="button" aria-label="${a.theme}">${icons.theme}</button></div></header>
 		<main>
 			<section class="hero" aria-labelledby="pageTitle"><h1 id="pageTitle" class="sr-only">${s.title}</h1><div id="selectedDay" class="today-card"><div id="selectedDayContent" aria-live="polite"></div></div><article id="nextSpecialDay" class="next-card" aria-live="polite"><p class="section-kicker">${s.next}</p><div class="skeleton-line"></div></article></section>
-			<section id="calendarWorkspace" class="calendar-workspace" aria-labelledby="monthTitle"><div class="calendar-toolbar"><h2 id="monthTitle">—</h2><div class="period-controls"><button id="prevYearButton" class="step-button year-step" type="button" aria-label="${s.prevYear}" title="${s.prevYear}">${icons.doubleLeft}</button><button id="prevMonthButton" class="step-button" type="button" aria-label="${s.prevMonth}" title="${s.prevMonth}">${icons.left}</button><button id="todayButton" class="today-button" type="button">${s.today}</button><button id="nextMonthButton" class="step-button" type="button" aria-label="${s.nextMonth}" title="${s.nextMonth}">${icons.right}</button><button id="nextYearButton" class="step-button year-step" type="button" aria-label="${s.nextYear}" title="${s.nextYear}">${icons.doubleRight}</button></div><select id="year" hidden aria-label="Year"></select><select id="month" hidden aria-label="Month"></select></div><div class="calendar-scroll"><table class="calendar-table" role="grid" aria-labelledby="monthTitle"><thead><tr>${s.week.map(day => `<th scope="col">${day}</th>`).join('')}</tr></thead><tbody></tbody></table></div><p class="calendar-legend"><span><i class="legend-dot festival-dot"></i>${s.festival}</span><span><i class="legend-dot multiplier-dot"></i>${s.multiplier}</span><span><i class="legend-dot eclipse-dot"></i>${s.eclipse}</span></p></section>
-			<section class="tools" aria-label="Calendar tools"><div class="tool-tabs"><button class="tool-tab" id="annualTab" type="button" aria-expanded="false" aria-controls="annualPanel" data-panel="annualPanel">${s.annual}</button><button class="tool-tab" id="reverseTab" type="button" aria-expanded="false" aria-controls="reversePanel" data-panel="reversePanel">${s.reverse}</button><button class="tool-tab" id="aboutTab" type="button" aria-expanded="false" aria-controls="aboutPanel" data-panel="aboutPanel">${s.about}</button></div>
+			<section id="calendarWorkspace" class="calendar-workspace" aria-labelledby="monthTitle"><div class="calendar-toolbar"><h2 id="monthTitle" class="sr-only">—</h2><div class="period-selects"><select id="year" class="period-select" aria-label="${a.year}"></select><select id="month" class="period-select" aria-label="${a.month}"></select></div><div class="period-controls"><button id="prevYearButton" class="step-button year-step" type="button" aria-label="${s.prevYear}" title="${s.prevYear}">${icons.doubleLeft}</button><button id="prevMonthButton" class="step-button" type="button" aria-label="${s.prevMonth}" title="${s.prevMonth}">${icons.left}</button><button id="todayButton" class="today-button" type="button">${s.today}</button><button id="nextMonthButton" class="step-button" type="button" aria-label="${s.nextMonth}" title="${s.nextMonth}">${icons.right}</button><button id="nextYearButton" class="step-button year-step" type="button" aria-label="${s.nextYear}" title="${s.nextYear}">${icons.doubleRight}</button></div></div><div class="calendar-scroll"><table class="calendar-table" role="grid" aria-labelledby="monthTitle"><thead><tr>${s.week.map(day => `<th scope="col">${day}</th>`).join('')}</tr></thead><tbody></tbody></table></div><p class="calendar-legend"><span><i class="legend-dot festival-dot"></i>${s.festival}</span><span><i class="legend-dot multiplier-dot"></i>${s.multiplier}</span><span><i class="legend-dot eclipse-dot"></i>${s.eclipse}</span></p></section>
+			<section class="tools" aria-label="${a.tools}"><div class="tool-tabs"><button class="tool-tab" id="annualTab" type="button" aria-expanded="false" aria-controls="annualPanel" data-panel="annualPanel">${s.annual}</button><button class="tool-tab" id="reverseTab" type="button" aria-expanded="false" aria-controls="reversePanel" data-panel="reversePanel">${s.reverse}</button><button class="tool-tab" id="aboutTab" type="button" aria-expanded="false" aria-controls="aboutPanel" data-panel="aboutPanel">${s.about}</button></div>
 				<div id="annualPanel" class="tool-panel" role="region" aria-labelledby="annualTab" hidden><div class="panel-toolbar"><div class="year-stepper"><button id="annualPrevYear" class="step-button" type="button" aria-label="${s.prevYear}" title="${s.prevYear}">${icons.left}</button><strong id="annualYear" aria-live="polite">—</strong><button id="annualNextYear" class="step-button" type="button" aria-label="${s.nextYear}" title="${s.nextYear}">${icons.right}</button></div><label class="check-field"><input id="annualRoutine" type="checkbox"><span>${s.includeRoutine}</span></label><details class="calendar-menu"><summary class="secondary-button">${s.addToCalendar}</summary><div class="calendar-menu-items"><a href="webcal://zangli.org/calendar/zangli-special-days.ics">${s.subscribe}</a><button id="exportYearButton" type="button">${s.export}</button></div></details></div><ol id="annualList" class="event-list"></ol></div>
 				<div id="reversePanel" class="tool-panel" role="region" aria-labelledby="reverseTab" hidden><form id="reverseForm" class="reverse-form"><label>${s.lunarMonth}<select id="reverseMonth">${monthOptions}</select></label><label>${s.lunarDay}<select id="reverseDay">${dayOptions}</select></label></form><ol id="reverseResults" class="event-list reverse-results" aria-live="polite"></ol></div>
 				<div id="aboutPanel" class="tool-panel" role="region" aria-labelledby="aboutTab" hidden><h2>${s.sourceTitle}</h2><dl class="about-list">${s.aboutItems.map(([term, text], index) => `<div><dt>${term}</dt><dd>${text}${index === 1 ? ` <button class="link-button" type="button" data-open-settings>${s.changeBasis}</button>` : ''}</dd></div>`).join('')}</dl><p class="source-links"><a href="https://github.com/stonelf/zangli" target="_blank" rel="noopener noreferrer">GitHub</a> · <a href="https://eclipse.gsfc.nasa.gov/" target="_blank" rel="noopener noreferrer">NASA Eclipse Web Site</a></p></div>
@@ -162,6 +169,14 @@ for (const [locale, strings] of Object.entries(locales)) {
 	fs.writeFileSync(path.join(targetDir, 'index.html'), render(locale, strings));
 	fs.writeFileSync(path.join(targetDir, '404.html'), renderNotFound(locale, strings));
 }
+
+// sitemap 只列公开语言入口；lastmod 取发布版本的日期。
+const releaseDate = `${ASSET_VERSION.slice(0, 4)}-${ASSET_VERSION.slice(4, 6)}-${ASSET_VERSION.slice(6, 8)}`;
+fs.writeFileSync(path.join(outputRoot, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${[['/', '1.0'], ['/tw/', '0.9'], ['/en/', '0.9']].map(([route, priority]) => `  <url><loc>https://zangli.org${route}</loc><lastmod>${releaseDate}</lastmod><changefreq>weekly</changefreq><priority>${priority}</priority></url>`).join('\n')}
+</urlset>
+`);
 
 for (const relativePath of ['widget/index.html', 'sw.js']) {
 	const sourceFile = path.join(sourceRoot, relativePath);

@@ -67,6 +67,25 @@ for (const sample of golden.absent) {
 		for (const id of sample.events) assert.ok(!ids.includes(id), `unexpected event ${id} (${getZangli(sample.date).value})`);
 	});
 }
+for (const sample of golden.dayNotes) {
+	check(`golden day notes ${sample.date}`, () => {
+		assert.ok(sample.evidence.length && sample.evidence.every(item => golden.sources[item.source] && item.locator), 'every sample needs a traceable source');
+		const result = getZangli(sample.date);
+		assert.equal(result.haircut, sample.haircut, `haircut (${result.value})`);
+		assert.equal(result.flagAvoid, sample.flagAvoid, `flagAvoid (${result.value})`);
+	});
+}
+for (const list of golden.yearLists || []) {
+	check(`golden year list ${list.year}`, () => {
+		assert.ok(list.evidence.length && list.evidence.every(item => golden.sources[item.source] && item.locator), 'every list needs a traceable source');
+		const haircut = new Set(list.haircut), flagAvoid = new Set(list.flagAvoid);
+		for (let date = new Date(Date.UTC(list.year, 0, 1)); date.getUTCFullYear() === list.year; date.setUTCDate(date.getUTCDate() + 1)) {
+			const iso = date.toISOString().slice(0, 10), result = getZangli(iso);
+			assert.equal(Boolean(result.haircut), haircut.has(iso), `${iso} haircut (${result.value})`);
+			assert.equal(result.flagAvoid, flagAvoid.has(iso), `${iso} flagAvoid (${result.value})`);
+		}
+	});
+}
 
 // 2. 输入与支持范围契约
 check('range boundaries', () => {
@@ -142,8 +161,8 @@ check('independent expansion of the table', () => {
 
 // 5. 节日口径（D011）：真实月号、闰月不过年度节日、重日取第一次、缺日提前一天
 const results = Array.from({ length: DAYS }, (_, offset) => getZangli(isoForOffset(offset)));
-const annualIds = ['chotrul', 'buddha-birth', 'saka-dawa', 'chokhor', 'buddha-conception', 'lhabab'];
-const annualRules = { chotrul: [1, 1], 'buddha-birth': [4, 7], 'saka-dawa': [4, 15], chokhor: [6, 4], 'buddha-conception': [6, 15], lhabab: [9, 22] };
+const annualIds = ['losar', 'chotrul', 'buddha-birth', 'saka-dawa', 'chokhor', 'buddha-conception', 'lhabab', 'ganden-ngamcho'];
+const annualRules = { losar: [1, 1], chotrul: [1, 15], 'buddha-birth': [4, 7], 'saka-dawa': [4, 15], chokhor: [6, 4], 'buddha-conception': [6, 15], lhabab: [9, 22], 'ganden-ngamcho': [10, 25] };
 check('annual observances occur once per Tibetan year in the correct month', () => {
 	const counts = new Map();
 	results.forEach((result, offset) => {
@@ -236,4 +255,4 @@ if (failures.length) {
 	console.error(`Calendar checks failed (${failures.length}):\n${failures.map(line => `- ${line}`).join('\n')}`);
 	process.exit(1);
 }
-console.log(`Calendar checks passed: ${golden.samples.length + golden.absent.length} sourced samples, ${DAYS} days, observance policy and ${zones.length} time zones.`);
+console.log(`Calendar checks passed: ${golden.samples.length + golden.absent.length + golden.dayNotes.length} sourced samples, ${(golden.yearLists || []).length} full-year list, ${DAYS} days, observance policy and ${zones.length} time zones.`);

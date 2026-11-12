@@ -1,4 +1,10 @@
 (function () {
+	// 保存过的深浅色在首帧之前生效；这个脚本在 <head> 里同步执行，其余脚本都是 defer。
+	try {
+		const theme = localStorage.getItem('zangli-theme');
+		if (theme === 'dark' || theme === 'light') document.documentElement.dataset.theme = theme;
+	} catch (error) {}
+
 	const { pathname, search, hash } = location;
 	if (/^\/zh-tw(?:\/|$)/i.test(pathname)) {
 		location.replace(pathname.replace(/^\/zh-tw/i, '/tw') + search + hash);

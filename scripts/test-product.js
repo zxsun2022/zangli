@@ -218,4 +218,34 @@ assert.equal((ics.match(/BEGIN:VALARM/g) || []).length, 514);
 assert.ok(ics.endsWith('END:VCALENDAR\r\n'));
 assert.ok(ics.split('\r\n').every(line => Buffer.byteLength(line, 'utf8') <= 75), 'ICS lines must be folded at 75 octets');
 
+// D019–D020：年月可直接选择、翻月不堆历史、只发布站点文件。
+for (const file of ['index.html','tw/index.html','en/index.html','bo/index.html']) {
+	const html = read(file);
+	assert.ok(/<select id="year" class="period-select" aria-label="[^"]+"><\/select><select id="month" class="period-select"/.test(html), `${file} should let people pick a year and month directly`);
+	assert.ok(!html.includes('<select id="year" hidden'), `${file} should not hide the year picker`);
+}
+for (const file of ['index.html','tw/index.html']) assert.ok(!/aria-label="(Year|Month|Calendar tools|Toggle dark mode)"|>Skip to calendar<|>Language</.test(read(file)), `${file} should not carry English-only accessibility labels`);
+assert.ok(!app.includes("history.pushState({}, '', hash)"), 'Paging through months should not pile up history entries');
+assert.ok(app.includes('zangli.dayNumber === 29 && isSupportedDate(addDays(date, 1))'), 'Reverse lookup should report a skipped day 30 at the end of a month');
+assert.ok(app.includes('dayNotesHTML(zangli)') && app.includes("msg('flagAvoidNote')"), 'Hair-cutting and prayer-flag notes should be shown with the date');
+assert.ok(!read('sitemap.xml').includes('/widget/') && read('widget/index.html').includes('noindex'), 'The retired widget page should not be advertised to search engines');
+assert.ok(read('sw.js').includes("path.includes('/date/') ? response : cacheResponse"), 'Date deep links should not each take a cache entry');
+assert.ok(read('js/langDetect.js').includes("localStorage.getItem('zangli-theme')"), 'A saved theme should apply before first paint');
+const tw = runtime('/tw/');
+assert.equal(vm.runInContext("getZangli('2026-11-13').haircut", tw), '懷業增上，容光煥發', 'Traditional Chinese should convert the hair-cutting notes');
+assert.equal(vm.runInContext("getZangli('2026-11-13').haircut", en), 'increases magnetizing power and radiance');
+assert.equal(vm.runInContext("getZangli('2027-02-07').extraInfo", en), 'Losar (Tibetan New Year)');
+assert.equal(vm.runInContext("getZangli('2027-02-20').extraInfo", en), 'Chotrul Düchen');
+{
+	const os = require('os');
+	const { spawnSync } = require('child_process');
+	const out = fs.mkdtempSync(path.join(os.tmpdir(), 'zangli-dist-'));
+	try {
+		assert.equal(spawnSync(process.execPath, [path.join(root, 'scripts/build-site.js'), out]).status, 0, 'build-site should succeed');
+		const built = fs.readdirSync(out);
+		for (const entry of ['index.html', '404.html', 'en', 'sw.js', '_headers', '_redirects', 'sitemap.xml', 'zangli.js']) assert.ok(built.includes(entry), `build output should include ${entry}`);
+		for (const entry of ['docs', 'scripts', 'tests', 'AGENTS.md', 'package.json', 'nginx.conf', '.htaccess']) assert.ok(!built.includes(entry), `build output should not include ${entry}`);
+	} finally { fs.rmSync(out, { recursive: true, force: true }); }
+}
+
 console.log('Product checks passed: locale data, time zones, pages, PWA assets and 514 subscription events.');

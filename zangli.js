@@ -154,19 +154,39 @@ const zangliMonthlyObservances = Object.freeze([
 	{ id: "amitabha", day: 15, title: "阿弥陀佛节日", merit: "作何善恶成百万倍" },
 	{ id: "chenrezig", day: 18, title: "观音菩萨节日", merit: "作何善恶成千万倍" },
 	{ id: "kshitigarbha", day: 21, title: "地藏王菩萨节日", merit: "作何善恶成亿倍" },
-	{ id: "dakini", day: 25, title: "空行母荟供日", merit: "" },
+	{ id: "dakini", day: 25, title: "空行母荟供日", merit: "作何善恶成十万倍" },
 	{ id: "shakyamuni", day: 30, title: "释迦牟尼佛节日", merit: "作何善恶成九亿倍" }
 ]);
 
 // 年度节日在同一天取代当月例行殊胜日。
 const zangliAnnualObservances = Object.freeze([
-	{ id: "chotrul", month: 1, day: 1, title: "神变节", merit: "" },
+	{ id: "losar", month: 1, day: 1, title: "藏历新年", merit: "" },
+	{ id: "chotrul", month: 1, day: 15, title: "神变节", merit: "" },
 	{ id: "buddha-birth", month: 4, day: 7, title: "释迦牟尼佛诞辰", merit: "" },
 	{ id: "saka-dawa", month: 4, day: 15, title: "释迦牟尼佛<br>成道日涅槃日", merit: "" },
 	{ id: "chokhor", month: 6, day: 4, title: "释迦牟尼佛<br>初转法轮日", merit: "" },
 	{ id: "buddha-conception", month: 6, day: 15, title: "释迦牟尼佛入胎日", merit: "" },
-	{ id: "lhabab", month: 9, day: 22, title: "释迦牟尼佛天降日", merit: "" }
+	{ id: "lhabab", month: 9, day: 22, title: "释迦牟尼佛天降日", merit: "" },
+	{ id: "ganden-ngamcho", month: 10, day: 25, title: "燃灯节", merit: "" }
 ]);
+
+/* 理发吉日与飞幡日（见 docs/DECISIONS.md D019）
+ * 两者都只取决于藏历月号、日号，按传统表推算；闰月照算，重日只算第一天，缺日不提前。
+ * 只用《2027 藏汉月历（查阅版）》核对过：2027 年理发吉日 168 天、飞幡日 24 天逐日一致（tests/fixtures/zangli-golden.json 的 yearLists）。
+ * 其他年份按同一规则推算，尚未核对；待复核的边界情况见 docs/TODO.md“只用 2027 年核对的规则”。
+ */
+const zangliHaircutDays = Object.freeze({
+	3: "家族增长财富", 4: "怀业增上，容光焕发", 5: "聚集广大财富", 8: "长寿", 9: "易遇佳人",
+	10: "增上欢喜", 11: "增上智慧和世聪", 13: "精进于佛法修持，最上", 14: "财物增多", 15: "福报增上",
+	19: "增胜善法", 23: "增上财富", 26: "增上安乐", 27: "诸事吉祥"
+});
+
+// 飞幡日不宜悬挂经幡：正、五、九月初十和廿二；二、六、十月初七和十九；三、七、十一月初四和十六；四、八、十二月初一和十三。
+const zangliFlagAvoidDays = Object.freeze([[1, 13], [10, 22], [7, 19], [4, 16]]);
+
+function zangliIsFlagAvoidDay(monthNumber, dayNumber) {
+	return zangliFlagAvoidDays[monthNumber % 4].includes(dayNumber);
+}
 
 function zangliObservancesFor(monthNumber, monthLeap, dayNumber) {
 	const annual = monthLeap ? undefined : zangliAnnualObservances.find(rule => rule.month === monthNumber && rule.day === dayNumber);
@@ -216,7 +236,7 @@ const zangliCalendar = (function () {
 
 function zangliError(message) {
 	console.error(trans(message));
-	return { value: "error", error: message, events: [], extraInfo: "", extraInfo2: "", toString: function () { return this.value; } };
+	return { value: "error", error: message, events: [], haircut: "", flagAvoid: false, extraInfo: "", extraInfo2: "", toString: function () { return this.value; } };
 }
 
 function isValidCivilDate(year, month, day) {
@@ -291,6 +311,8 @@ function zangliMakeEvent(rule, target, shiftedEvent) {
  * @dayLeap 这一天是重日的第二次出现（dayOccurrence 为 2）
  * @dayMiss 同月内紧接这一天之前有缺日；被跳过的日号见 omittedDaysBefore
  * @events 节日事件列表；shifted 为 true 表示因缺日提前到本日
+ * @haircut 理发吉日的寓意，不是吉日时为空字符串
+ * @flagAvoid 飞幡日（不宜悬挂经幡）
  * @extraInfo/@extraInfo2 由 events 汇总的节日名与功德说明，兼容旧界面
  * }
 */
@@ -329,6 +351,8 @@ function getZangli(p) {
 	}
 	for (const moved of zangliCalendar.shifted.get(ordinal) || []) events.push(zangliMakeEvent(moved.rule, moved, true));
 	result.events = events;
+	result.haircut = entry.occurrence === 1 && zangliHaircutDays[entry.dayNumber] ? trans(zangliHaircutDays[entry.dayNumber]) : "";
+	result.flagAvoid = entry.occurrence === 1 && zangliIsFlagAvoidDay(month.monthNumber, entry.dayNumber);
 	result.extraInfo = events.map(event => event.title).join(" · ");
 	result.extraInfo2 = events.map(event => event.merit).filter(Boolean).join(" · ");
 	result.toString = function () { return this.value; };
