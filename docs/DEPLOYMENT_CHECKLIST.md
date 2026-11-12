@@ -9,7 +9,7 @@
 - [ ] 确认 `git status --short` 没有意外改动或漏掉的生成物。
 - [ ] 如果 JS、CSS、页面模板或缓存策略变化，更新 `scripts/release-config.js` 的 `ASSET_VERSION`。
 - [ ] 运行 `npm run generate`。
-- [ ] 运行 `npm run verify`，确认 15 个 JavaScript 文件、历法测试、产品测试、514 条订阅事件和 7 个生成物检查通过。
+- [ ] 运行 `npm run verify`，确认 15 个 JavaScript 文件、历法测试、产品测试、514 条订阅事件和 11 个生成物检查通过。
 - [ ] 运行 `git diff --check`。
 - [ ] 确认 `index.html`、`tw/index.html`、`en/index.html`、`bo/index.html`、`widget/index.html` 和 `sw.js` 的资源版本一致。
 
@@ -31,7 +31,10 @@
 - [ ] `/widget/` 正常加载（旧书签兼容，页面上不再有入口）。
 - [ ] 页脚“安装到桌面”：Chrome / Edge 直接弹出系统安装窗口；iPhone Safari、微信内置浏览器显示对应步骤；已安装的 PWA 中不显示此入口。
 
-不要让所有未知路径无条件回退到简体首页，否则英文、繁体或藏文分享链接会丢失语言上下文。
+- [ ] 未知路径返回 404 状态：`/no-such-page` 显示简体 404 页，`/en/no-such-page` 显示英文 404 页，`/tw/`、`/bo/` 同理。
+- [ ] 根地址 `/`：手动选过英文或繁体后会跳到对应语言；选过简体后留在 `/`。
+
+不要让未知路径回退到任何语言的首页。根目录的 `404.html` 不能删除：没有它时 Cloudflare Pages 会把站点当成单页应用，所有未知路径以 200 返回简体首页（D018）。
 
 ## 页面与交互抽查
 
@@ -63,6 +66,7 @@
 - [ ] 在线加载一次后断网刷新，当前语言页面仍可用。
 - [ ] 在线请求一个不存在资源得到 404；断网后同一资源应网络失败，而不是命中缓存的 404。
 - [ ] 日历订阅文件返回 `text/calendar; charset=utf-8`。
+- [ ] `/AGENTS.md`、`/docs/TODO.md`、`/scripts/generate-pages.js` 的响应带 `X-Robots-Tag: noindex`。
 - [ ] 至少启用 `X-Content-Type-Options`、`Referrer-Policy` 和适合当前内联 JSON-LD 的 CSP。
 
 ## 搜索与隐藏 Beta

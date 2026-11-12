@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const { ASSET_VERSION } = require('./release-config');
+// 页脚年份取自发布版本，不读系统时钟：否则跨年后重新生成的页面会与已提交的生成物不一致。
+const RELEASE_YEAR = ASSET_VERSION.slice(0, 4);
 
 const sourceRoot = path.resolve(__dirname, '..');
 const outputRoot = process.argv[2] ? path.resolve(process.argv[2]) : sourceRoot;
@@ -39,6 +41,44 @@ const locales = {
 };
 
 const svg = paths => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${paths}</svg>`;
+// 未知路径的 404 页。托管平台取离请求路径最近的 404.html，所以每个语言目录各放一份，错链不会丢失语言上下文。
+const notFound = {
+	'zh-cn': { title: '找不到这个页面', text: '链接可能已失效，或地址输入有误。', home: '返回今日藏历' },
+	tw: { title: '找不到這個頁面', text: '連結可能已失效，或網址輸入有誤。', home: '返回今日藏曆' },
+	en: { title: 'Page not found', text: 'The link may be out of date, or the address may be mistyped.', home: 'Back to today’s Tibetan date' },
+	bo: { title: 'Page not found', text: 'The link may be out of date, or the address may be mistyped.', home: 'དེ་རིང་གི་ཚེས་གྲངས།' }
+};
+const publicLanguages = [['zh-cn', '/', '简体'], ['tw', '/tw/', '繁體'], ['en', '/en/', 'English']];
+
+// 不加载任何脚本：404 页不注册 Service Worker，也不参与语言跳转。
+function renderNotFound(locale, s) {
+	const prefix = s.dir ? `/${s.dir}/` : '/';
+	const text = notFound[locale];
+	// 只有根目录的 404 列出其他语言：它接住所有不带语言前缀的错链，读者未必看得懂简体。
+	// 语言目录下的 404 不链接回根地址，因为根地址会按浏览器语言再跳走。
+	const otherLanguages = locale === 'zh-cn'
+		? `<p class="not-found-languages">${publicLanguages.filter(([value]) => value !== locale).map(([, href, label]) => `<a href="${href}">${label}</a>`).join('')}</p>`
+		: '';
+	return `<!DOCTYPE html>
+<html lang="${s.lang}">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+	<meta name="robots" content="noindex, follow">
+	<meta name="theme-color" content="#8f2f2c">
+	<link rel="icon" href="/favicon.ico">
+	<title>${text.title} · ${s.name}</title>
+	<link rel="stylesheet" href="/css/style.css?v=${ASSET_VERSION}">
+</head>
+<body>
+	<div class="site-shell">
+		<header class="site-header"><a class="brand" href="${prefix}" aria-label="${s.name}"><span class="brand-mark" aria-hidden="true">ལོ</span><strong>${s.name}</strong>${s.boBeta}</a></header>
+		<main class="not-found"><h1>${text.title}</h1><p>${text.text}</p><a class="primary-button" href="${prefix}">${text.home}</a>${otherLanguages}</main>
+	</div>
+</body></html>
+`;
+}
+
 const icons = {
 	left: svg('<path d="m14.5 6-6 6 6 6"/>'),
 	right: svg('<path d="m9.5 6 6 6-6 6"/>'),
@@ -108,7 +148,7 @@ function render(locale, s) {
 				<div id="aboutPanel" class="tool-panel" role="region" aria-labelledby="aboutTab" hidden><h2>${s.sourceTitle}</h2><dl class="about-list">${s.aboutItems.map(([term, text], index) => `<div><dt>${term}</dt><dd>${text}${index === 1 ? ` <button class="link-button" type="button" data-open-settings>${s.changeBasis}</button>` : ''}</dd></div>`).join('')}</dl><p class="source-links"><a href="https://github.com/stonelf/zangli" target="_blank" rel="noopener noreferrer">GitHub</a> · <a href="https://eclipse.gsfc.nasa.gov/" target="_blank" rel="noopener noreferrer">NASA Eclipse Web Site</a></p></div>
 			</section>
 			<noscript><p class="noscript">${s.noscript}</p></noscript>
-		</main><footer><p>© ${new Date().getFullYear()} ${s.name} · 1951–2051</p><p class="footer-links"><button id="installButton" class="link-button" type="button" hidden>${s.installButton}</button></p></footer>
+		</main><footer><p>© ${RELEASE_YEAR} ${s.name} · 1951–2051</p><p class="footer-links"><button id="installButton" class="link-button" type="button" hidden>${s.installButton}</button></p></footer>
 	</div>
 	<dialog id="detailDialog" aria-labelledby="detailTitle"><div class="dialog-header"><button id="shareButton" class="icon-button" type="button" aria-label="${s.share}" title="${s.share}">${icons.share}</button><button id="closeDetailButton" class="icon-button" type="button" aria-label="${s.close}" title="${s.close}">${icons.close}</button></div><div id="detailContent"></div><div class="dialog-footer"><button id="copyButton" class="secondary-button" type="button">${s.copy}</button><button id="reminderButton" class="primary-button" type="button">${s.reminder}</button></div></dialog>
 	<dialog id="settingsDialog" class="settings-dialog"><form method="dialog"><div class="dialog-title-row"><h2>${s.basis}</h2><button class="icon-button" value="cancel" aria-label="${s.close}">${icons.close}</button></div><div id="dateDiscrepancy" class="settings-date-notice" role="status" hidden></div><fieldset><label class="choice-card"><input type="radio" name="dateBasis" value="local"><span><strong>${s.localBasis}</strong><small>${s.localHelp}</small></span></label><label class="choice-card"><input type="radio" name="dateBasis" value="beijing"><span><strong>${s.beijingBasis}</strong><small>${s.beijingHelp}</small></span></label></fieldset><button class="primary-button dialog-done" value="default">${s.close}</button></form></dialog>
@@ -120,6 +160,7 @@ for (const [locale, strings] of Object.entries(locales)) {
 	const targetDir = path.join(outputRoot, strings.dir);
 	fs.mkdirSync(targetDir, { recursive: true });
 	fs.writeFileSync(path.join(targetDir, 'index.html'), render(locale, strings));
+	fs.writeFileSync(path.join(targetDir, '404.html'), renderNotFound(locale, strings));
 }
 
 for (const relativePath of ['widget/index.html', 'sw.js']) {

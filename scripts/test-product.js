@@ -100,6 +100,45 @@ assert.ok(read('bo/index.html').includes('<option value="20">ཚེས་ ༢༠
 assert.ok(!read('js/app.js').includes("dayShort: '初{day}'"));
 assert.ok(!read('js/langDetect.js').includes("preference = 'bo'"));
 
+// 语言跳转：只在根地址生效；手动选择优先于浏览器语言；爬虫不跳转。
+function languageRedirect({ pathname = '/', languages = ['zh-CN'], stored = null, userAgent = 'Mozilla/5.0 (Macintosh) Safari/605.1.15' }) {
+	let target = null;
+	vm.runInContext(read('js/langDetect.js'), vm.createContext({
+		location: { pathname, search: '', hash: '', replace: value => { target = value; } },
+		navigator: { languages, language: languages[0], userAgent },
+		localStorage: { getItem: () => stored }
+	}));
+	return target;
+}
+assert.equal(languageRedirect({ languages: ['zh-CN'] }), null, 'Simplified Chinese browsers stay on the root entry');
+assert.equal(languageRedirect({ languages: ['en-US'] }), '/en/', 'Other languages are sent to English on first visit');
+assert.equal(languageRedirect({ languages: ['zh-TW'] }), '/tw/', 'Traditional Chinese browsers are sent to /tw/');
+assert.equal(languageRedirect({ languages: ['zh-CN'], stored: 'en' }), '/en/', 'A language chosen by hand should also apply at the root address');
+assert.equal(languageRedirect({ languages: ['en-US'], stored: 'tw' }), '/tw/', 'A language chosen by hand should win over the browser language');
+assert.equal(languageRedirect({ languages: ['en-US'], stored: 'zh-cn' }), null, 'Choosing Simplified Chinese should keep the root entry');
+assert.equal(languageRedirect({ languages: ['en-US'], userAgent: 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)' }), null, 'Crawlers should index the address they requested');
+assert.equal(languageRedirect({ languages: ['en-US'], userAgent: 'Mozilla/5.0 (compatible; Baiduspider/2.0)' }), null, 'Crawlers should index the address they requested');
+assert.equal(languageRedirect({ pathname: '/en/', languages: ['zh-CN'], stored: 'tw' }), null, 'An explicit language path is never redirected');
+assert.equal(languageRedirect({ pathname: '/date/2026-11-12', languages: ['en-US'] }), null, 'Shared date links keep their language');
+assert.equal(languageRedirect({ pathname: '/zh-tw/date/2026-11-12' }), '/tw/date/2026-11-12', 'The legacy /zh-tw/ prefix still maps to /tw/');
+
+// 404：每个语言目录一份，未知路径不再回退成首页。
+for (const [file, language, home] of [['404.html','zh-CN','/'],['tw/404.html','zh-TW','/tw/'],['en/404.html','en','/en/'],['bo/404.html','bo','/bo/']]) {
+	const html = read(file);
+	assert.ok(html.includes(`<html lang="${language}">`), `${file} language`);
+	assert.ok(html.includes('<meta name="robots" content="noindex, follow">'), `${file} should not be indexed`);
+	assert.ok(html.includes(`<a class="primary-button" href="${home}">`), `${file} should lead back to its own language entry`);
+	assert.ok(html.includes(`/css/style.css?v=${ASSET_VERSION}`), `${file} should use the current stylesheet`);
+	assert.ok(!html.includes('<script'), `${file} should not load scripts or register the service worker`);
+	assert.ok(!html.includes('href="/bo/"') || file === 'bo/404.html', `${file} should not link to the hidden Tibetan beta`);
+}
+assert.ok(!/try_files \$uri \$uri\/ \/[a-z/]*index\.html/.test(read('nginx.conf')), 'Nginx should not serve an entry page for unknown paths');
+assert.ok(read('nginx.conf').includes('error_page 404 /en/404.html;') && read('.htaccess').includes('ErrorDocument 404 /404.html'), 'Self-hosted configs should return the 404 page');
+assert.ok(!/new Date\(\)|Date\.now\(\)/.test(read('scripts/generate-pages.js')), 'Generated pages must not depend on the build date');
+for (const rule of ['/*.md', '/docs/*', '/scripts/*', '/tests/*']) {
+	assert.ok(read('_headers').includes(`${rule}\n  X-Robots-Tag: noindex`), `${rule} should not be indexed`);
+}
+
 for (const file of ['widget/index.html','sw.js']) {
 	const versions = [...read(file).matchAll(/\?v=(\d{8}-\d+)/g)].map(match => match[1]);
 	assert.ok(versions.length, `${file} should contain versioned assets`);

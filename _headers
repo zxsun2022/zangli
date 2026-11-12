@@ -19,3 +19,22 @@
 /calendar/*
   Content-Type: text/calendar; charset=utf-8
   Cache-Control: public, max-age=86400
+
+# 仓库里的文档、脚本和测试会随站点一起发布；它们不是站点内容，不让搜索引擎收录。
+/*.md
+  X-Robots-Tag: noindex
+
+/docs/*
+  X-Robots-Tag: noindex
+
+/scripts/*
+  X-Robots-Tag: noindex
+
+/tests/*
+  X-Robots-Tag: noindex
+
+/package.json
+  X-Robots-Tag: noindex
+
+/nginx.conf
+  X-Robots-Tag: noindex

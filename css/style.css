@@ -546,6 +546,14 @@ footer p { margin: 0; }
 .footer-links a:hover, .footer-links .link-button:hover { color: var(--red); }
 .noscript { padding: 18px; border: 1px solid var(--red); border-radius: var(--radius); }
 
+/* 404 */
+.not-found { padding: 64px 0 80px; text-align: center; }
+.not-found h1 { margin: 0 0 10px; font-family: var(--serif); font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 600; }
+.not-found p { margin: 0 0 24px; color: var(--ink-soft); }
+.not-found .not-found-languages { display: flex; justify-content: center; gap: 18px; margin: 28px 0 0; font-size: .88rem; }
+.not-found-languages a { color: var(--ink-soft); }
+.not-found-languages a:hover { color: var(--red); }
+
 /* Date detail */
 #detailDialog {
 	position: fixed;

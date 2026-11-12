@@ -7,6 +7,7 @@ const root = path.resolve(__dirname, '..');
 const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zangli-generated-'));
 const generatedFiles = [
 	'index.html', 'tw/index.html', 'en/index.html', 'bo/index.html',
+	'404.html', 'tw/404.html', 'en/404.html', 'bo/404.html',
 	'widget/index.html', 'sw.js', 'calendar/zangli-special-days.ics'
 ];
 
