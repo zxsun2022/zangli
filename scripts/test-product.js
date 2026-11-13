@@ -247,6 +247,7 @@ assert.ok(read('tw/index.html').includes('<a id="footerTableLink" href="/tw/2026
 assert.ok(app.includes('function updateFooterTableLink()') && app.includes('updateFooterTableLink();'), 'The footer year-table link should follow today’s year, not only the release year');
 assert.ok(app.includes(`zangli.haircut ? '<i class="haircut-marker"></i>' : ''`) && read('index.html').includes('<i class="legend-dot haircut-marker"></i>理发吉日') && read('tw/index.html').includes('理髮吉日</span></p>'), 'The month calendar should mark hair-cutting days and explain the mark in its legend');
 assert.ok(['index.html', 'tw/index.html', 'en/index.html'].every(file => read(file).includes('<a href="mailto:hello@zangli.org" title="hello@zangli.org">')) && read('llms.txt').includes('hello@zangli.org'), 'Home pages and llms.txt should give the contact address');
+assert.ok(style.includes('.cell-markers i, .legend-dot, .cell-tag { -webkit-print-color-adjust: exact; print-color-adjust: exact; }'), 'Calendar dots should print even when background graphics are off');
 assert.ok(/@page \{ margin: 16mm 14mm; \}/.test(style), 'Printed pages and PDFs should keep a comfortable margin');
 assert.ok(/\.footer-links \{[^}]*align-items: center/.test(style), 'Footer links should share one vertical centre line');
 assert.ok(!read('sitemap.xml').includes('/widget/') && read('widget/index.html').includes('noindex'), 'The retired widget page should not be advertised to search engines');
