@@ -240,6 +240,29 @@ check('eclipse samples', () => {
 	assert.equal(getEclipse(null).value, '');
 });
 
+// 7b. 全部日月食与 NASA 目录逐条配对（tests/fixtures/eclipse-nasa.json，独立来源）。
+check('eclipse list matches the NASA catalogues', () => {
+	const nasa = JSON.parse(read('tests/fixtures/eclipse-nasa.json'));
+	const { eclipseList } = calendar;
+	// eclipse.js 的类型索引：0 全、1 偏、2 环、3 偏、4 混合（日食）；5 全、6 偏、8 半影（月食）。
+	const expectedType = { 0: 'solar T', 1: 'solar P', 2: 'solar A', 3: 'solar P', 4: 'solar H', 5: 'lunar T', 6: 'lunar P', 8: 'lunar N' };
+	const catalogue = [...nasa.solar.map(([td, type, id]) => ({ kind: 'solar', td, type, id })), ...nasa.lunar.map(([td, type, id]) => ({ kind: 'lunar', td, type, id }))]
+		.map(entry => ({ ...entry, time: Date.parse(`${entry.td}Z`) }));
+	const used = new Set();
+	const problems = [];
+	for (const [time, type] of eclipseList) {
+		const kind = type < 5 ? 'solar' : 'lunar';
+		const matches = catalogue.filter(entry => entry.kind === kind && Math.abs(entry.time - time) < 6 * 3600 * 1000);
+		if (matches.length !== 1) { problems.push(`${new Date(time).toISOString()} has ${matches.length} catalogue matches`); continue; }
+		const [entry] = matches;
+		used.add(entry.id);
+		if (expectedType[type] !== `${kind} ${entry.type}`) problems.push(`${entry.td} type ${type} vs NASA ${entry.type}`);
+		if (Math.abs(entry.time - time) > 1000) problems.push(`${entry.td} TD differs by ${(entry.time - time) / 1000} s`);
+	}
+	const missing = catalogue.filter(entry => !used.has(entry.id));
+	assert.deepEqual([...problems, ...missing.map(entry => `missing ${entry.kind} ${entry.td}`)], []);
+});
+
 // 8. 跨时区一致性
 const zones = ['UTC', 'Asia/Shanghai', 'America/Vancouver', 'Pacific/Apia'];
 const digests = zones.map(zone => {
