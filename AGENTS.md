@@ -13,7 +13,8 @@
 - 路由与收录（D018）：未知路径返回真实 404 和所在语言的 404 页；根地址的语言跳转尊重手动选择，不对搜索引擎爬虫生效；页脚年份取自资源版本。
 - 2027 年校对（D019）：全年 365 天已与《2027 藏汉月历（查阅版）》逐日核对一致；据此正月初一改为藏历新年、神变节移到正月十五、增加十月廿五燃灯节，并加入理发吉日与飞幡日（`getZangli().haircut`、`flagAvoid`）。
 - 导航与发布（D020、D021）：月历标题是按钮，点开年月面板（年份网格一页 12 年加 12 个月，桌面端下拉、手机端底部弹出）；翻月不写入浏览器历史；`npm run build` 把站点文件复制到 `dist/`。
-- 资源版本：`20261112-3`（`scripts/release-config.js`）。
+- 年份对照表页（D022）：`/2027/`、`/tw/2027/`、`/en/2027/` 等 303 页由 `scripts/generate-year-pages.js` 在 `npm run build` 时生成到 `dist/`，不提交进仓库；`sitemap.xml` 列出全部年份页。
+- 资源版本：`20261112-4`（`scripts/release-config.js`）。
 - 已验证视口：1440×900 与 390×844，日期摘要和完整月历均能进入首屏。
 - 当前技术：无框架原生 JavaScript、HTML、CSS、Service Worker；Node.js 只用于生成和测试。
 - TypeScript 7：已评估，暂不迁移。先补齐 `docs/TODO.md` 的 P0 独立来源样本。
@@ -61,6 +62,7 @@ Logo、SEO、语言和 Windows Chrome 专题报告保留的是历史过程，不
 | 藏历计算与节日 | `zangli.js` |
 | 日月食 | `eclipse.js` |
 | 订阅文件 | `scripts/generate-subscription.js` |
+| 年份对照表页（只生成到 `dist/`） | `scripts/generate-year-pages.js` |
 | 资源缓存版本 | `scripts/release-config.js` |
 | 历法测试与黄金样本 | `scripts/test-calendar.js`、`tests/fixtures/zangli-golden.json` |
 | 产品与生成物测试 | `scripts/test-product.js`、`scripts/check-generated.js` |

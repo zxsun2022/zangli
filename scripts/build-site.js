@@ -2,6 +2,7 @@
 // 托管平台设置：构建命令 `npm run build`，发布目录 `dist`。
 const fs = require('fs');
 const path = require('path');
+const { generateYearPages } = require('./generate-year-pages');
 
 const root = path.resolve(__dirname, '..');
 const output = process.argv[2] ? path.resolve(process.argv[2]) : path.join(root, 'dist');
@@ -20,4 +21,6 @@ for (const entry of publicEntries) {
 	if (!fs.existsSync(source)) throw new Error(`Missing site file: ${entry}`);
 	fs.cpSync(source, path.join(output, entry), { recursive: true, filter: file => path.basename(file) !== '.DS_Store' });
 }
-console.log(`Built ${publicEntries.length} site entries into ${path.relative(root, output) || output}.`);
+// 年份对照表页只生成到发布目录（D022）。
+const yearPages = generateYearPages(output);
+console.log(`Built ${publicEntries.length} site entries and ${yearPages} year pages into ${path.relative(root, output) || output}.`);

@@ -1,8 +1,8 @@
-const CACHE_NAME = 'zangli-20261112-3';
+const CACHE_NAME = 'zangli-20261112-4';
 const APP_SHELL = [
 	'/', '/tw/', '/en/', '/bo/', '/widget/',
-	'/css/style.css?v=20261112-3', '/css/widget.css?v=20261112-3', '/js/i18n-data.js?v=20261112-3', '/js/i18n.js?v=20261112-3',
-	'/js/langDetect.js?v=20261112-3', '/js/app.js?v=20261112-3', '/js/widget.js?v=20261112-3', '/zangli.js?v=20261112-3', '/eclipse.js?v=20261112-3',
+	'/css/style.css?v=20261112-4', '/css/widget.css?v=20261112-4', '/js/i18n-data.js?v=20261112-4', '/js/i18n.js?v=20261112-4',
+	'/js/langDetect.js?v=20261112-4', '/js/app.js?v=20261112-4', '/js/widget.js?v=20261112-4', '/zangli.js?v=20261112-4', '/eclipse.js?v=20261112-4',
 	'/manifest.json', '/logo-192x192-circle.png', '/logo-512x512-circle.png',
 	'/calendar/zangli-special-days.ics'
 ];
@@ -27,6 +27,9 @@ self.addEventListener('fetch', event => {
 		const path = new URL(event.request.url).pathname;
 		// 日期深链接有三万多个，内容就是语言入口，不逐个缓存；断网时由下面的回退接住。
 		event.respondWith(fetch(event.request).then(response => path.includes('/date/') ? response : cacheResponse(event.request, response)).catch(async () => {
+			// 先用这个地址自己的缓存（例如访问过的年份页），没有缓存时才回退到同语言入口。
+			const cached = await caches.match(event.request);
+			if (cached) return cached;
 			const fallback = path.startsWith('/tw/') ? '/tw/' : path.startsWith('/en/') ? '/en/' : path.startsWith('/bo/') ? '/bo/' : path.startsWith('/widget/') ? '/widget/' : '/';
 			return caches.match(fallback);
 		}));

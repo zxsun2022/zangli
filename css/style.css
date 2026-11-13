@@ -363,6 +363,8 @@ main { padding: 8px 0 24px; }
 	background: var(--surface-strong);
 	color: var(--ink);
 	box-shadow: var(--shadow-pop);
+	overflow-y: auto;
+	overscroll-behavior: contain;
 	opacity: 0;
 	transform: translateY(-4px);
 	transition: opacity .14s ease, transform .2s var(--ease);
@@ -627,6 +629,74 @@ footer p { margin: 0; }
 .not-found-languages a { color: var(--ink-soft); }
 .not-found-languages a:hover { color: var(--red); }
 
+/* Year pages（D022）：静态的年份对照表 */
+.year-languages { display: flex; align-items: center; gap: 14px; font-size: .88rem; }
+.year-languages a { color: var(--ink-soft); text-decoration: none; }
+.year-languages a:hover { color: var(--red); }
+.year-languages [aria-current] { color: var(--ink); font-weight: 600; }
+.year-main { padding: 8px 0 24px; }
+.year-pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 4px 0 18px; font-size: .9rem; }
+.year-pager a { color: var(--ink-soft); text-decoration: none; padding: 6px 0; }
+.year-pager a:hover { color: var(--red); }
+.year-main h1 { margin: 0 0 10px; color: var(--red); font: 600 clamp(1.9rem, 5vw, 2.6rem)/1.15 var(--serif); }
+.year-lead { max-width: 720px; margin: 0; color: var(--ink-soft); line-height: 1.75; }
+.year-partial { margin: 8px 0 0; color: var(--ink-soft); font-size: .88rem; }
+.year-actions { margin: 16px 0 0; }
+.year-section { margin-top: 32px; }
+.year-section h2 { margin: 0 0 12px; font: 600 1.25rem/1.3 var(--serif); }
+.year-highlights { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+.year-highlights li { display: grid; grid-template-columns: 9em 7.5em minmax(0, 1fr); gap: 12px; align-items: baseline; padding: 10px 2px; border-bottom: 1px solid var(--line); }
+.year-highlights time small, .year-highlight-tibetan { color: var(--ink-soft); }
+.year-highlights strong { font-weight: 600; }
+.year-highlights li.is-eclipse strong { color: var(--blue); }
+.year-card { padding: 18px 22px 8px; background: var(--surface-strong); border: 1px solid var(--line); border-radius: var(--radius-large); box-shadow: var(--shadow); }
+.year-card .year-highlights { border-top: 0; }
+.year-card .year-highlights li:last-child { border-bottom: 0; }
+/* 月份跳转：吸顶的圆角标签，往下翻时随时可换月。 */
+.year-month-jump { position: sticky; top: 0; z-index: 5; display: flex; gap: 6px; margin: 0 -6px 4px; padding: 10px 6px; overflow-x: auto; background: var(--paper); scrollbar-width: none; }
+.year-month-jump::-webkit-scrollbar { display: none; }
+.year-month-jump a { flex: none; padding: 5px 13px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink-soft); font-size: .84rem; text-decoration: none; transition: border-color .16s ease, color .16s ease; }
+.year-month-jump a:hover { border-color: var(--red); color: var(--red); }
+/* 每月一张卡片：月历与当月殊胜日放在一起，卡片之间留出间距。 */
+.year-month { scroll-margin-top: 64px; margin-top: 26px; overflow: hidden; background: var(--surface-strong); border: 1px solid var(--line); border-radius: var(--radius-large); box-shadow: var(--shadow); }
+.year-month-head { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 6px 18px; padding: 18px 22px 14px; }
+.year-month-head h3 { display: flex; flex-direction: column; margin: 0; }
+.year-month-year { color: var(--ink-soft); font: 600 .76rem/1.4 var(--sans); letter-spacing: .06em; }
+.year-month-name { color: var(--red); font: 600 2rem/1.05 var(--serif); }
+.year-month-tibetan { margin: 0 0 3px; padding-left: 18px; border-left: 1px solid var(--line-strong); color: var(--ink-soft); font-size: .86rem; }
+.year-month-open { margin: 0 0 2px auto; padding: 6px 13px; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--ink); font-size: .8rem; text-decoration: none; white-space: nowrap; transition: border-color .16s ease, color .16s ease; }
+.year-month-open:hover { border-color: var(--red); color: var(--red); }
+.year-month-days { padding: 14px 22px 16px; background: color-mix(in srgb, var(--tint) 60%, var(--surface-strong)); border-top: 1px solid var(--line); }
+.year-grid td { height: 76px; padding: 0; cursor: default; }
+.year-grid td > a { position: absolute; inset: 0; padding: 8px 9px; color: inherit; text-decoration: none; }
+.year-grid td > a:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.year-grid td.out-of-range { padding: 8px 9px; cursor: default; }
+.year-grid .lunar-date { top: 10px; right: 8px; }
+.year-grid .cell-meta { left: 9px; bottom: 8px; }
+.cell-tag { display: inline-block; margin-left: 2px; color: var(--saffron); font-size: .9em; font-weight: 700; }
+.cell-markers i.haircut-marker, .legend-dot.haircut-marker { box-sizing: border-box; border: 1.2px solid var(--ink-soft); background: transparent; }
+.cell-markers i.flag-marker, .legend-dot.flag-marker { border-radius: 1px; background: var(--ink-soft); transform: rotate(45deg) scale(.8); }
+.year-legend { flex-wrap: wrap; gap: 6px 16px; margin: 0 0 4px; padding: 0 2px 6px; border-top: 0; }
+.year-legend .cell-tag { margin: 0 4px 0 0; }
+.year-month-days h4 { margin: 0 0 8px; color: var(--ink-soft); font-size: .76rem; font-weight: 600; letter-spacing: .04em; }
+.year-specials { margin: 0; padding: 0; list-style: none; columns: 270px 3; column-gap: 28px; border-bottom: 1px solid var(--line); }
+.year-specials li { display: grid; grid-template-columns: 5.8em minmax(0, 1fr); gap: 10px; padding: 7px 4px; border-top: 1px solid var(--line); break-inside: avoid; font-size: .88rem; line-height: 1.45; }
+.year-specials time { font-variant-numeric: tabular-nums; }
+.year-specials time small { display: block; color: var(--ink-soft); font-size: .76rem; }
+.year-specials strong { display: flex; align-items: baseline; gap: 7px; font-weight: 600; }
+.year-specials strong::before { content: ''; width: 6px; height: 6px; flex: none; border-radius: 50%; background: var(--red); transform: translateY(-2px); }
+.year-specials li.is-multiplier strong::before { background: var(--saffron); }
+.year-specials li.is-eclipse strong::before { background: var(--blue); }
+.year-specials div span { display: block; padding-left: 13px; color: var(--ink-soft); font-size: .8rem; }
+.year-specials li.is-today { background: var(--red-soft); }
+.year-index p { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 0; font-size: .86rem; font-variant-numeric: tabular-nums; }
+.year-index a { color: var(--ink-soft); text-decoration: none; }
+.year-index a:hover { color: var(--red); }
+.year-index [aria-current] { color: var(--red); font-weight: 600; }
+.annual-table-link { margin: 14px 0 0; font-size: .88rem; }
+.annual-table-link a { color: var(--red); text-decoration: none; }
+.annual-table-link a:hover { text-decoration: underline; }
+
 /* Date detail */
 #detailDialog {
 	position: fixed;
@@ -728,6 +798,18 @@ footer p { margin: 0; }
 	.hero { grid-template-columns: minmax(0, 1fr) minmax(240px, .8fr); }
 }
 
+@media (max-width: 900px) {
+	/* 窄屏与打印：藏历日放到公历日下面，避免两者重叠。 */
+	.year-grid td, .year-grid td > a, .year-grid td.out-of-range { text-align: center; }
+	.year-grid td > a, .year-grid td.out-of-range { padding: 7px 2px 4px; }
+	.year-grid .day-number { height: 1.75em; margin: -.25em 0 0; font-size: .92rem; }
+	.year-grid .lunar-date { position: static; display: block; font-size: .7rem; }
+	.year-grid .cell-meta { position: static; margin-top: 3px; }
+	.year-grid .cell-markers { justify-content: center; gap: 3px; }
+	.year-grid .cell-event { display: none; }
+	.calendar-table.year-grid td { height: 66px; }
+}
+
 @media (max-width: 720px) {
 	.site-shell { width: min(calc(100% - 24px), 620px); }
 	.site-header { min-height: 56px; }
@@ -761,6 +843,19 @@ footer p { margin: 0; }
 	.period-picker.bottom-sheet::backdrop { background: rgba(15, 13, 11, .42); backdrop-filter: blur(4px); }
 	.period-picker.bottom-sheet::before { content: ''; position: absolute; top: 7px; left: 50%; width: 36px; height: 4px; margin-left: -18px; border-radius: 4px; background: var(--line-strong); }
 	.period-picker.bottom-sheet .picker-cell { min-height: 46px; font-size: 1rem; }
+	.year-languages { gap: 10px; font-size: .82rem; }
+	.year-highlights li { grid-template-columns: 1fr; gap: 0; }
+	.year-specials { columns: 1; }
+	.year-card { padding: 14px 16px 4px; }
+	.year-month { margin-top: 18px; }
+	.year-month-head { gap: 4px 12px; padding: 14px 16px 10px; }
+	.year-month-name { font-size: 1.6rem; }
+	.year-month-tibetan { padding-left: 12px; font-size: .8rem; }
+	.year-month-open { padding: 5px 10px; font-size: .76rem; }
+	.year-month-days { padding: 12px 14px 14px; }
+	.calendar-table.year-grid td { height: 64px; }
+	.year-specials li { grid-template-columns: 5.6em minmax(0, 1fr); }
+	.year-legend { justify-content: flex-start; padding: 0 2px 6px; white-space: normal; overflow: visible; }
 	.icon-button, .step-button { width: 40px; height: 40px; }
 	.year-step { display: none; }
 	.today-button { height: 36px; margin: 0 2px; padding: 0 12px; }
@@ -846,4 +941,24 @@ footer p { margin: 0; }
 	.hero { display: block; margin: 0 0 12px; }
 	.today-card { border: 1px solid #999; }
 	.calendar-table td { height: 90px; }
+}
+
+@media print {
+	.year-page .site-header, .year-page .year-pager, .year-page .year-actions, .year-page .year-month-jump, .year-page .year-index, .year-page footer, .year-month-open { display: none !important; }
+	.year-page .site-shell { width: 100%; }
+	.year-page .year-legend { display: flex !important; }
+	.year-month, .year-card { break-inside: avoid; box-shadow: none; }
+	.year-month { margin-top: 14px; }
+	.year-grid td, .year-grid td > a, .year-grid td.out-of-range { text-align: center; }
+	.year-grid td > a, .year-grid td.out-of-range { padding: 7px 2px 4px; }
+	.year-grid .day-number { height: 1.75em; margin: -.25em 0 0; font-size: .92rem; }
+	.year-grid .lunar-date { position: static; display: block; font-size: .7rem; }
+	.year-grid .cell-meta { position: static; margin-top: 3px; }
+	.year-grid .cell-markers { justify-content: center; gap: 3px; }
+	.calendar-table.year-grid td { height: 56px; }
+	.year-grid .cell-event { display: none; }
+	.year-grid td.empty-cell { background: none; }
+	.year-grid td.today[data-date], .year-specials li.is-today { background: none; }
+	.year-grid td.today .day-number { background: none; color: inherit; }
+	.year-main h1 { color: #000; }
 }
