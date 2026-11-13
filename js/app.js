@@ -37,7 +37,7 @@ const messages = {
 	copied: '日期信息已复制', linkCopied: '分享内容已复制',
 	shiftedObservance: '{title}：藏历{day}缺日，提前至本日',
 	festival: '节日', multiplier: '功德增广日', eclipse: '日月食', all: '全部',
-	haircut: '理发吉日', flagAvoid: '飞幡日', flagAvoidNote: '不宜悬挂经幡',
+	haircut: '理发吉日', flagAvoid: '飞幡日', flagAvoidNote: '不宜悬挂经幡', yearTableLink: '查看 {year} 年藏历对照表 →',
 
 
 
@@ -52,7 +52,7 @@ const messages = {
 
 const englishMessages = {
 	today:'Today',localBasis:'Device-local date',beijingBasis:'Beijing date',lookupNote:'Gregorian date used to query the published crosswalk',deviceZone:'Device time zone',
-	discrepancy:'Your local date is {local}; the Beijing date is {beijing}. This page is using “{basis}.”',basisCompact:'{basis} · {zone}',nextIn:'In {days} days',nextTomorrow:'Tomorrow',noNext:'No later observance was found in the supported range',noEvents:'No matching dates this year.',yearTitle:'{year}',exportYear:'Download {year} .ics',skippedEarly:'Skipped day, one day early',repeated:'Repeated day',skipped:'Skipped day',leapMonth:'Leap month',localEclipse:'Your time zone',beijingEclipse:'Beijing time',eclipseArchive:'Eclipses are filed by Beijing date. Visibility and local contact times depend on location.',calendarExported:'Calendar file created',reminderExported:'Reminder file created; import it into your calendar',installShare:'Tap the browser’s Share button',installAddHome:'Choose “Add to Home Screen”',installConfirm:'Tap “Add”',installShareToolbar:'Click Share in the toolbar',installAddDock:'Choose “Add to Dock”',installMenu:'Open the browser menu',installAndroidAdd:'Choose “Install app” or “Add to Home screen”',installAddressBar:'Click the install icon at the right of the address bar',installDesktopMenu:'Or choose “Install Tibetan Calendar” in the browser menu',installInAppMenu:'Tap “···” in the top-right corner',installOpenBrowser:'Choose “Open in browser”',installThen:'Then follow these steps again',installed:'Installed',offlineReady:'Offline access is ready',copied:'Date details copied',linkCopied:'Share text copied',shiftedObservance:'{title}: Tibetan day {day} is skipped this month, so it is observed one day early',festival:'Observance',multiplier:'Multiplier day',eclipse:'Eclipse',all:'All',haircut:'Hair-cutting day',flagAvoid:'Baden day',flagAvoidNote:'Not a day for hanging prayer flags',gregorian:'Gregorian',tibetan:'Tibetan',sourceBadge:'Published crosswalk',dateBasis:'Date basis',yearSuffix:'',monthSuffix:'',daySuffix:'',weekdayPrefix:'',monthTitle:'{month} {year}',monthShort:'Month {month}',dayShort:'Day {day}',viewDetails:'View details',observance:'Observance',icsDescription:'Tibetan calendar: {tibetan}. {detail}',openSource:'Open-source data',copiedTitle:'Tibetan Calendar',install:'Install',themeDark:'Switch to dark mode',themeLight:'Switch to light mode'
+	discrepancy:'Your local date is {local}; the Beijing date is {beijing}. This page is using “{basis}.”',basisCompact:'{basis} · {zone}',nextIn:'In {days} days',nextTomorrow:'Tomorrow',noNext:'No later observance was found in the supported range',noEvents:'No matching dates this year.',yearTitle:'{year}',exportYear:'Download {year} .ics',skippedEarly:'Skipped day, one day early',repeated:'Repeated day',skipped:'Skipped day',leapMonth:'Leap month',localEclipse:'Your time zone',beijingEclipse:'Beijing time',eclipseArchive:'Eclipses are filed by Beijing date. Visibility and local contact times depend on location.',calendarExported:'Calendar file created',reminderExported:'Reminder file created; import it into your calendar',installShare:'Tap the browser’s Share button',installAddHome:'Choose “Add to Home Screen”',installConfirm:'Tap “Add”',installShareToolbar:'Click Share in the toolbar',installAddDock:'Choose “Add to Dock”',installMenu:'Open the browser menu',installAndroidAdd:'Choose “Install app” or “Add to Home screen”',installAddressBar:'Click the install icon at the right of the address bar',installDesktopMenu:'Or choose “Install Tibetan Calendar” in the browser menu',installInAppMenu:'Tap “···” in the top-right corner',installOpenBrowser:'Choose “Open in browser”',installThen:'Then follow these steps again',installed:'Installed',offlineReady:'Offline access is ready',copied:'Date details copied',linkCopied:'Share text copied',shiftedObservance:'{title}: Tibetan day {day} is skipped this month, so it is observed one day early',festival:'Observance',multiplier:'Multiplier day',eclipse:'Eclipse',all:'All',haircut:'Hair-cutting day',yearTableLink:'Full {year} Tibetan calendar →',flagAvoid:'No prayer flags',flagAvoidNote:'Not a day for hanging prayer flags',gregorian:'Gregorian',tibetan:'Tibetan',sourceBadge:'Published crosswalk',dateBasis:'Date basis',yearSuffix:'',monthSuffix:'',daySuffix:'',weekdayPrefix:'',monthTitle:'{month} {year}',monthShort:'Month {month}',dayShort:'Day {day}',viewDetails:'View details',observance:'Observance',icsDescription:'Tibetan calendar: {tibetan}. {detail}',openSource:'Open-source data',copiedTitle:'Tibetan Calendar',install:'Install',themeDark:'Switch to dark mode',themeLight:'Switch to light mode'
 };
 
 const tibetanMessages = {
@@ -428,6 +428,8 @@ function renderAnnualList(revealUpcoming = false) {
 	$('annualPrevYear').disabled = year <= startDate.getFullYear();
 	$('annualNextYear').disabled = year >= endDate.getFullYear();
 	$('exportYearButton').textContent = msg('exportYear', { year: String(year) });
+	const tableLink = $('annualTableLink');
+	if (tableLink) { tableLink.href = `${basePath}${year}/`; tableLink.textContent = msg('yearTableLink', { year: String(year) }); }
 	const routine = $('annualRoutine').checked;
 	const events = annualVisibleEvents();
 	const today = getToday();
@@ -649,9 +651,16 @@ function positionPeriodPicker() {
 	const dialog = $('periodPicker');
 	const sheet = innerWidth <= 720;
 	dialog.classList.toggle('bottom-sheet', sheet);
-	if (sheet) { dialog.style.top = ''; dialog.style.left = ''; return; }
+	if (sheet) { dialog.style.top = ''; dialog.style.left = ''; dialog.style.maxHeight = ''; return; }
+	// 下方放得下就向下展开，否则向上；两边都不够时贴住视口底边，面板内部滚动。
+	const margin = 12, gap = 6;
 	const anchor = $('periodButton').getBoundingClientRect();
-	dialog.style.top = `${Math.round(anchor.bottom + 6)}px`;
+	dialog.style.maxHeight = `${innerHeight - margin * 2}px`;
+	const height = dialog.offsetHeight;
+	const below = innerHeight - anchor.bottom - gap - margin;
+	const above = anchor.top - gap - margin;
+	const top = height <= below ? anchor.bottom + gap : height <= above ? anchor.top - gap - height : Math.max(margin, innerHeight - margin - height);
+	dialog.style.top = `${Math.round(top)}px`;
 	dialog.style.left = `${Math.round(Math.max(12, Math.min(anchor.left, innerWidth - dialog.offsetWidth - 12)))}px`;
 }
 

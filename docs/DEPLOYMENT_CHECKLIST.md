@@ -9,8 +9,9 @@
 - [ ] 确认 `git status --short` 没有意外改动或漏掉的生成物。
 - [ ] 如果 JS、CSS、页面模板或缓存策略变化，更新 `scripts/release-config.js` 的 `ASSET_VERSION`。
 - [ ] 运行 `npm run generate`。
-- [ ] 运行 `npm run verify`，确认 15 个 JavaScript 文件、历法测试、产品测试、514 条订阅事件和 12 个生成物检查通过。
+- [ ] 运行 `npm run verify`，确认 18 个 JavaScript 文件、历法测试、产品测试、514 条订阅事件和 12 个生成物检查通过。
 - [ ] 托管平台的构建命令为 `npm run build`，发布目录为 `dist`；部署后 `/docs/TODO.md`、`/AGENTS.md` 应返回 404。
+- [ ] 年份对照表页：`/2027/`、`/tw/2027/`、`/en/2027/` 返回 200，`/1950/`、`/2052/` 返回 404；首页页脚的对照表链接可用。
 - [ ] 运行 `git diff --check`。
 - [ ] 确认 `index.html`、`tw/index.html`、`en/index.html`、`bo/index.html`、`widget/index.html` 和 `sw.js` 的资源版本一致。
 

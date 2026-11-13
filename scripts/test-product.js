@@ -148,6 +148,10 @@ assert.ok(read('sw.js').includes(`const CACHE_NAME = 'zangli-${ASSET_VERSION}';`
 assert.ok(read('sw.js').includes("key.startsWith('zangli-')"), 'Service worker should only delete its own caches');
 assert.ok(read('sw.js').includes('if (!response.ok'), 'Service worker should not cache error responses');
 assert.ok(read('sw.js').includes('.catch(() => {}).then(() => response)'), 'A failed cache write should not fail the request it came from');
+assert.ok(/const cached = await caches\.match\(event\.request\);\s*if \(cached\) return cached;[\s\S]*?return caches\.match\(fallback\);/.test(read('sw.js')), 'Offline navigation should serve the page’s own cache (e.g. a visited year page) before falling back to the language entry');
+assert.ok(read('js/app.js').includes('height <= below ? anchor.bottom + gap : height <= above ? anchor.top - gap - height') && read('js/app.js').includes("dialog.style.maxHeight = `${innerHeight - margin * 2}px`;"), 'The year/month picker should open upwards or clamp to the viewport on short windows');
+assert.ok(/@media print \{[\s\S]*?\.year-page \.year-legend \{ display: flex !important; \}/.test(read('css/style.css')), 'Printed year pages should keep the marker legend');
+assert.ok(read('js/year.js').includes("localStorage.setItem('zangli-language', link.dataset.language)") && /\[data-language\]'\)\.forEach\(link => link\.addEventListener\('click'/.test(read('js/year.js')), 'Year pages should remember a language only when one is picked');
 
 const app = read('js/app.js');
 assert.ok(app.includes("readStorage('zangli-date-basis'"), 'Main app should tolerate unavailable browser storage');
@@ -234,6 +238,8 @@ assert.ok(app.includes("event.key === 'PageUp' || event.key === 'PageDown'") && 
 assert.ok(app.includes('function isPickerMonthSupported(year, month)'), 'Months outside 1951-01 to 2051-02 should be disabled in the picker');
 assert.ok(style.includes('.period-picker.bottom-sheet {'), 'On phones the picker should open as a bottom sheet');
 assert.ok(app.includes('dayNotesHTML(zangli)') && app.includes("msg('flagAvoidNote')"), 'Hair-cutting and prayer-flag notes should be shown with the date');
+assert.ok(read('sitemap.xml').includes('<loc>https://zangli.org/tw/2027/</loc>') && read('sitemap.xml').includes('<loc>https://zangli.org/en/1951/</loc>') && !read('sitemap.xml').includes('/bo/'), 'The sitemap should list the public year pages');
+assert.ok(read('tw/index.html').includes('<a href="/tw/2026/">2026 藏曆對照表</a>') && !read('bo/index.html').includes('annualTableLink'), 'Home pages should link to the release year table, except the hidden Tibetan beta');
 assert.ok(!read('sitemap.xml').includes('/widget/') && read('widget/index.html').includes('noindex'), 'The retired widget page should not be advertised to search engines');
 assert.ok(read('sw.js').includes("path.includes('/date/') ? response : cacheResponse"), 'Date deep links should not each take a cache entry');
 assert.ok(read('js/langDetect.js').includes("localStorage.getItem('zangli-theme')"), 'A saved theme should apply before first paint');
@@ -250,6 +256,29 @@ assert.equal(vm.runInContext("getZangli('2027-02-20').extraInfo", en), 'Chotrul 
 		assert.equal(spawnSync(process.execPath, [path.join(root, 'scripts/build-site.js'), out]).status, 0, 'build-site should succeed');
 		const built = fs.readdirSync(out);
 		for (const entry of ['index.html', '404.html', 'en', 'sw.js', '_headers', '_redirects', 'sitemap.xml', 'zangli.js']) assert.ok(built.includes(entry), `build output should include ${entry}`);
+		// D022：年份对照表页只在构建时生成，简体、繁体、英文各 1951–2051 年。
+		for (const dir of ['', 'tw', 'en']) {
+			const years = fs.readdirSync(path.join(out, dir)).filter(name => /^\d{4}$/.test(name));
+			assert.equal(years.length, 101, `${dir || 'zh-cn'} should have 101 year pages`);
+		}
+		assert.ok(!fs.existsSync(path.join(out, 'bo', '2027')), 'The hidden Tibetan beta should not get year pages');
+		const yearPage = fs.readFileSync(path.join(out, 'tw', '2027', 'index.html'), 'utf8');
+		assert.ok(yearPage.includes('<a href="/2027/" hreflang="zh-CN" data-language="zh-cn">简体</a>') && yearPage.includes('<a href="/en/2027/" hreflang="en" data-language="en">English</a>'), 'Year-page language links should carry the language to remember');
+		assert.ok(yearPage.includes('<html lang="zh-TW">') && yearPage.includes('<link rel="canonical" href="https://zangli.org/tw/2027/">'), 'Year pages should be self-canonical in their own language');
+		for (const href of ['https://zangli.org/2027/', 'https://zangli.org/tw/2027/', 'https://zangli.org/en/2027/']) assert.ok(yearPage.includes(`href="${href}"`), `Year pages should link alternates (${href})`);
+		assert.ok(yearPage.includes('<title>2027 藏曆對照表｜'), 'The Traditional Chinese year page should target the 對照表 query');
+		assert.ok(/<li data-date="2027-02-07"[^>]*>.*?<strong>藏曆新年<\/strong><span>正月初一<\/span>/.test(yearPage), 'Losar 2027 should appear in the static holy-day list');
+		assert.ok(/<li data-date="2027-02-20"[^>]*>.*?<strong>神變節<\/strong><span>正月十五 缺十四<\/span>/.test(yearPage), 'Chotrul Düchen 2027 should appear in the list with its skipped-day note');
+		assert.ok(/<td data-date="2027-01-31"><a href="\/tw\/date\/2027-01-31" title="[^"]*十二月廿四 重日[^"]*"><span class="year-cell" aria-hidden="true"><span class="day-number">31<\/span><span class="lunar-date">廿四<b class="cell-tag">重<\/b>/.test(yearPage), 'Repeated days should be tagged in the grid');
+		assert.ok(/<li data-date="2027-01-27"[^>]*>.*?地藏王菩薩節日（缺日提前）/.test(yearPage), 'Observances moved for a skipped day should say so');
+		assert.ok(/<td data-date="2027-02-02"><a [^>]*title="[^"]*理髮吉日：[^"]+"/.test(yearPage) && /<td data-date="2027-02-27"[^>]*>.*?<i class="flag-marker"><\/i>/.test(yearPage), 'Hair-cutting and prayer-flag days should be marked in the grid');
+		assert.equal((yearPage.match(/<td data-date="2027-/g) || []).length, 365, 'Every day of 2027 should have a grid cell');
+		assert.equal((yearPage.match(/<table class="calendar-table year-grid"/g) || []).length, 12, 'Each month should have its own grid');
+		assert.deepEqual([...yearPage.matchAll(/<script[^>]*src="([^"?]+)/g)].map(match => match[1]), ['/js/langDetect.js', '/js/year.js'], 'Year pages should only load the language/theme helper and the print helper');
+		const firstYear = fs.readFileSync(path.join(out, '1951', 'index.html'), 'utf8');
+		assert.ok(!firstYear.includes('data-date="1951-01-07"') && firstYear.includes('data-date="1951-01-08"') && firstYear.includes('<td class="out-of-range"><span class="day-number">7</span></td>') && !firstYear.includes('rel="prev"'), 'The 1951 page should start at the supported range');
+		const lastYear = fs.readFileSync(path.join(out, 'en', '2051', 'index.html'), 'utf8');
+		assert.ok(lastYear.includes('data-date="2051-02-11"') && !lastYear.includes('data-date="2051-02-12"') && !lastYear.includes('rel="next"'), 'The 2051 page should end at the supported range');
 		for (const entry of ['docs', 'scripts', 'tests', 'AGENTS.md', 'package.json', 'nginx.conf', '.htaccess']) assert.ok(!built.includes(entry), `build output should not include ${entry}`);
 	} finally { fs.rmSync(out, { recursive: true, force: true }); }
 }

@@ -123,8 +123,16 @@ js/app.js
 | `widget/index.html` | 原文件模板加统一资源版本替换 |
 | `sw.js` | 原文件模板加统一资源版本与缓存名替换 |
 | `calendar/zangli-special-days.ics` | `scripts/generate-subscription.js` |
+| `sitemap.xml` | `scripts/generate-pages.js`（含全部年份页） |
 
 `npm run check:generated` 会在临时目录重新生成这 12 个文件（含 `sitemap.xml`）并逐字节比较。生成结果只取决于源码和 `ASSET_VERSION`，不读取系统时钟。生成物漂移时，运行 `npm run generate`，不要在检查脚本中绕过差异。
+
+年份对照表页（`/2027/`、`/tw/2027/`、`/en/2027/` 等 303 页）不在上表中：它们由 `scripts/generate-year-pages.js` 在 `npm run build` 时只生成到 `dist/`，不提交进仓库（D022）。本地预览这些页面：
+
+```bash
+npm run build
+python3 -m http.server 4173 --bind 127.0.0.1 --directory dist
+```
 
 ## 6. 路由与语言
 
@@ -162,7 +170,7 @@ js/app.js
 
 `npm run verify` 当前覆盖：
 
-- 15 个 JavaScript 文件语法有效。
+- 18 个 JavaScript 文件语法有效。
 - `tests/fixtures/zangli-golden.json` 中的独立来源黄金样本（Shechen 2025、Rikon/Sakya 2019、FPMT）。
 - 历书表结构、按另一种写法展开同一张表的全范围对照、相邻日期推进规则。
 - 节日口径：每个藏历年各年度节日恰好一次且月日正确；重日、缺日、闰月规则。
