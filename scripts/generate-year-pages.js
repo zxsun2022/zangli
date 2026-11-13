@@ -21,7 +21,7 @@ const locales = {
 		title: year => `${year} 藏历对照表｜公历藏历逐日对照、殊胜日与节日 - 百年藏历`,
 		heading: year => `${year} 藏历对照表`,
 		description: (year, losar, saka) => `${year} 年公历与藏历逐日对照表${losar ? `，藏历新年 ${losar}` : ''}${saka ? `，萨嘎达瓦 ${saka}` : ''}。含每月殊胜日、日月食、理发吉日与飞幡日，可打印或存为 PDF。`,
-		lead: (year, tibetanYears, losar) => `${year} 年对应藏历${tibetanYears.join('、')}${losar ? `，藏历新年是 ${losar}` : ''}。下面每月一张公历藏历对照月历，旁边列出当月的殊胜日与日月食；理发吉日、飞幡日、重日和缺日标在月历格子里。`,
+		lead: (year, tibetanYears, losar) => `${year} 年对应藏历${tibetanYears.join('、')}${losar ? `，藏历新年是 ${losar}` : ''}。`,
 		tibetanYear: label => `${label}年`,
 		highlights: '年度节日与日月食', days: '全年月历', source: '资料来源与口径', otherYears: '其他年份',
 		week: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'], monthDays: '当月殊胜日', prev: '上一年', next: '下一年', openCalendar: '在月历中查看',
@@ -48,7 +48,7 @@ const locales = {
 		title: year => `${year} 藏曆對照表｜公曆藏曆逐日對照、殊勝日與節日 - 百年藏曆`,
 		heading: year => `${year} 藏曆對照表`,
 		description: (year, losar, saka) => `${year} 年公曆與藏曆逐日對照表${losar ? `，藏曆新年 ${losar}` : ''}${saka ? `，薩嘎達瓦 ${saka}` : ''}。含每月殊勝日、日月食、理髮吉日與飛幡日，可列印或存成 PDF。`,
-		lead: (year, tibetanYears, losar) => `${year} 年對應藏曆${tibetanYears.join('、')}${losar ? `，藏曆新年是 ${losar}` : ''}。下面每月一張公曆藏曆對照月曆，旁邊列出當月的殊勝日與日月食；理髮吉日、飛幡日、重日和缺日標在月曆格子裡。`,
+		lead: (year, tibetanYears, losar) => `${year} 年對應藏曆${tibetanYears.join('、')}${losar ? `，藏曆新年是 ${losar}` : ''}。`,
 		tibetanYear: label => `${label}年`,
 		highlights: '年度節日與日月食', days: '全年月曆', source: '資料來源與口徑', otherYears: '其他年份',
 		week: ['週日', '週一', '週二', '週三', '週四', '週五', '週六'], monthDays: '當月殊勝日', prev: '上一年', next: '下一年', openCalendar: '在月曆中查看',
@@ -75,7 +75,7 @@ const locales = {
 		title: year => `Tibetan Calendar ${year}: Gregorian–Tibetan dates, Losar and holy days`,
 		heading: year => `Tibetan Calendar ${year}`,
 		description: (year, losar, saka) => `Day-by-day Gregorian–Tibetan calendar for ${year}${losar ? `: Losar on ${losar}` : ''}${saka ? `, Saka Dawa on ${saka}` : ''}. Monthly holy days, eclipses, hair-cutting days and prayer-flag days. Printable.`,
-		lead: (year, tibetanYears, losar) => `${year} spans the Tibetan ${tibetanYears.join(' and ')} years${losar ? `; Losar (Tibetan New Year) falls on ${losar}` : ''}. Each month below has a Gregorian–Tibetan calendar with its holy days and eclipses listed alongside; hair-cutting days, prayer-flag days, repeated days and skipped days are marked in the calendar cells.`,
+		lead: (year, tibetanYears, losar) => `${year} spans the Tibetan ${tibetanYears.join(' and ')} years${losar ? `; Losar (Tibetan New Year) falls on ${losar}` : ''}.`,
 		tibetanYear: label => label,
 		highlights: 'Major observances and eclipses', days: 'Month by month', source: 'Source and method', otherYears: 'Other years',
 		week: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], monthDays: 'Holy days this month', prev: 'Previous year', next: 'Next year', openCalendar: 'Open in calendar',
@@ -309,12 +309,12 @@ function render(locale, ctx, year) {
 		<header class="site-header"><a class="brand" href="${prefix}" aria-label="${s.name}"><span class="brand-mark" aria-hidden="true">ལོ</span><strong>${s.name}</strong></a><nav class="year-languages" aria-label="${s.languageLabel}">${languageLinks}</nav></header>
 		<main class="year-main">
 			<nav class="year-pager" aria-label="${s.otherYears}">${pager}</nav>
-			<h1>${escapeHTML(s.heading(year))}</h1>
+			<div class="year-intro"><div><h1>${escapeHTML(s.heading(year))}</h1>
 			<p class="year-lead">${escapeHTML(s.lead(year, data.tibetanYears, data.losar))}</p>
-			${partial}
-			<p class="year-actions"><button id="printButton" class="secondary-button" type="button" hidden>${s.print}</button></p>
-			<section class="year-section year-card" aria-labelledby="highlightsTitle"><h2 id="highlightsTitle">${s.highlights}</h2>${highlights}</section>
+			${partial}</div>
+			<p class="year-actions"><button id="printButton" class="secondary-button" type="button" hidden>${s.print}</button></p></div>
 			<section class="year-section" id="days" aria-labelledby="daysTitle"><h2 id="daysTitle">${s.days}</h2>${monthJump}${legend}${tables}</section>
+			<section class="year-section year-card" aria-labelledby="highlightsTitle"><h2 id="highlightsTitle">${s.highlights}</h2>${highlights}</section>
 			${faqSection}
 			<section class="year-section year-source" aria-labelledby="sourceTitle"><h2 id="sourceTitle">${s.source}</h2><p>${s.sourceText}</p></section>
 			<nav class="year-section year-index" aria-labelledby="otherYearsTitle"><h2 id="otherYearsTitle">${s.otherYears}</h2><p>${yearIndex}</p></nav>

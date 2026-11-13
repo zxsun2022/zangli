@@ -369,10 +369,10 @@ function renderCalendar(date) {
 		for (const type of types) cell.classList.add(`has-${type}`);
 		const shortTibetan = formatTibetanCalendarCell(zangli);
 		const eventLabel = eventTitle({ zangli, eclipse }, false);
-		const label = `${formatGregorian(current, { weekday:true })}. ${formatTibetanDate(zangli)}${eventLabel ? `. ${eventLabel}` : ''}`;
+		const label = `${formatGregorian(current, { weekday:true })}. ${formatTibetanDate(zangli)}${eventLabel ? `. ${eventLabel}` : ''}${zangli.haircut ? `. ${msg('haircut')}` : ''}`;
 		cell.setAttribute('aria-label', label);
 		cell.title = label;
-		cell.innerHTML = `<span class="day-number">${day}</span><span class="lunar-date">${escapeHTML(shortTibetan)}</span><span class="cell-meta"><span class="cell-event wide">${escapeHTML(cleanInfo(zangli.extraInfo) || eclipse.value || '')}</span><span class="cell-markers" aria-hidden="true">${types.map(type => `<i class="${type}-marker"></i>`).join('')}</span></span>`;
+		cell.innerHTML = `<span class="day-number">${day}</span><span class="lunar-date">${escapeHTML(shortTibetan)}</span><span class="cell-meta"><span class="cell-event wide">${escapeHTML(cleanInfo(zangli.extraInfo) || eclipse.value || '')}</span><span class="cell-markers" aria-hidden="true">${types.map(type => `<i class="${type}-marker"></i>`).join('')}${zangli.haircut ? '<i class="haircut-marker"></i>' : ''}</span></span>`;
 	}
 	while (row.cells.length < 7) row.insertCell().className = 'empty-cell';
 	const rovingCell = (rovingDate && calendarCell(rovingDate)) || tbody.querySelector('td[data-date]');
@@ -484,7 +484,17 @@ function renderApp(date = getRequestedDate()) {
 	renderCalendar(date);
 	renderNextEvent();
 	updateTodayButton();
+	updateFooterTableLink();
 	if (!$('annualPanel').hidden) renderAnnualList();
+}
+
+// 页脚的年份对照表链接跟随“今天”所在的年份；静态 HTML 里的发布年份只是没有 JavaScript 时的后备。
+function updateFooterTableLink() {
+	const link = $('footerTableLink');
+	if (!link) return;
+	const year = String(clampDate(getToday()).getFullYear());
+	link.href = `${basePath}${year}/`;
+	link.textContent = link.textContent.replace(/\d{4}/, year);
 }
 
 // 已在今天所在月份且没有选中其他日期时，“今天”按钮无事可做，只在视觉上弱化；它仍可点击，所以不标 aria-disabled。
