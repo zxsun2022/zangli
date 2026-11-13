@@ -248,6 +248,8 @@ assert.ok(app.includes('function updateFooterTableLink()') && app.includes('upda
 assert.ok(app.includes(`zangli.haircut ? '<i class="haircut-marker"></i>' : ''`) && read('index.html').includes('<i class="legend-dot haircut-marker"></i>理发吉日') && read('tw/index.html').includes('理髮吉日</span></p>'), 'The month calendar should mark hair-cutting days and explain the mark in its legend');
 assert.ok(['index.html', 'tw/index.html', 'en/index.html'].every(file => read(file).includes('<a href="mailto:hello@zangli.org" title="hello@zangli.org">')) && read('llms.txt').includes('hello@zangli.org'), 'Home pages and llms.txt should give the contact address');
 assert.ok(style.includes('.cell-markers i, .legend-dot, .cell-tag { -webkit-print-color-adjust: exact; print-color-adjust: exact; }'), 'Calendar dots should print even when background graphics are off');
+assert.ok(app.includes('scanEvents(from, to).filter(event => event.date.getFullYear() === year)'), 'The annual list should stay inside its year when 31 December does not exist locally');
+assert.ok(app.includes('const lastDay = new Date(Date.UTC(first.getFullYear(), first.getMonth() + 1, 0)).getUTCDate();'), 'Month lengths for PageUp/PageDown should not depend on skipped local days');
 assert.ok(/@page \{ margin: 16mm 14mm; \}/.test(style), 'Printed pages and PDFs should keep a comfortable margin');
 assert.ok(/\.footer-links \{[^}]*align-items: center/.test(style), 'Footer links should share one vertical centre line');
 assert.ok(!read('sitemap.xml').includes('/widget/') && read('widget/index.html').includes('noindex'), 'The retired widget page should not be advertised to search engines');
@@ -318,6 +320,20 @@ assert.equal(vm.runInContext("getZangli('2027-02-20').extraInfo", en), 'Chotrul 
 		assert.deepEqual(ld['@graph'].map(node => node['@type']), ['Dataset', 'FAQPage']);
 		assert.ok(yearPage.includes('<dd>2027年2月7日（星期日），藏曆正月初一。</dd>') && yearPage.includes('<link rel="alternate" type="application/json" href="/data/2027.json">'), 'Year pages should answer festival dates in plain text and point to their data');
 		assert.ok(fs.readFileSync(path.join(out, '1977', 'index.html'), 'utf8').includes('藏历十二月三十（原日为缺日，提前一天）'), 'A Losar moved for a skipped day should say so');
+		// R1：FAQ 里“从哪天起是新的藏历年”必须与逐日数据的年份切换日一致，而不是藏历新年节日的日期（1977 年两者相差一天）。
+		for (let year = 1951; year <= 2051; year++) {
+			const data = JSON.parse(fs.readFileSync(path.join(out, 'data', `${year}.json`), 'utf8'));
+			const switchDay = data.days.find(item => item.tibetan.year !== data.days[0].tibetan.year);
+			const page = fs.readFileSync(path.join(out, String(year), 'index.html'), 'utf8');
+			const faq = JSON.parse(page.match(/<script type="application\/ld\+json">(.*?)<\/script>/)[1])['@graph'].find(node => node['@type'] === 'FAQPage');
+			const answer = faq.mainEntity.find(item => item.name === `${year} 年是藏历什么年？`)?.acceptedAnswer.text || '';
+			if (!switchDay) { assert.ok(!answer || answer.includes('都属于藏历'), `${year} has one Tibetan year`); continue; }
+			const [, month, day] = switchDay.date.split('-').map(Number);
+			assert.ok(answer.startsWith(`${year}年${month}月${day}日`), `${year}: the FAQ should switch Tibetan years on ${switchDay.date}, got “${answer}”`);
+			assert.ok(page.includes(`<dd>${answer}</dd>`), `${year}: the visible FAQ should match the structured data`);
+		}
+		const page1977 = fs.readFileSync(path.join(out, '1977', 'index.html'), 'utf8');
+		assert.ok(page1977.includes('<dd>1977年2月19日之前是藏历火龙年，从1977年2月19日（正月初二）起是火蛇年。这一年正月初一是缺日，藏历新年按缺日规则提前一天，在1977年2月18日（十二月三十）。</dd>'), '1977 should separate the Tibetan year switch from the early Losar');
 	} finally { fs.rmSync(out, { recursive: true, force: true }); }
 }
 
