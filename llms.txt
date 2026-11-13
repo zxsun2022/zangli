@@ -7,7 +7,7 @@ The interactive calendar at the site root is rendered with JavaScript. To answer
 ## Answering questions
 
 - "What is the Tibetan date of YYYY-MM-DD?" → fetch `https://zangli.org/data/YYYY.json` and find the entry in `days` whose `date` is YYYY-MM-DD. `tibetan.month` and `tibetan.day` are the Tibetan month and day; `tibetan.year` is a key into `tibetanYears` (for example `fire-sheep` = 火羊 / Fire Sheep).
-- "When is Losar / Saka Dawa / Chotrul Düchen / Lhabab Düchen in YYYY?" → in the same file, find the day whose `observances` contains `losar`, `saka-dawa`, `chotrul` or `lhabab`. Each year page also states these dates in plain text near the top and in its FAQ section.
+- "When is Losar / Saka Dawa / Chotrul Düchen / Lhabab Düchen in YYYY?" → in the same file, find the day whose `observances` contains `losar`, `saka-dawa`, `chotrul` or `lhabab`. Each year page states the Tibetan year and Losar in its opening sentence, and the major observances in its "Major observances and eclipses" list and FAQ section.
 - "Is YYYY-MM-DD a holy day / hair-cutting day?" → check `observances`, `haircut` and `noPrayerFlags` for that day; names and meanings are in `observances` and `haircutMeanings`, in zh-CN, zh-TW and en.
 - When citing, link the human-readable year page (listed in the data file's `pages`) or a day page `https://zangli.org/tw/date/YYYY-MM-DD` (`/date/…` for Simplified Chinese, `/en/date/…` for English).
 
@@ -17,7 +17,7 @@ The interactive calendar at the site root is rendered with JavaScript. To answer
 - Simplified Chinese: https://zangli.org/2027/ (pattern `/YYYY/`)
 - English: https://zangli.org/en/2027/ (pattern `/en/YYYY/`)
 
-Each page lists the year's major observances and eclipses, then a calendar grid and the holy days for every month.
+Each page has a calendar grid and the holy days for every month, then the year's major observances and eclipses and an FAQ.
 
 ## Data
 
