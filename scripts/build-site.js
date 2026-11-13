@@ -3,13 +3,14 @@
 const fs = require('fs');
 const path = require('path');
 const { generateYearPages } = require('./generate-year-pages');
+const { generateYearData } = require('./generate-year-data');
 
 const root = path.resolve(__dirname, '..');
 const output = process.argv[2] ? path.resolve(process.argv[2]) : path.join(root, 'dist');
 const publicEntries = [
 	'index.html', '404.html', 'tw', 'en', 'bo', 'widget', 'zh-tw',
 	'css', 'js', 'calendar', 'zangli.js', 'eclipse.js', 'sw.js',
-	'manifest.json', 'robots.txt', 'sitemap.xml', '_headers', '_redirects',
+	'manifest.json', 'robots.txt', 'llms.txt', 'sitemap.xml', '_headers', '_redirects',
 	'favicon.ico', 'favicon-16x16.png', 'favicon-32x32.png', 'apple-touch-icon.png',
 	'logo-192x192-circle.png', 'logo-250x250-circle.png', 'logo-512x512-circle.png'
 ];
@@ -23,4 +24,6 @@ for (const entry of publicEntries) {
 }
 // 年份对照表页只生成到发布目录（D022）。
 const yearPages = generateYearPages(output);
-console.log(`Built ${publicEntries.length} site entries and ${yearPages} year pages into ${path.relative(root, output) || output}.`);
+// 年度数据 JSON 同样只生成到发布目录（D023）。
+const dataFiles = generateYearData(output);
+console.log(`Built ${publicEntries.length} site entries, ${yearPages} year pages and ${dataFiles} data files into ${path.relative(root, output) || output}.`);

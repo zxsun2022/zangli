@@ -134,6 +134,8 @@ npm run build
 python3 -m http.server 4173 --bind 127.0.0.1 --directory dist
 ```
 
+同样只在构建时生成的还有年度数据 `/data/1951.json`–`/data/2051.json` 与 `/data/index.json`（`scripts/generate-year-data.js`，D023）。它们和根目录的 `llms.txt` 是给 AI 代理与其他程序的入口：月历页面由 JavaScript 生成，代理抓到的是空壳，需要从年份页或数据文件读日期。数据字段一经公开要保持稳定，只增不删；字段说明写在每个文件的 `fields` 里，`llms.txt` 里的问答示例要随字段一起更新。
+
 ## 6. 路由与语言
 
 | 路径 | 状态 | 日期深链接 |
@@ -170,7 +172,7 @@ python3 -m http.server 4173 --bind 127.0.0.1 --directory dist
 
 `npm run verify` 当前覆盖：
 
-- 18 个 JavaScript 文件语法有效。
+- 19 个 JavaScript 文件语法有效。
 - `tests/fixtures/zangli-golden.json` 中的独立来源黄金样本（Shechen 2025、Rikon/Sakya 2019、FPMT）。
 - 历书表结构、按另一种写法展开同一张表的全范围对照、相邻日期推进规则。
 - 节日口径：每个藏历年各年度节日恰好一次且月日正确；重日、缺日、闰月规则。
