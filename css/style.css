@@ -943,6 +943,8 @@ footer p { margin: 0; }
 
 /* 打印与存为 PDF 的页边距；浏览器打印对话框选“默认”边距时生效。 */
 @page { margin: 16mm 14mm; }
+/* 打印对话框默认不勾选“背景图形”，圆点和标记靠背景色显示，要强制打印出来。 */
+@media print { .cell-markers i, .legend-dot, .cell-tag { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
 
 @media print {
 	.site-header, .next-card, .tools, footer, .period-controls, .calendar-legend { display: none !important; }
