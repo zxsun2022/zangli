@@ -9,8 +9,8 @@ const outputRoot = process.argv[2] ? path.resolve(process.argv[2]) : sourceRoot;
 const locales = {
 	'zh-cn': {
 		dir: '', lang: 'zh-CN', locale: 'zh_CN', name: '百年藏历',
-		title: '百年藏历｜公历藏历对照、殊胜日与提醒',
-		description: '1951–2051 公历藏历对照工具，支持本地日期口径、殊胜日清单、藏历反查、日历提醒与离线使用。',
+		title: '藏历查询｜今日藏历、公历藏历对照表与殊胜日 - 百年藏历',
+		description: '今天藏历几号？查今日藏历与每月殊胜日，公历藏历对照表涵盖 1951–2051 年，含藏历新年、萨嘎达瓦等节日、日月食与理发吉日，可离线使用、加入日历提醒。',
 		eyebrow: '公历 ↔ 藏历 · 1951–2051', tagline: '今日藏历',
 		basis: '日期口径', next: '下一殊胜日', today: '今天',
 		annual: '年度殊胜日', reverse: '藏历反查', about: '计算口径',
@@ -24,7 +24,7 @@ const locales = {
 	},
 	tw: {
 		dir: 'tw', lang: 'zh-TW', locale: 'zh_TW', name: '百年藏曆',
-		title: '百年藏曆｜公曆藏曆對照、殊勝日與提醒', description: '1951–2051 公曆藏曆對照工具，支援本地日期口徑、殊勝日清單、藏曆反查、日曆提醒與離線使用。',
+		title: '藏曆查詢｜今日藏曆、公曆藏曆對照表與殊勝日 - 百年藏曆', description: '今天藏曆幾號？查今日藏曆與每月殊勝日，公曆藏曆對照表涵蓋 1951–2051 年，含藏曆新年、薩嘎達瓦等節日、日月食與理髮吉日，可離線使用、加入日曆提醒。',
 		eyebrow: '公曆 ↔ 藏曆 · 1951–2051', tagline: '今日藏曆', basis: '日期口徑', next: '下一殊勝日', today: '今天', annual: '年度殊勝日', reverse: '藏曆反查', about: '計算口徑', festival: '節日', multiplier: '功德增廣日', eclipse: '日月食', export: '下載本年 .ics', subscribe: '訂閱 2026–2030（自動更新）', lunarMonth: '藏曆月份', lunarDay: '藏曆日', sourceTitle: '你正在查看的是什麼曆日？', installButton: '安裝到桌面', installLead: '像 App 一樣從桌面打開，離線也能查看。', settings: '設定', localBasis: '裝置本地日期', beijingBasis: '北京時間日期', localHelp: '適合確認你所在地的「今天」對應哪一個曆書日期。', beijingHelp: '與原始日月食歸檔及中國常用曆日保持同一天。', close: '完成', share: '分享', copy: '複製資訊', reminder: '添加提醒', prevMonth: '上一月', nextMonth: '下一月', prevYear: '上一年', nextYear: '下一年', week: ['週日','週一','週二','週三','週四','週五','週六'], changeBasis: '更改日期口徑', includeRoutine: '含每月例行', addToCalendar: '加入日曆', aboutItems: [['資料來源', '藏曆與公曆的對照來自《藏曆、公曆、農曆對照百年曆書（1951–2050）》。不同寺院、傳承或曆書的日期可能不同。'], ['「今天」是哪一天', '按裝置所在時區或北京時間確定「今天」對應的公曆日，再查同一份曆書；不會按所在地重新推算藏曆。'], ['節日規則', '按藏曆真實月日標註：年度節日不落在閏月，重日只在第一天標註，缺日的節日提前一天。'], ['日月食', '按北京時間日期歸檔；能否看到取決於所在地。']], noscript: '此日曆需要啟用 JavaScript 才能查詢。', boBeta: ''
 	},
 	en: {
