@@ -338,18 +338,21 @@ function populatePeriodSelects(date) {
 function renderCalendar(date) {
 	const tbody = document.querySelector('.calendar-table tbody');
 	tbody.replaceChildren();
-	const firstDay = createLocalDate(date.getFullYear(), date.getMonth() + 1, 1);
-	const lastDay = createLocalDate(date.getFullYear(), date.getMonth() + 2, 0) || new Date(date.getFullYear(), date.getMonth() + 1, 0, 12);
+	// 星期与天数按公历计算，不经过本地时区：有些时区跳过了整天（如 Pacific/Apia 2011-12-30），本地没有这一天。
+	const year = date.getFullYear(), monthIndex = date.getMonth();
+	const weekdayOf = day => new Date(Date.UTC(year, monthIndex, day)).getUTCDay();
+	const daysInMonth = new Date(Date.UTC(year, monthIndex + 1, 0)).getUTCDate();
 	const today = getToday();
 	const inMonth = candidate => candidate && candidate.getFullYear() === date.getFullYear() && candidate.getMonth() === date.getMonth() && isSupportedDate(candidate);
 	const rovingDate = [state.focusDate, state.selectedDate, today].find(inMonth);
 	let row = tbody.insertRow();
-	for (let index = 0; index < firstDay.getDay(); index++) row.insertCell().className = 'empty-cell';
-	for (let day = 1; day <= lastDay.getDate(); day++) {
-		const current = createLocalDate(date.getFullYear(), date.getMonth() + 1, day);
-		if (current.getDay() === 0 && day !== 1) row = tbody.insertRow();
+	for (let index = 0; index < weekdayOf(1); index++) row.insertCell().className = 'empty-cell';
+	for (let day = 1; day <= daysInMonth; day++) {
+		const current = createLocalDate(year, monthIndex + 1, day);
+		if (weekdayOf(day) === 0 && day !== 1) row = tbody.insertRow();
 		const cell = row.insertCell();
-		if (!isSupportedDate(current)) {
+		// 本地时区不存在的日子（current 为 null）与支持范围外的日子一样，显示为不可选。
+		if (!current || !isSupportedDate(current)) {
 			cell.className = 'out-of-range'; cell.innerHTML = `<span class="day-number">${day}</span>`; continue;
 		}
 		const zangli = getZangli(current);
@@ -412,6 +415,11 @@ function annualTitle(event) {
 	return titles.join(' · ');
 }
 
+function annualDetail(event) {
+	const merits = event.zangli.events.filter(item => annualObservanceIds.has(item.id)).map(item => cleanInfo(item.merit)).filter(Boolean);
+	return [...merits, event.eclipse.value].filter(Boolean).join(' · ');
+}
+
 function annualVisibleEvents() {
 	return $('annualRoutine').checked ? state.annualEvents : state.annualEvents.filter(isAnnualEvent);
 }
@@ -420,8 +428,10 @@ function renderAnnualList(revealUpcoming = false) {
 	const year = state.annualYear;
 	if (state.annualRenderedYear !== year) {
 		state.annualRenderedYear = year;
-		const from = createLocalDate(year, 1, 1) < startDate ? startDate : createLocalDate(year, 1, 1);
-		const to = createLocalDate(year, 12, 31) > endDate ? endDate : createLocalDate(year, 12, 31);
+		// 用可顺延的构造：个别时区没有 1 月 1 日或 12 月 31 日（如 Pacific/Kiritimati 1994-12-31）。
+		const first = new Date(year, 0, 1, 12), last = new Date(year, 11, 31, 12);
+		const from = first < startDate ? startDate : first;
+		const to = last > endDate ? endDate : last;
 		state.annualEvents = scanEvents(from, to);
 	}
 	$('annualYear').textContent = msg('yearTitle', { year: String(year) });
@@ -574,11 +584,17 @@ function closeDetail(updateHistory = true) {
 	document.title = state.baseTitle;
 	if (updateHistory && location.pathname !== basePath) history.replaceState({}, '', `${basePath}#${state.activeDate.getFullYear()}/${state.activeDate.getMonth() + 1}/${state.activeDate.getDate()}`);
 	const previous = state.previousFocus;
+	// 浏览器后退等路径会在关闭后重绘月历，原来的格子节点已断开；记下日期，重绘后按日期找回新格子。
+	const focusDates = [previous && previous.dataset ? previous.dataset.date : '', formatDate(state.activeDate)];
 	state.activeDate = null;
 	state.detailCloseTimer = setTimeout(() => {
 		state.detailCloseTimer = null;
 		if (dialog.open) dialog.close();
-		if (previous && previous.isConnected) previous.focus();
+		const target = previous && previous.isConnected ? previous
+			: focusDates.map(value => value && document.querySelector(`.calendar-table td[data-date="${value}"]`)).find(Boolean) || document.querySelector('.calendar-table td[tabindex="0"]');
+		if (!target) return;
+		if (target.matches('.calendar-table td')) setRovingCell(target);
+		target.focus();
 	}, 160);
 }
 
@@ -806,8 +822,10 @@ function createIcs(events, calendarName) {
 	const lines = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//zangli.org//Tibetan Calendar//EN','CALSCALE:GREGORIAN',`X-WR-CALNAME:${escapeIcs(calendarName)}`];
 	for (const event of events) {
 		const next = addDays(event.date, 1);
-		const detail = [cleanInfo(event.zangli.extraInfo2), event.eclipse.value].filter(Boolean).join(' · ');
-		lines.push('BEGIN:VEVENT',`UID:${formatDate(event.date)}-${event.types.join('-')}@zangli.org`,`DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')}`,`DTSTART;VALUE=DATE:${formatDate(event.date).replaceAll('-', '')}`,`DTEND;VALUE=DATE:${formatDate(next).replaceAll('-', '')}`,`SUMMARY:${escapeIcs(eventTitle(event))}`,`DESCRIPTION:${escapeIcs(msg('icsDescription', { tibetan: formatTibetanDate(event.zangli), detail }))}`,`URL:https://zangli.org${basePath}date/${formatDate(event.date)}`,'BEGIN:VALARM','TRIGGER:-P1D','ACTION:DISPLAY',`DESCRIPTION:${escapeIcs(eventTitle(event))}`,'END:VALARM','END:VEVENT');
+		// 年度导出只含年度节日时，标题与说明沿用列表的投影（D017），UID 仍按全部类型生成，重复导入时覆盖而不重复。
+		const title = event.title || eventTitle(event);
+		const detail = event.detail ?? [cleanInfo(event.zangli.extraInfo2), event.eclipse.value].filter(Boolean).join(' · ');
+		lines.push('BEGIN:VEVENT',`UID:${formatDate(event.date)}-${event.types.join('-')}@zangli.org`,`DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')}`,`DTSTART;VALUE=DATE:${formatDate(event.date).replaceAll('-', '')}`,`DTEND;VALUE=DATE:${formatDate(next).replaceAll('-', '')}`,`SUMMARY:${escapeIcs(title)}`,`DESCRIPTION:${escapeIcs(msg('icsDescription', { tibetan: formatTibetanDate(event.zangli), detail }))}`,`URL:https://zangli.org${basePath}date/${formatDate(event.date)}`,'BEGIN:VALARM','TRIGGER:-P1D','ACTION:DISPLAY',`DESCRIPTION:${escapeIcs(title)}`,'END:VALARM','END:VEVENT');
 	}
 	lines.push('END:VCALENDAR');
 	return `${lines.map(foldIcsLine).join('\r\n')}\r\n`;
@@ -829,7 +847,8 @@ function addReminder() {
 function exportAnnual() {
 	const year = state.annualYear;
 	const routine = $('annualRoutine').checked;
-	downloadFile(`zangli-${year}${routine ? '-all' : ''}.ics`, createIcs(annualVisibleEvents(), `${msg('copiedTitle')} ${year}`), 'text/calendar;charset=utf-8');
+	const events = routine ? annualVisibleEvents() : annualVisibleEvents().map(event => ({ ...event, title: annualTitle(event), detail: annualDetail(event) }));
+	downloadFile(`zangli-${year}${routine ? '-all' : ''}.ics`, createIcs(events, `${msg('copiedTitle')} ${year}`), 'text/calendar;charset=utf-8');
 	showToast(msg('calendarExported'));
 	$('exportYearButton').closest('details').open = false;
 }
@@ -924,7 +943,9 @@ function handleDocumentClick(event) {
 function shiftMonths(date, months) {
 	const first = new Date(date.getFullYear(), date.getMonth() + months, 1, 12);
 	const lastDay = new Date(first.getFullYear(), first.getMonth() + 1, 0, 12).getDate();
-	return createLocalDate(first.getFullYear(), first.getMonth() + 1, Math.min(date.getDate(), lastDay));
+	const day = Math.min(date.getDate(), lastDay);
+	// 目标日在本地时区不存在时，由 Date 顺延到相邻的一天。
+	return createLocalDate(first.getFullYear(), first.getMonth() + 1, day) || new Date(first.getFullYear(), first.getMonth(), day, 12);
 }
 
 function calendarKeyTarget(date, event) {
