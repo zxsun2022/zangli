@@ -239,6 +239,7 @@ assert.ok(app.includes('function isPickerMonthSupported(year, month)'), 'Months 
 assert.ok(style.includes('.period-picker.bottom-sheet {'), 'On phones the picker should open as a bottom sheet');
 assert.ok(app.includes('dayNotesHTML(zangli)') && app.includes("msg('flagAvoidNote')"), 'Hair-cutting and prayer-flag notes should be shown with the date');
 assert.ok(read('sitemap.xml').includes('<loc>https://zangli.org/tw/2027/</loc>') && read('sitemap.xml').includes('<loc>https://zangli.org/en/1951/</loc>') && !read('sitemap.xml').includes('/bo/'), 'The sitemap should list the public year pages');
+assert.ok(read('tw/index.html').includes('<title>藏曆查詢｜今日藏曆、公曆藏曆對照表與殊勝日 - 百年藏曆</title>') && read('tw/index.html').includes('content="今天藏曆幾號？') && read('index.html').includes('<title>藏历查询｜今日藏历、公历藏历对照表与殊胜日 - 百年藏历</title>'), 'Chinese home titles should lead with 藏曆 and cover 今日藏曆 / 對照表 queries');
 assert.ok(read('tw/index.html').includes('<a href="/tw/2026/">2026 藏曆對照表</a>') && !read('bo/index.html').includes('annualTableLink'), 'Home pages should link to the release year table, except the hidden Tibetan beta');
 assert.ok(!read('sitemap.xml').includes('/widget/') && read('widget/index.html').includes('noindex'), 'The retired widget page should not be advertised to search engines');
 assert.ok(read('sw.js').includes("path.includes('/date/') ? response : cacheResponse"), 'Date deep links should not each take a cache entry');
