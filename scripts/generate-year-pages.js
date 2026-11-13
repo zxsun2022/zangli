@@ -15,6 +15,7 @@ const LAST_YEAR = 2051;
 const FAQ_IDS = ['losar', 'chotrul', 'saka-dawa', 'chokhor', 'lhabab', 'ganden-ngamcho'];
 const ANNUAL_IDS = new Set(['losar', 'chotrul', 'buddha-birth', 'saka-dawa', 'chokhor', 'buddha-conception', 'lhabab', 'ganden-ngamcho']);
 
+const CONTACT_EMAIL = 'hello@zangli.org';
 const locales = {
 	'zh-cn': {
 		dir: '', lang: 'zh-CN', intl: 'zh-CN', ogLocale: 'zh_CN', name: '百年藏历', languageLabel: '语言',
@@ -41,6 +42,7 @@ const locales = {
 		datasetName: year => `${year} 年公历藏历逐日对照数据`,
 		datasetDescription: year => `${year} 年每一天的公历与藏历对照（藏历年、月、日，闰月、重日与缺日），以及殊胜日、年度节日、日月食、理发吉日与飞幡日，JSON 格式。依据《藏历、公历、农历对照百年历书（1951–2050）》。`,
 		partial: { 1951: '对照从 1951 年 1 月 8 日开始。', 2051: '对照到 2051 年 2 月 11 日为止。' },
+		contactText: `发现日期与你手上的历书不同，或有其他建议，欢迎来信：<a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>。`,
 		sourceText: '藏历对照来自《藏历、公历、农历对照百年历书（1951–2050）》。不同寺院、传承或历书的日期可能不同。节日按藏历真实月日标注：年度节日不落在闰月，重日只在第一天标注，缺日的节日提前一天。理发吉日与飞幡日按藏历日期推算，缺日不提前。日月食按北京时间日期归档。'
 	},
 	tw: {
@@ -68,6 +70,7 @@ const locales = {
 		datasetName: year => `${year} 年公曆藏曆逐日對照資料`,
 		datasetDescription: year => `${year} 年每一天的公曆與藏曆對照（藏曆年、月、日，閏月、重日與缺日），以及殊勝日、年度節日、日月食、理髮吉日與飛幡日，JSON 格式。依據《藏曆、公曆、農曆對照百年曆書（1951–2050）》。`,
 		partial: { 1951: '對照從 1951 年 1 月 8 日開始。', 2051: '對照到 2051 年 2 月 11 日為止。' },
+		contactText: `發現日期與你手上的曆書不同，或有其他建議，歡迎來信：<a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>。`,
 		sourceText: '藏曆對照來自《藏曆、公曆、農曆對照百年曆書（1951–2050）》。不同寺院、傳承或曆書的日期可能不同。節日按藏曆真實月日標註：年度節日不落在閏月，重日只在第一天標註，缺日的節日提前一天。理髮吉日與飛幡日按藏曆日期推算，缺日不提前。日月食按北京時間日期歸檔。'
 	},
 	en: {
@@ -95,6 +98,7 @@ const locales = {
 		datasetName: year => `Gregorian–Tibetan calendar data for ${year}`,
 		datasetDescription: year => `Every day of ${year} with its Tibetan year, month and day (including leap months, repeated and skipped days), holy days, annual festivals, eclipses, hair-cutting days and no-prayer-flag days, as JSON. Based on the published Tibetan, Gregorian and Chinese Lunar Calendar Comparison (1951–2050).`,
 		partial: { 1951: 'The crosswalk starts on 8 January 1951.', 2051: 'The crosswalk ends on 11 February 2051.' },
+		contactText: `If a date differs from your own calendar, or you have other feedback, write to <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>.`,
 		sourceText: 'Dates follow the published Tibetan, Gregorian and Chinese Lunar Calendar Comparison (1951–2050). Dates can differ across monasteries, traditions and published calendars. Observances follow the actual Tibetan month and day: annual observances never fall in a leap month, a repeated day carries its observance on the first occurrence, and an observance on a skipped day moves one day earlier. Hair-cutting and prayer-flag days follow the Tibetan date and are not moved for skipped days. Eclipses are filed by Beijing date.'
 	}
 };
@@ -316,10 +320,10 @@ function render(locale, ctx, year) {
 			<section class="year-section" id="days" aria-labelledby="daysTitle"><h2 id="daysTitle">${s.days}</h2>${monthJump}${legend}${tables}</section>
 			<section class="year-section year-card" aria-labelledby="highlightsTitle"><h2 id="highlightsTitle">${s.highlights}</h2>${highlights}</section>
 			${faqSection}
-			<section class="year-section year-source" aria-labelledby="sourceTitle"><h2 id="sourceTitle">${s.source}</h2><p>${s.sourceText}</p></section>
+			<section class="year-section year-source" aria-labelledby="sourceTitle"><h2 id="sourceTitle">${s.source}</h2><p>${s.sourceText}</p><p>${s.contactText}</p></section>
 			<nav class="year-section year-index" aria-labelledby="otherYearsTitle"><h2 id="otherYearsTitle">${s.otherYears}</h2><p>${yearIndex}</p></nav>
 		</main>
-		<footer><p>© ${RELEASE_YEAR} ${s.name} · 1951–2051</p></footer>
+		<footer><p>© ${RELEASE_YEAR} ${s.name} · 1951–2051</p><p class="footer-links"><a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a></p></footer>
 	</div>
 </body></html>
 `;

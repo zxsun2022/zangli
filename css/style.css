@@ -941,6 +941,9 @@ footer p { margin: 0; }
 	*, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
 
+/* 打印与存为 PDF 的页边距；浏览器打印对话框选“默认”边距时生效。 */
+@page { margin: 16mm 14mm; }
+
 @media print {
 	.site-header, .next-card, .tools, footer, .period-controls, .calendar-legend { display: none !important; }
 	body, .site-shell, .calendar-workspace { background: white; color: black; width: 100%; box-shadow: none; border: 0; }
@@ -951,7 +954,7 @@ footer p { margin: 0; }
 }
 
 @media print {
-	.year-page .site-header, .year-page .year-pager, .year-page .year-actions, .year-page .year-month-jump, .year-page .year-index, .year-page footer, .year-month-open { display: none !important; }
+	.skip-link, .year-page .site-header, .year-page .year-pager, .year-page .year-actions, .year-page .year-month-jump, .year-page .year-index, .year-page footer, .year-month-open { display: none !important; }
 	.year-page .site-shell { width: 100%; }
 	.year-page .year-legend { display: flex !important; }
 	.year-month, .year-card { break-inside: avoid; box-shadow: none; }

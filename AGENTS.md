@@ -15,7 +15,7 @@
 - 导航与发布（D020、D021）：月历标题是按钮，点开年月面板（年份网格一页 12 年加 12 个月，桌面端下拉、手机端底部弹出）；翻月不写入浏览器历史；`npm run build` 把站点文件复制到 `dist/`。
 - 年份对照表页（D022）：`/2027/`、`/tw/2027/`、`/en/2027/` 等 303 页由 `scripts/generate-year-pages.js` 在 `npm run build` 时生成到 `dist/`，不提交进仓库；`sitemap.xml` 列出全部年份页。
 - AI 入口（D023）：根目录 `llms.txt`；`npm run build` 另生成 `/data/YYYY.json`（逐日藏历数据）与 `/data/index.json`；年份页带“常见问题”和 JSON-LD（FAQPage、Dataset）。
-- 资源版本：`20261113-3`（`scripts/release-config.js`）。
+- 资源版本：`20261114-1`（`scripts/release-config.js`）。
 - 日月食数据：全部 495 条与 NASA 目录逐条配对（`tests/fixtures/eclipse-nasa.json`），TD 相差不超过 1 秒。
 - 已验证视口：1440×900 与 390×844，日期摘要和完整月历均能进入首屏。
 - 当前技术：无框架原生 JavaScript、HTML、CSS、Service Worker；Node.js 只用于生成和测试。

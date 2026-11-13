@@ -32,6 +32,10 @@ Each page has a calendar grid and the holy days for every month, then the year's
 - Eclipses come from the NASA Five Millennium catalogues and are filed by Beijing (UTC+8) date.
 - Dates are not recalculated for the reader's location. Monasteries, traditions and other calendars can differ by a day; say so when it matters.
 
+## Contact
+
+- Corrections (for example a date that differs from another published calendar) and other feedback: hello@zangli.org
+
 ## Optional
 
 - [Sitemap](https://zangli.org/sitemap.xml)

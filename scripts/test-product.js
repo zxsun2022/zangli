@@ -246,6 +246,8 @@ assert.ok(read('tw/index.html').includes('<title>藏曆查詢｜今日藏曆、�
 assert.ok(read('tw/index.html').includes('<a id="footerTableLink" href="/tw/2026/">2026 藏曆對照表</a>') && !read('bo/index.html').includes('annualTableLink'), 'Home pages should link to the release year table, except the hidden Tibetan beta');
 assert.ok(app.includes('function updateFooterTableLink()') && app.includes('updateFooterTableLink();'), 'The footer year-table link should follow today’s year, not only the release year');
 assert.ok(app.includes(`zangli.haircut ? '<i class="haircut-marker"></i>' : ''`) && read('index.html').includes('<i class="legend-dot haircut-marker"></i>理发吉日') && read('tw/index.html').includes('理髮吉日</span></p>'), 'The month calendar should mark hair-cutting days and explain the mark in its legend');
+assert.ok(['index.html', 'tw/index.html', 'en/index.html'].every(file => read(file).includes('<a href="mailto:hello@zangli.org" title="hello@zangli.org">')) && read('llms.txt').includes('hello@zangli.org'), 'Home pages and llms.txt should give the contact address');
+assert.ok(/@page \{ margin: 16mm 14mm; \}/.test(style), 'Printed pages and PDFs should keep a comfortable margin');
 assert.ok(/\.footer-links \{[^}]*align-items: center/.test(style), 'Footer links should share one vertical centre line');
 assert.ok(!read('sitemap.xml').includes('/widget/') && read('widget/index.html').includes('noindex'), 'The retired widget page should not be advertised to search engines');
 assert.ok(read('sw.js').includes("path.includes('/date/') ? response : cacheResponse"), 'Date deep links should not each take a cache entry');
@@ -274,6 +276,7 @@ assert.equal(vm.runInContext("getZangli('2027-02-20').extraInfo", en), 'Chotrul 
 		assert.ok(yearPage.includes('<html lang="zh-TW">') && yearPage.includes('<link rel="canonical" href="https://zangli.org/tw/2027/">'), 'Year pages should be self-canonical in their own language');
 		for (const href of ['https://zangli.org/2027/', 'https://zangli.org/tw/2027/', 'https://zangli.org/en/2027/']) assert.ok(yearPage.includes(`href="${href}"`), `Year pages should link alternates (${href})`);
 		assert.ok(yearPage.indexOf('id="daysTitle"') < yearPage.indexOf('id="highlightsTitle"') && yearPage.includes('<p class="year-lead">2027 年對應藏曆火馬年、火羊年，藏曆新年是 2月7日。</p>'), 'Year pages should open with one short sentence and put the month grids before the annual list');
+		assert.ok(yearPage.includes('歡迎來信：<a href="mailto:hello@zangli.org">hello@zangli.org</a>'), 'Year pages should invite corrections by email');
 		assert.ok(yearPage.includes('<title>2027 藏曆對照表｜'), 'The Traditional Chinese year page should target the 對照表 query');
 		assert.ok(/<li data-date="2027-02-07"[^>]*>.*?<strong>藏曆新年<\/strong><span>正月初一<\/span>/.test(yearPage), 'Losar 2027 should appear in the static holy-day list');
 		assert.ok(/<li data-date="2027-02-20"[^>]*>.*?<strong>神變節<\/strong><span>正月十五 缺十四<\/span>/.test(yearPage), 'Chotrul Düchen 2027 should appear in the list with its skipped-day note');
