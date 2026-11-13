@@ -80,7 +80,8 @@ const state = {
 	annualRenderedYear: null,
 	deferredInstallPrompt: null,
 	nextLabel: '',
-	baseTitle: document.title
+	baseTitle: document.title,
+	picker: { year: null, page: null, closeTimer: null }
 };
 
 function escapeHTML(value) {
@@ -581,12 +582,169 @@ function closeDetail(updateHistory = true) {
 
 // A click on the dialog element itself lands either on ::backdrop or on the card's own
 // padding ring; only the former should dismiss it.
-function handleDetailBackdropClick(event) {
-	const dialog = $('detailDialog');
-	if (event.target !== dialog) return;
+function isBackdropClick(dialog, event) {
+	if (event.target !== dialog) return false;
 	const box = dialog.getBoundingClientRect();
-	const inside = event.clientX >= box.left && event.clientX <= box.right && event.clientY >= box.top && event.clientY <= box.bottom;
-	if (!inside) closeDetail();
+	return !(event.clientX >= box.left && event.clientX <= box.right && event.clientY >= box.top && event.clientY <= box.bottom);
+}
+
+function handleDetailBackdropClick(event) {
+	if (isBackdropClick($('detailDialog'), event)) closeDetail();
+}
+
+/* 年月面板：一页 12 个年份（按 1950 起每 12 年分页，2026 年在 2022–2033 页）加 12 个月。
+ * 选年份只改面板里的年份，选月份才跳转并关闭。桌面端贴在标题下方，手机端从底部弹出。
+ * 两个网格各只占一个 Tab 停靠点，方向键在格子之间移动，PageUp / PageDown 翻 12 年。
+ */
+const PICKER_FIRST_PAGE = 1950;
+const PICKER_PAGE_SIZE = 12;
+const PICKER_COLUMNS = 4;
+const pickerFirstYear = () => startDate.getFullYear();
+const pickerLastYear = () => endDate.getFullYear();
+
+function pickerPageStart(year) {
+	return PICKER_FIRST_PAGE + Math.floor((year - PICKER_FIRST_PAGE) / PICKER_PAGE_SIZE) * PICKER_PAGE_SIZE;
+}
+
+function pickerMonthLabel(month) {
+	if (locale === 'en') return new Intl.DateTimeFormat('en-CA', { month:'short' }).format(new Date(2000, month - 1, 1, 12));
+	if (locale === 'bo') return `ཟླ་ ${toTibetanDigits(month)}`;
+	return trans(`${month} 月`);
+}
+
+function isPickerMonthSupported(year, month) {
+	const last = new Date(year, month, 0, 12);
+	const first = new Date(year, month - 1, 1, 12);
+	return last >= startDate && first <= endDate;
+}
+
+function pickerCell({ label, value, pressed, today, disabled, focusable }) {
+	return `<button class="picker-cell${today ? ' is-today' : ''}" type="button" data-value="${value}" aria-pressed="${pressed}" tabindex="${focusable ? 0 : -1}"${disabled ? ' disabled' : ''}>${escapeHTML(label)}</button>`;
+}
+
+function renderPeriodPicker() {
+	const { year, page } = state.picker;
+	const shownYear = Number($('year').value), shownMonth = Number($('month').value);
+	const today = getToday();
+	const years = Array.from({ length: PICKER_PAGE_SIZE }, (_, index) => page + index);
+	const enabledYears = years.filter(value => value >= pickerFirstYear() && value <= pickerLastYear());
+	const yearStop = years.includes(year) ? year : enabledYears[0];
+	$('pickerRange').textContent = `${enabledYears[0]} – ${enabledYears[enabledYears.length - 1]}`;
+	$('pickerPrev').disabled = page <= pickerFirstYear();
+	$('pickerNext').disabled = page + PICKER_PAGE_SIZE > pickerLastYear();
+	$('pickerYears').innerHTML = years.map(value => pickerCell({
+		label: String(value), value, pressed: value === year, today: value === today.getFullYear(),
+		disabled: value < pickerFirstYear() || value > pickerLastYear(), focusable: value === yearStop
+	})).join('');
+	const monthStop = year === shownYear ? shownMonth : (year === today.getFullYear() ? today.getMonth() + 1 : 1);
+	$('pickerMonths').innerHTML = Array.from({ length: 12 }, (_, index) => index + 1).map(month => pickerCell({
+		label: pickerMonthLabel(month), value: month, pressed: year === shownYear && month === shownMonth,
+		today: year === today.getFullYear() && month === today.getMonth() + 1,
+		disabled: !isPickerMonthSupported(year, month), focusable: month === monthStop && isPickerMonthSupported(year, month)
+	})).join('');
+	if (!$('pickerMonths').querySelector('[tabindex="0"]')) $('pickerMonths').querySelector('.picker-cell:not(:disabled)')?.setAttribute('tabindex', '0');
+}
+
+function positionPeriodPicker() {
+	const dialog = $('periodPicker');
+	const sheet = innerWidth <= 720;
+	dialog.classList.toggle('bottom-sheet', sheet);
+	if (sheet) { dialog.style.top = ''; dialog.style.left = ''; return; }
+	const anchor = $('periodButton').getBoundingClientRect();
+	dialog.style.top = `${Math.round(anchor.bottom + 6)}px`;
+	dialog.style.left = `${Math.round(Math.max(12, Math.min(anchor.left, innerWidth - dialog.offsetWidth - 12)))}px`;
+}
+
+function openPeriodPicker() {
+	const dialog = $('periodPicker');
+	if (state.picker.closeTimer) { clearTimeout(state.picker.closeTimer); state.picker.closeTimer = null; }
+	const year = Number($('year').value);
+	state.picker.year = year;
+	state.picker.page = pickerPageStart(year);
+	renderPeriodPicker();
+	if (!dialog.open) dialog.showModal();
+	positionPeriodPicker();
+	$('periodButton').setAttribute('aria-expanded', 'true');
+	requestAnimationFrame(() => dialog.classList.add('active'));
+	$('pickerYears').querySelector('[tabindex="0"]')?.focus();
+}
+
+function closePeriodPicker() {
+	const dialog = $('periodPicker');
+	if (!dialog.open || state.picker.closeTimer) return;
+	dialog.classList.remove('active');
+	$('periodButton').setAttribute('aria-expanded', 'false');
+	state.picker.closeTimer = setTimeout(() => {
+		state.picker.closeTimer = null;
+		if (dialog.open) dialog.close();
+		$('periodButton').focus();
+	}, 140);
+}
+
+function turnPickerPage(delta, focusGrid = false) {
+	const page = state.picker.page + delta * PICKER_PAGE_SIZE;
+	if (page + PICKER_PAGE_SIZE <= pickerFirstYear() || page > pickerLastYear()) return;
+	state.picker.page = page;
+	renderPeriodPicker();
+	if (focusGrid) $('pickerYears').querySelector('[tabindex="0"]')?.focus();
+}
+
+function handlePeriodPickerClick(event) {
+	if (isBackdropClick($('periodPicker'), event)) { closePeriodPicker(); return; }
+	const cell = event.target.closest('.picker-cell');
+	if (!cell || cell.disabled) return;
+	const value = Number(cell.dataset.value);
+	if (cell.parentElement.id === 'pickerYears') {
+		state.picker.year = value;
+		renderPeriodPicker();
+		$('pickerYears').querySelector(`[data-value="${value}"]`)?.focus();
+		return;
+	}
+	const year = state.picker.year;
+	closePeriodPicker();
+	if (year !== Number($('year').value) || value !== Number($('month').value)) navigateTo(year, value);
+}
+
+// 方向键在同一网格内移动；年份网格左右越界时翻页。
+function handlePeriodPickerKeydown(event) {
+	const cell = event.target.closest?.('.picker-cell');
+	if (!cell) return;
+	const grid = cell.parentElement;
+	if (grid.id === 'pickerYears' && (event.key === 'PageUp' || event.key === 'PageDown')) {
+		event.preventDefault(); turnPickerPage(event.key === 'PageUp' ? -1 : 1, true); return;
+	}
+	const steps = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -PICKER_COLUMNS, ArrowDown: PICKER_COLUMNS };
+	const cells = [...grid.querySelectorAll('.picker-cell')];
+	const index = cells.indexOf(cell);
+	let target = null;
+	if (event.key in steps) {
+		const next = index + steps[event.key];
+		if (grid.id === 'pickerYears' && (next < 0 || next >= cells.length)) {
+			const year = Number(cell.dataset.value) + steps[event.key];
+			if (year < pickerFirstYear() || year > pickerLastYear()) { event.preventDefault(); return; }
+			event.preventDefault();
+			turnPickerPage(next < 0 ? -1 : 1);
+			target = $('pickerYears').querySelector(`[data-value="${year}"]`);
+		} else target = cells[next];
+	} else if (event.key === 'Home') target = cells.find(item => !item.disabled);
+	else if (event.key === 'End') target = [...cells].reverse().find(item => !item.disabled);
+	if (event.key in steps || event.key === 'Home' || event.key === 'End') event.preventDefault();
+	if (!target || target.disabled) return;
+	grid.querySelectorAll('.picker-cell').forEach(item => { item.tabIndex = -1; });
+	target.tabIndex = 0;
+	target.focus();
+}
+
+function initPeriodPicker() {
+	$('periodButton').addEventListener('click', openPeriodPicker);
+	$('pickerPrev').addEventListener('click', () => turnPickerPage(-1));
+	$('pickerNext').addEventListener('click', () => turnPickerPage(1));
+	$('periodPicker').addEventListener('click', handlePeriodPickerClick);
+	$('periodPicker').addEventListener('keydown', handlePeriodPickerKeydown);
+	$('periodPicker').addEventListener('cancel', event => { event.preventDefault(); closePeriodPicker(); });
+	// 面板贴着标题定位：页面滚动或窗口变化时跟着移动。
+	addEventListener('scroll', () => { if ($('periodPicker').open) positionPeriodPicker(); }, { passive:true });
+	addEventListener('resize', () => { if ($('periodPicker').open) positionPeriodPicker(); });
 }
 
 function openDateFromElement(element) {
@@ -882,8 +1040,7 @@ function initApp() {
 	$('nextYearButton').addEventListener('click', () => changeYear(1));
 	$('todayButton').addEventListener('click', goToToday);
 	$('annualRoutine').addEventListener('change', () => renderAnnualList(true));
-	$('year').addEventListener('change', () => navigateTo(Number($('year').value), Number($('month').value)));
-	$('month').addEventListener('change', () => navigateTo(Number($('year').value), Number($('month').value)));
+
 	$('annualPrevYear').addEventListener('click', () => changeAnnualYear(-1));
 	$('annualNextYear').addEventListener('click', () => changeAnnualYear(1));
 	$('exportYearButton').addEventListener('click', exportAnnual);
@@ -898,7 +1055,7 @@ function initApp() {
 	document.addEventListener('click', handleDocumentClick);
 	document.addEventListener('keydown', handleDocumentKeydown);
 	window.addEventListener('popstate', handleHistory);
-	initSettings(); initPwa(); renderApp();
+	initSettings(); initPwa(); initPeriodPicker(); renderApp();
 	const routeDate = parseRouteDate(); if (isSupportedDate(routeDate)) openDetail(routeDate);
 }
 
