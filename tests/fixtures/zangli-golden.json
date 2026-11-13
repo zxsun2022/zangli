@@ -20,6 +20,14 @@
     "zanghan-2027": {
       "title": "《2027 藏汉月历（查阅版）》（火羊年；项目负责人 2026-11 提供的 PDF，共 15 页，每月一页）",
       "url": ""
+    },
+    "nalandabodhi-2026": {
+      "title": "Nalandabodhi Vancouver, Celebrating Chotrul Düchen (2026)",
+      "url": "https://vancouver.nalandabodhi.ca/events/celebrating-chotrul-duchen-2026/"
+    },
+    "wikipedia-chotrul": {
+      "title": "Wikipedia, Chotrul Duchen",
+      "url": "https://en.wikipedia.org/wiki/Chotrul_Duchen"
     }
   },
   "samples": [
@@ -111,6 +119,28 @@
         {
           "source": "shechen-2025",
           "locator": "PDF 第 47 页：九月三十连续出现两次，第二次"
+        }
+      ]
+    },
+    {
+      "date": "2026-03-03",
+      "expect": {
+        "monthNumber": 1,
+        "monthLeap": false,
+        "dayNumber": 15,
+        "dayOccurrence": 1,
+        "events": [
+          "chotrul"
+        ]
+      },
+      "evidence": [
+        {
+          "source": "nalandabodhi-2026",
+          "locator": "活动页：Chotrul Düchen，Tue., March 3, 2026（2026-11-12 打开核对）"
+        },
+        {
+          "source": "wikipedia-chotrul",
+          "locator": "Chotrul Düchen 在藏历正月十五，新年之后的第一个月圆日"
         }
       ]
     },
@@ -443,21 +473,6 @@
       ]
     },
     {
-      "date": "2027-12-31",
-      "expect": {
-        "monthNumber": 11,
-        "monthLeap": false,
-        "dayNumber": 4,
-        "dayOccurrence": 1
-      },
-      "evidence": [
-        {
-          "source": "zanghan-2027",
-          "locator": "PDF 第 13 页（12 月）：十一月初四"
-        }
-      ]
-    },
-    {
       "date": "2027-12-22",
       "expect": {
         "monthNumber": 10,
@@ -472,6 +487,21 @@
         {
           "source": "zanghan-2027",
           "locator": "PDF 第 13 页（12 月）：十月廿五，燃灯节、宗喀巴大师圆寂纪念日"
+        }
+      ]
+    },
+    {
+      "date": "2027-12-31",
+      "expect": {
+        "monthNumber": 11,
+        "monthLeap": false,
+        "dayNumber": 4,
+        "dayOccurrence": 1
+      },
+      "evidence": [
+        {
+          "source": "zanghan-2027",
+          "locator": "PDF 第 13 页（12 月）：十一月初四"
         }
       ]
     }
