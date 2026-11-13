@@ -326,25 +326,75 @@ main { padding: 8px 0 24px; }
 	gap: 16px;
 	padding: 10px 14px 10px 22px;
 }
-/* 年、月直接可选：一百年的历书不能只靠逐月翻页。 */
-.period-selects { display: flex; align-items: center; gap: 2px; min-width: 0; }
-.period-select {
+/* 年、月直接可选：一百年的历书不能只靠逐月翻页。标题本身就是入口，展开年月面板。 */
+.period-heading { min-width: 0; margin: 0; }
+.period-button {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
 	min-height: 40px;
-	padding: 0 6px;
+	margin-left: -8px;
+	padding: 0 8px;
 	border: 0;
 	border-radius: var(--radius);
 	background: transparent;
+	color: inherit;
 	font-family: var(--serif);
 	font-size: 1.4rem;
 	font-weight: 600;
+	white-space: nowrap;
 	cursor: pointer;
-	appearance: none;
-	-webkit-appearance: none;
-	text-decoration: underline dotted var(--line-strong);
-	text-underline-offset: 6px;
+	transition: background-color .16s ease;
 }
-.period-select:hover { background: var(--tint); }
-html:lang(en) #month { order: -1; }
+.period-button svg { width: 18px; height: 18px; flex: none; color: var(--ink-soft); transition: transform .2s var(--ease); }
+.period-button:hover { background: var(--tint); }
+.period-button[aria-expanded='true'] { background: var(--tint); }
+.period-button[aria-expanded='true'] svg { transform: rotate(180deg); }
+
+.period-picker {
+	position: fixed;
+	inset: auto;
+	width: 292px;
+	max-width: calc(100vw - 24px);
+	margin: 0;
+	padding: 10px 12px 12px;
+	border: 1px solid var(--line);
+	border-radius: 14px;
+	background: var(--surface-strong);
+	color: var(--ink);
+	box-shadow: var(--shadow-pop);
+	opacity: 0;
+	transform: translateY(-4px);
+	transition: opacity .14s ease, transform .2s var(--ease);
+}
+.period-picker.active { opacity: 1; transform: translateY(0); }
+.period-picker::backdrop { background: transparent; }
+.picker-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+#pickerRange { font-family: var(--serif); font-size: 1rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.picker-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.picker-divider { height: 1px; margin: 10px 2px; background: var(--line); }
+.picker-cell {
+	position: relative;
+	min-height: 40px;
+	padding: 0 4px;
+	border: 0;
+	border-radius: var(--radius);
+	background: transparent;
+	color: inherit;
+	font-size: .92rem;
+	font-variant-numeric: tabular-nums;
+	cursor: pointer;
+	transition: background-color .14s ease, color .14s ease;
+}
+.picker-cell:hover:not(:disabled) { background: var(--tint); }
+.picker-cell[aria-pressed='true'] { background: var(--red); color: #fff; font-weight: 600; }
+.picker-cell[aria-pressed='true']:hover { background: var(--red-dark); }
+:root[data-theme='dark'] .picker-cell[aria-pressed='true'] { color: #1d1210; }
+.picker-cell:disabled { color: var(--ink-faint); cursor: default; }
+/* 与月历一致：红点标出今天所在的年、月。 */
+.picker-cell.is-today::after { content: ''; position: absolute; left: 50%; bottom: 5px; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--red); }
+.picker-cell[aria-pressed='true'].is-today::after { background: currentColor; }
+.picker-cell:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
 .period-controls { display: flex; align-items: center; gap: 2px; }
 .today-button {
 	height: 32px;
@@ -695,7 +745,22 @@ footer p { margin: 0; }
 	.next-title { font-size: 1.04rem; }
 	.next-date { font-size: .8rem; }
 	.calendar-toolbar { min-height: 54px; padding: 6px 6px 6px 16px; gap: 6px; }
-	.period-select { font-size: 1.14rem; padding: 0 3px; }
+	.period-button { gap: 4px; margin-left: -6px; padding: 0 6px; font-size: 1.14rem; }
+	.period-button svg { width: 16px; height: 16px; }
+	.period-picker.bottom-sheet {
+		inset: auto 0 0;
+		width: 100%;
+		max-width: none;
+		padding: 22px 16px calc(16px + env(safe-area-inset-bottom));
+		border: 0;
+		border-radius: 20px 20px 0 0;
+		transform: translateY(100%);
+		transition: opacity .2s ease, transform .3s var(--ease);
+	}
+	.period-picker.bottom-sheet.active { transform: translateY(0); }
+	.period-picker.bottom-sheet::backdrop { background: rgba(15, 13, 11, .42); backdrop-filter: blur(4px); }
+	.period-picker.bottom-sheet::before { content: ''; position: absolute; top: 7px; left: 50%; width: 36px; height: 4px; margin-left: -18px; border-radius: 4px; background: var(--line-strong); }
+	.period-picker.bottom-sheet .picker-cell { min-height: 46px; font-size: 1rem; }
 	.icon-button, .step-button { width: 40px; height: 40px; }
 	.year-step { display: none; }
 	.today-button { height: 36px; margin: 0 2px; padding: 0 12px; }

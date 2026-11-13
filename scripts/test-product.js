@@ -198,7 +198,7 @@ assert.ok(app.includes("matchMedia('(display-mode: standalone)')") && app.includ
 for (const file of ['manifest.json', 'tw/manifest.json', 'en/manifest.json', 'bo/manifest.json']) assert.ok(!read(file).includes('/widget/'), `${file} should not offer the widget shortcut`);
 assert.ok(!app.includes("'aria-disabled'"), 'The Today button stays clickable, so it must not be announced as disabled');
 const faintText = style.match(/^[^\n]*[;{]\s*color: var\(--ink-faint\)[^\n]*$/gm) || [];
-assert.deepEqual(faintText.map(line => line.trim().split(' {')[0]), ['.tibetan-notes span + span::before', '.calendar-table td.out-of-range'], 'Readable text must not use --ink-faint; it is for separators and disabled dates only');
+assert.deepEqual(faintText.map(line => line.trim().split(' {')[0]), ['.tibetan-notes span + span::before', '.picker-cell:disabled', '.calendar-table td.out-of-range'], 'Readable text must not use --ink-faint; it is for separators and disabled dates only');
 for (const [ink, surface] of [['6b645b', 'ffffff'], ['6b645b', 'f4f1ea'], ['b3aba0', '24221f'], ['b3aba0', '171614']]) {
 	const ratio = (Math.max(luminance(ink), luminance(surface)) + .05) / (Math.min(luminance(ink), luminance(surface)) + .05);
 	assert.ok(ratio >= 4.5, `Secondary text #${ink} on #${surface} should reach 4.5:1, received ${ratio.toFixed(2)}:1`);
@@ -221,12 +221,18 @@ assert.ok(ics.split('\r\n').every(line => Buffer.byteLength(line, 'utf8') <= 75)
 // D019–D020：年月可直接选择、翻月不堆历史、只发布站点文件。
 for (const file of ['index.html','tw/index.html','en/index.html','bo/index.html']) {
 	const html = read(file);
-	assert.ok(/<select id="year" class="period-select" aria-label="[^"]+"><\/select><select id="month" class="period-select"/.test(html), `${file} should let people pick a year and month directly`);
-	assert.ok(!html.includes('<select id="year" hidden'), `${file} should not hide the year picker`);
+	assert.ok(html.includes('<button id="periodButton" class="period-button" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="periodPicker"'), `${file} should open the year and month picker from the month title`);
+	assert.ok(html.includes('<span id="monthTitle">'), `${file} should keep the month title as the grid label`);
+	assert.ok(/<dialog id="periodPicker" class="period-picker" aria-labelledby="pickerTitle"><h2 id="pickerTitle" class="sr-only">[^<]+<\/h2>/.test(html), `${file} should give the picker an accessible name`);
+	assert.ok(html.includes('<select id="year" hidden') && html.includes('<select id="month" hidden'), `${file} should keep the hidden year and month state`);
 }
 for (const file of ['index.html','tw/index.html']) assert.ok(!/aria-label="(Year|Month|Calendar tools|Toggle dark mode)"|>Skip to calendar<|>Language</.test(read(file)), `${file} should not carry English-only accessibility labels`);
 assert.ok(!app.includes("history.pushState({}, '', hash)"), 'Paging through months should not pile up history entries');
 assert.ok(app.includes('zangli.dayNumber === 29 && isSupportedDate(addDays(date, 1))'), 'Reverse lookup should report a skipped day 30 at the end of a month');
+assert.ok(app.includes('function openPeriodPicker()') && app.includes('function closePeriodPicker()') && app.includes("$('periodButton').focus();"), 'The year and month picker should return focus to its title button');
+assert.ok(app.includes("event.key === 'PageUp' || event.key === 'PageDown'") && app.includes('turnPickerPage(next < 0 ? -1 : 1)'), 'The year grid should page by keyboard, including arrow keys across page edges');
+assert.ok(app.includes('function isPickerMonthSupported(year, month)'), 'Months outside 1951-01 to 2051-02 should be disabled in the picker');
+assert.ok(style.includes('.period-picker.bottom-sheet {'), 'On phones the picker should open as a bottom sheet');
 assert.ok(app.includes('dayNotesHTML(zangli)') && app.includes("msg('flagAvoidNote')"), 'Hair-cutting and prayer-flag notes should be shown with the date');
 assert.ok(!read('sitemap.xml').includes('/widget/') && read('widget/index.html').includes('noindex'), 'The retired widget page should not be advertised to search engines');
 assert.ok(read('sw.js').includes("path.includes('/date/') ? response : cacheResponse"), 'Date deep links should not each take a cache entry');
