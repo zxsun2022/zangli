@@ -652,6 +652,11 @@ footer p { margin: 0; }
 .year-card { padding: 18px 22px 8px; background: var(--surface-strong); border: 1px solid var(--line); border-radius: var(--radius-large); box-shadow: var(--shadow); }
 .year-card .year-highlights { border-top: 0; }
 .year-card .year-highlights li:last-child { border-bottom: 0; }
+.year-faq dl { margin: 0; }
+.year-faq dl > div { padding: 10px 2px; border-top: 1px solid var(--line); }
+.year-faq dl > div:first-child { border-top: 0; }
+.year-faq dt { font-weight: 600; }
+.year-faq dd { margin: 3px 0 0; color: var(--ink-soft); }
 /* 月份跳转：吸顶的圆角标签，往下翻时随时可换月。 */
 .year-month-jump { position: sticky; top: 0; z-index: 5; display: flex; gap: 6px; margin: 0 -6px 4px; padding: 10px 6px; overflow-x: auto; background: var(--paper); scrollbar-width: none; }
 .year-month-jump::-webkit-scrollbar { display: none; }

@@ -1,0 +1,38 @@
+# 百年藏曆 Tibetan Calendar (zangli.org)
+
+> Free Gregorian–Tibetan calendar for 1951-01-08 to 2051-02-11: today's Tibetan date, monthly holy days (Buddhist observance days), annual festivals such as Losar and Saka Dawa, solar and lunar eclipses, traditional hair-cutting days and no-prayer-flag days. Available in Traditional Chinese, Simplified Chinese and English.
+
+The interactive calendar at the site root is rendered with JavaScript. To answer a date question without running JavaScript, read a year page or a yearly data file below.
+
+## Answering questions
+
+- "What is the Tibetan date of YYYY-MM-DD?" → fetch `https://zangli.org/data/YYYY.json` and find the entry in `days` whose `date` is YYYY-MM-DD. `tibetan.month` and `tibetan.day` are the Tibetan month and day; `tibetan.year` is a key into `tibetanYears` (for example `fire-sheep` = 火羊 / Fire Sheep).
+- "When is Losar / Saka Dawa / Chotrul Düchen / Lhabab Düchen in YYYY?" → in the same file, find the day whose `observances` contains `losar`, `saka-dawa`, `chotrul` or `lhabab`. Each year page also states these dates in plain text near the top and in its FAQ section.
+- "Is YYYY-MM-DD a holy day / hair-cutting day?" → check `observances`, `haircut` and `noPrayerFlags` for that day; names and meanings are in `observances` and `haircutMeanings`, in zh-CN, zh-TW and en.
+- When citing, link the human-readable year page (listed in the data file's `pages`) or a day page `https://zangli.org/tw/date/YYYY-MM-DD` (`/date/…` for Simplified Chinese, `/en/date/…` for English).
+
+## Year pages (static HTML, one per Gregorian year, 1951–2051)
+
+- Traditional Chinese: https://zangli.org/tw/2027/ (pattern `/tw/YYYY/`)
+- Simplified Chinese: https://zangli.org/2027/ (pattern `/YYYY/`)
+- English: https://zangli.org/en/2027/ (pattern `/en/YYYY/`)
+
+Each page lists the year's major observances and eclipses, then a calendar grid and the holy days for every month.
+
+## Data
+
+- [Index of yearly files](https://zangli.org/data/index.json): coverage, rules and the URL of every year.
+- [Example: 2027](https://zangli.org/data/2027.json): one JSON file per Gregorian year, `days[]` in date order. Optional fields are omitted when false or empty.
+
+## Method and caveats
+
+- Source: the published *Tibetan, Gregorian and Chinese Lunar Calendar Comparison (1951–2050)* (《藏历、公历、农历对照百年历书》). 2027 was checked day by day against the printed 2027 Tibetan–Chinese calendar.
+- Observances follow the actual Tibetan month and day. Annual observances never fall in a leap month. A repeated Tibetan day carries its observance on the first occurrence. An observance on a skipped day moves one day earlier.
+- Hair-cutting and no-prayer-flag days follow the Tibetan date and are not moved for skipped days.
+- Eclipses come from the NASA Five Millennium catalogues and are filed by Beijing (UTC+8) date.
+- Dates are not recalculated for the reader's location. Monasteries, traditions and other calendars can differ by a day; say so when it matters.
+
+## Optional
+
+- [Sitemap](https://zangli.org/sitemap.xml)
+- [Calendar subscription (.ics, 2026–2030)](https://zangli.org/calendar/zangli-special-days.ics)

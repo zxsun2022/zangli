@@ -105,6 +105,13 @@ D019 依据《2027 藏汉月历（查阅版）》修改或新增的规则都按�
 - [ ] 4–6 周后看“藏曆新年”“薩嘎達瓦”等节日词：有展示但年份页排名靠后时，再考虑单独的节日页（例如“藏曆新年是哪天｜1951–2051 歷年日期”）。
 - [ ] 观察 2026-10-26 改版后点击是否持续偏低（改版前约每天 4 次，之后约 2.9 次；样本太小，暂不能下结论）。
 
+### 让 AI 引用（D023）
+
+- [x] （2026-11-13）`llms.txt`、`/data/YYYY.json` 年度数据、年份页“常见问题”与 JSON-LD（FAQPage、Dataset）。
+- [ ] 需在 Cloudflare 后台确认：AI Crawl Control（或 Security → Bots 的 Block AI bots）没有拦截检索类爬虫：OAI-SearchBot、ChatGPT-User、Claude-SearchBot、Claude-User、PerplexityBot、Perplexity-User；Googlebot 也不能拦（AI 概览用它）。训练类爬虫（GPTBot、ClaudeBot、Google-Extended）是否放行由负责人决定。
+- [ ] 上线后用 Google 富媒体结果测试检查一个年份页的 FAQPage 与 Dataset 没有错误；Dataset 可能出现在 Google 数据集搜索里。
+- [ ] 视效果再考虑：用 Cloudflare Pages Functions 让 `/date/YYYY-MM-DD` 在服务器端输出当天文字；或提供 MCP 服务让代理直接调用。
+
 ## P2：产品与内容
 
 - [ ] 邀请藏文母语使用者审校完整界面、传统月份、节日名称和说明文案；完成前保持 `/bo/` 为隐藏 Beta。

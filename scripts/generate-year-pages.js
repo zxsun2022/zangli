@@ -11,6 +11,8 @@ const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 const RELEASE_YEAR = ASSET_VERSION.slice(0, 4);
 const FIRST_YEAR = 1951;
 const LAST_YEAR = 2051;
+// 常见问题里回答日期的节日，按一年中的先后。
+const FAQ_IDS = ['losar', 'chotrul', 'saka-dawa', 'chokhor', 'lhabab', 'ganden-ngamcho'];
 const ANNUAL_IDS = new Set(['losar', 'chotrul', 'buddha-birth', 'saka-dawa', 'chokhor', 'buddha-conception', 'lhabab', 'ganden-ngamcho']);
 
 const locales = {
@@ -30,6 +32,14 @@ const locales = {
 		repeated: '重日', skipped: day => `缺${day}`, shifted: '缺日提前',
 		tibetanMonths: list => `藏历 ${list.join(' · ')}`,
 		noHighlights: '这一年在支持范围内没有年度节日或日月食。',
+		faq: '常见问题', faqAlias: { 'saka-dawa': '萨嘎达瓦节' }, sourceBook: '藏历、公历、农历对照百年历书（1951–2050）',
+		faqYear: year => `${year} 年是藏历什么年？`,
+		faqYearAnswer: (before, after, losar) => `${losar}藏历新年之前是藏历${before}，从藏历新年起是${after}。`,
+		faqYearSingle: (year, label) => `${year} 年在支持范围内都属于藏历${label}。`,
+		faqDate: (year, name) => `${year} 年${name}是哪一天？`,
+		faqDateAnswer: item => `${item.gregorian}（${item.weekday}），藏历${item.tibetan}${item.shifted ? '（原日为缺日，提前一天）' : ''}。`,
+		datasetName: year => `${year} 年公历藏历逐日对照数据`,
+		datasetDescription: year => `${year} 年每一天的公历与藏历对照（藏历年、月、日，闰月、重日与缺日），以及殊胜日、年度节日、日月食、理发吉日与飞幡日，JSON 格式。依据《藏历、公历、农历对照百年历书（1951–2050）》。`,
 		partial: { 1951: '对照从 1951 年 1 月 8 日开始。', 2051: '对照到 2051 年 2 月 11 日为止。' },
 		sourceText: '藏历对照来自《藏历、公历、农历对照百年历书（1951–2050）》。不同寺院、传承或历书的日期可能不同。节日按藏历真实月日标注：年度节日不落在闰月，重日只在第一天标注，缺日的节日提前一天。理发吉日与飞幡日按藏历日期推算，缺日不提前。日月食按北京时间日期归档。'
 	},
@@ -49,6 +59,14 @@ const locales = {
 		repeated: '重日', skipped: day => `缺${day}`, shifted: '缺日提前',
 		tibetanMonths: list => `藏曆 ${list.join(' · ')}`,
 		noHighlights: '這一年在支援範圍內沒有年度節日或日月食。',
+		faq: '常見問題', faqAlias: { 'saka-dawa': '薩嘎達瓦節' }, sourceBook: '藏曆、公曆、農曆對照百年曆書（1951–2050）',
+		faqYear: year => `${year} 年是藏曆什麼年？`,
+		faqYearAnswer: (before, after, losar) => `${losar}藏曆新年之前是藏曆${before}，從藏曆新年起是${after}。`,
+		faqYearSingle: (year, label) => `${year} 年在支援範圍內都屬於藏曆${label}。`,
+		faqDate: (year, name) => `${year} 年${name}是哪一天？`,
+		faqDateAnswer: item => `${item.gregorian}（${item.weekday}），藏曆${item.tibetan}${item.shifted ? '（原日為缺日，提前一天）' : ''}。`,
+		datasetName: year => `${year} 年公曆藏曆逐日對照資料`,
+		datasetDescription: year => `${year} 年每一天的公曆與藏曆對照（藏曆年、月、日，閏月、重日與缺日），以及殊勝日、年度節日、日月食、理髮吉日與飛幡日，JSON 格式。依據《藏曆、公曆、農曆對照百年曆書（1951–2050）》。`,
 		partial: { 1951: '對照從 1951 年 1 月 8 日開始。', 2051: '對照到 2051 年 2 月 11 日為止。' },
 		sourceText: '藏曆對照來自《藏曆、公曆、農曆對照百年曆書（1951–2050）》。不同寺院、傳承或曆書的日期可能不同。節日按藏曆真實月日標註：年度節日不落在閏月，重日只在第一天標註，缺日的節日提前一天。理髮吉日與飛幡日按藏曆日期推算，缺日不提前。日月食按北京時間日期歸檔。'
 	},
@@ -68,6 +86,14 @@ const locales = {
 		repeated: 'repeated day', skipped: day => `day ${day} skipped`, shifted: 'moved for a skipped day',
 		tibetanMonths: list => `Tibetan ${list.join(' · ')}`,
 		noHighlights: 'No major observances or eclipses fall in the supported range this year.',
+		faq: 'Questions', faqAlias: {}, sourceBook: 'Tibetan, Gregorian and Chinese Lunar Calendar Comparison (1951–2050)',
+		faqYear: year => `Which Tibetan year is ${year}?`,
+		faqYearAnswer: (before, after, losar) => `Until Losar on ${losar} it is the Tibetan ${before} year; from Losar it is the ${after} year.`,
+		faqYearSingle: (year, label) => `The supported part of ${year} falls in the Tibetan ${label} year.`,
+		faqDate: (year, name) => `When is ${name} in ${year}?`,
+		faqDateAnswer: item => `${item.weekday}, ${item.gregorian} (Tibetan ${item.tibetan.replace(' · ', ', ').toLowerCase()}${item.shifted ? '; observed one day early because its own day is skipped' : ''}).`,
+		datasetName: year => `Gregorian–Tibetan calendar data for ${year}`,
+		datasetDescription: year => `Every day of ${year} with its Tibetan year, month and day (including leap months, repeated and skipped days), holy days, annual festivals, eclipses, hair-cutting days and no-prayer-flag days, as JSON. Based on the published Tibetan, Gregorian and Chinese Lunar Calendar Comparison (1951–2050).`,
 		partial: { 1951: 'The crosswalk starts on 8 January 1951.', 2051: 'The crosswalk ends on 11 February 2051.' },
 		sourceText: 'Dates follow the published Tibetan, Gregorian and Chinese Lunar Calendar Comparison (1951–2050). Dates can differ across monasteries, traditions and published calendars. Observances follow the actual Tibetan month and day: annual observances never fall in a leap month, a repeated day carries its observance on the first occurrence, and an observance on a skipped day moves one day earlier. Hair-cutting and prayer-flag days follow the Tibetan date and are not moved for skipped days. Eclipses are filed by Beijing date.'
 	}
@@ -130,8 +156,10 @@ function collectYear(locale, ctx, year) {
 	const longDate = new Intl.DateTimeFormat(s.intl, { month: 'long', day: 'numeric', timeZone: 'UTC' });
 	const shortDate = new Intl.DateTimeFormat(s.intl, { month: 'short', day: 'numeric', timeZone: 'UTC' });
 	const weekday = new Intl.DateTimeFormat(s.intl, { weekday: 'short', timeZone: 'UTC' });
+	const weekdayLong = new Intl.DateTimeFormat(s.intl, { weekday: 'long', timeZone: 'UTC' });
 	const months = [];
 	const highlights = [];
+	const annualDates = {};
 	const tibetanYears = [];
 	let losar = '', saka = '';
 	for (let month = 1; month <= 12; month++) {
@@ -152,6 +180,7 @@ function collectYear(locale, ctx, year) {
 			// 年度节日与日月食摘要：同一天的合并为一行。
 			const annual = zangli.events.filter(event => ANNUAL_IDS.has(event.id));
 			for (const event of annual) {
+				annualDates[event.id] ||= { name: clean(event.title), gregorian: locale === 'en' ? `${longDate.format(instant)}, ${year}` : `${year}年${longDate.format(instant)}`, weekday: weekdayLong.format(instant), tibetan: tibetanDate(locale, ctx, zangli), shifted: event.shifted, date: iso(year, month, day) };
 				if (event.id === 'losar' && !losar) losar = longDate.format(instant);
 				if (event.id === 'saka-dawa' && !saka) saka = longDate.format(instant);
 			}
@@ -179,7 +208,7 @@ function collectYear(locale, ctx, year) {
 		}
 		if (cells.some(cell => !cell.outOfRange)) months.push({ month, cells, specials, tibetanMonths });
 	}
-	return { months, highlights, tibetanYears, losar, saka };
+	return { months, highlights, tibetanYears, losar, saka, annualDates };
 }
 
 function renderCell(s, prefix, cell) {
@@ -237,6 +266,21 @@ function render(locale, ctx, year) {
 	const yearIndex = Array.from({ length: LAST_YEAR - FIRST_YEAR + 1 }, (_, index) => FIRST_YEAR + index)
 		.map(value => value === year ? `<span aria-current="page">${value}</span>` : `<a href="${yearHref(locale, value)}">${value}</a>`).join('');
 	const partial = s.partial[year] ? `<p class="year-partial">${s.partial[year]}</p>` : '';
+	// 常见问题：页面上可见，同样写进 JSON-LD（FAQPage），便于搜索引擎和 AI 直接引用答案（D023）。
+	const faq = [];
+	if (data.tibetanYears.length > 1 && data.losar) faq.push([s.faqYear(year), s.faqYearAnswer(data.tibetanYears[0], data.tibetanYears[1], locale === 'en' ? `${data.losar}, ${year}` : `${year}年${data.losar}`)]);
+	else if (data.tibetanYears.length === 1) faq.push([s.faqYear(year), s.faqYearSingle(year, data.tibetanYears[0])]);
+	for (const id of FAQ_IDS) if (data.annualDates[id]) faq.push([s.faqDate(year, s.faqAlias[id] ? `${s.faqAlias[id]}（${data.annualDates[id].name}）` : data.annualDates[id].name), s.faqDateAnswer(data.annualDates[id])]);
+	const faqSection = faq.length ? `<section class="year-section year-card year-faq" aria-labelledby="faqTitle"><h2 id="faqTitle">${s.faq}</h2><dl>${faq.map(([question, answer]) => `<div><dt>${escapeHTML(question)}</dt><dd>${escapeHTML(answer)}</dd></div>`).join('')}</dl></section>` : '';
+	const dataUrl = `https://zangli.org/data/${year}.json`;
+	const structured = {
+		'@context': 'https://schema.org',
+		'@graph': [
+			{ '@type': 'Dataset', name: s.datasetName(year), description: s.datasetDescription(year), url: canonical, inLanguage: s.lang, temporalCoverage: String(year), isAccessibleForFree: true, isBasedOn: s.sourceBook, creator: { '@type': 'Organization', name: s.name, url: 'https://zangli.org/' }, distribution: [{ '@type': 'DataDownload', encodingFormat: 'application/json', contentUrl: dataUrl }] },
+			...(faq.length ? [{ '@type': 'FAQPage', mainEntity: faq.map(([question, answer]) => ({ '@type': 'Question', name: question, acceptedAnswer: { '@type': 'Answer', text: answer } })) }] : [])
+		]
+	};
+	const jsonLd = JSON.stringify(structured).replace(/</g, '\\u003c');
 	const hreflang = ['zh-cn', 'tw', 'en'].map(value => `<link rel="alternate" hreflang="${locales[value].lang}" href="https://zangli.org${yearHref(value, year)}">`).join('')
 		+ `<link rel="alternate" hreflang="x-default" href="https://zangli.org${yearHref('en', year)}">`;
 	return `<!DOCTYPE html>
@@ -248,10 +292,12 @@ function render(locale, ctx, year) {
 	<meta name="robots" content="index, follow">
 	<meta name="theme-color" content="#8f2f2c">
 	<link rel="canonical" href="${canonical}">
+	<link rel="alternate" type="application/json" href="/data/${year}.json">
 	<meta property="og:title" content="${escapeHTML(s.title(year))}"><meta property="og:description" content="${escapeHTML(description)}"><meta property="og:type" content="article"><meta property="og:url" content="${canonical}"><meta property="og:image" content="https://zangli.org/logo-512x512-circle.png"><meta property="og:locale" content="${s.ogLocale}">
 	<meta name="twitter:card" content="summary"><meta name="twitter:title" content="${escapeHTML(s.title(year))}"><meta name="twitter:description" content="${escapeHTML(description)}">
 	<link rel="icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
 	<title>${escapeHTML(s.title(year))}</title>
+	<script type="application/ld+json">${jsonLd}</script>
 	${hreflang}
 	<link rel="stylesheet" href="/css/style.css?v=${ASSET_VERSION}">
 	<script src="/js/langDetect.js?v=${ASSET_VERSION}"></script>
@@ -269,6 +315,7 @@ function render(locale, ctx, year) {
 			<p class="year-actions"><button id="printButton" class="secondary-button" type="button" hidden>${s.print}</button></p>
 			<section class="year-section year-card" aria-labelledby="highlightsTitle"><h2 id="highlightsTitle">${s.highlights}</h2>${highlights}</section>
 			<section class="year-section" id="days" aria-labelledby="daysTitle"><h2 id="daysTitle">${s.days}</h2>${monthJump}${legend}${tables}</section>
+			${faqSection}
 			<section class="year-section year-source" aria-labelledby="sourceTitle"><h2 id="sourceTitle">${s.source}</h2><p>${s.sourceText}</p></section>
 			<nav class="year-section year-index" aria-labelledby="otherYearsTitle"><h2 id="otherYearsTitle">${s.otherYears}</h2><p>${yearIndex}</p></nav>
 		</main>
@@ -292,7 +339,7 @@ function generateYearPages(outputRoot) {
 	return count;
 }
 
-module.exports = { generateYearPages, FIRST_YEAR, LAST_YEAR, yearHref };
+module.exports = { generateYearPages, runtime, FIRST_YEAR, LAST_YEAR, yearHref };
 
 if (require.main === module) {
 	const output = path.resolve(process.argv[2] || path.join(root, 'dist'));

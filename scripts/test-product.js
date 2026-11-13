@@ -284,6 +284,32 @@ assert.equal(vm.runInContext("getZangli('2027-02-20').extraInfo", en), 'Chotrul 
 		const lastYear = fs.readFileSync(path.join(out, 'en', '2051', 'index.html'), 'utf8');
 		assert.ok(lastYear.includes('data-date="2051-02-11"') && !lastYear.includes('data-date="2051-02-12"') && !lastYear.includes('rel="next"'), 'The 2051 page should end at the supported range');
 		for (const entry of ['docs', 'scripts', 'tests', 'AGENTS.md', 'package.json', 'nginx.conf', '.htaccess']) assert.ok(!built.includes(entry), `build output should not include ${entry}`);
+		// 年度数据与 llms.txt（D023）。
+		assert.ok(built.includes('llms.txt') && fs.readFileSync(path.join(out, 'llms.txt'), 'utf8').includes('https://zangli.org/data/YYYY.json'), 'llms.txt should ship and explain the data files');
+		const dataDir = fs.readdirSync(path.join(out, 'data'));
+		assert.equal(dataDir.filter(name => /^\d{4}\.json$/.test(name)).length, 101, 'There should be one data file per year');
+		const index = JSON.parse(fs.readFileSync(path.join(out, 'data', 'index.json'), 'utf8'));
+		assert.equal(index.years.length, 101);
+		const data2027 = JSON.parse(fs.readFileSync(path.join(out, 'data', '2027.json'), 'utf8'));
+		const day = date => data2027.days.find(item => item.date === date);
+		assert.equal(data2027.days.length, 365);
+		assert.deepEqual(day('2027-02-07').observances, ['losar']);
+		assert.equal(data2027.tibetanYears[day('2027-02-07').tibetan.year].en, 'Fire Sheep');
+		assert.deepEqual(day('2027-02-20').tibetan, { year: 'fire-sheep', month: 1, leapMonth: false, day: 15, skippedBefore: [14] });
+		assert.equal(day('2027-01-31').tibetan.repeatedDay, true);
+		assert.deepEqual(day('2027-01-27').observedEarly, ['kshitigarbha']);
+		assert.equal(day('2027-02-06').eclipse.kind, 'annular-solar');
+		// 与独立摘录的 2027 全年名单比对，而不是与当前函数输出比对。
+		const golden2027 = JSON.parse(read('tests/fixtures/zangli-golden.json')).yearLists.find(list => list.year === 2027);
+		assert.deepEqual(data2027.days.filter(item => item.haircut).map(item => item.date), golden2027.haircut, 'Data haircut days should match the 2027 list');
+		assert.deepEqual(data2027.days.filter(item => item.noPrayerFlags).map(item => item.date), golden2027.flagAvoid, 'Data prayer-flag days should match the 2027 list');
+		const data1951 = JSON.parse(fs.readFileSync(path.join(out, 'data', '1951.json'), 'utf8'));
+		const data2051 = JSON.parse(fs.readFileSync(path.join(out, 'data', '2051.json'), 'utf8'));
+		assert.ok(data1951.days[0].date === '1951-01-08' && data2051.days.at(-1).date === '2051-02-11', 'Data files should respect the supported range');
+		const ld = JSON.parse(yearPage.match(/<script type="application\/ld\+json">(.*?)<\/script>/)[1]);
+		assert.deepEqual(ld['@graph'].map(node => node['@type']), ['Dataset', 'FAQPage']);
+		assert.ok(yearPage.includes('<dd>2027年2月7日（星期日），藏曆正月初一。</dd>') && yearPage.includes('<link rel="alternate" type="application/json" href="/data/2027.json">'), 'Year pages should answer festival dates in plain text and point to their data');
+		assert.ok(fs.readFileSync(path.join(out, '1977', 'index.html'), 'utf8').includes('藏历十二月三十（原日为缺日，提前一天）'), 'A Losar moved for a skipped day should say so');
 	} finally { fs.rmSync(out, { recursive: true, force: true }); }
 }
 
