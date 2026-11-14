@@ -248,19 +248,34 @@ check('eclipse list matches the NASA catalogues', () => {
 	const expectedType = { 0: 'solar T', 1: 'solar P', 2: 'solar A', 3: 'solar P', 4: 'solar H', 5: 'lunar T', 6: 'lunar P', 8: 'lunar N' };
 	const catalogue = [...nasa.solar.map(([td, type, id]) => ({ kind: 'solar', td, type, id })), ...nasa.lunar.map(([td, type, id]) => ({ kind: 'lunar', td, type, id }))]
 		.map(entry => ({ ...entry, time: Date.parse(`${entry.td}Z`) }));
-	const used = new Set();
-	const problems = [];
-	for (const [time, type] of eclipseList) {
-		const kind = type < 5 ? 'solar' : 'lunar';
-		const matches = catalogue.filter(entry => entry.kind === kind && Math.abs(entry.time - time) < 6 * 3600 * 1000);
-		if (matches.length !== 1) { problems.push(`${new Date(time).toISOString()} has ${matches.length} catalogue matches`); continue; }
-		const [entry] = matches;
-		used.add(entry.id);
-		if (expectedType[type] !== `${kind} ${entry.type}`) problems.push(`${entry.td} type ${type} vs NASA ${entry.type}`);
-		if (Math.abs(entry.time - time) > 1000) problems.push(`${entry.td} TD differs by ${(entry.time - time) / 1000} s`);
+	// 日食与月食目录的编号会重复（如 09537），所以按“类型:编号”判断是否用过，并且每条目录记录只能配对一次。
+	const compare = (list, entries) => {
+		const used = new Set();
+		const problems = [];
+		for (const [time, type] of list) {
+			const kind = type < 5 ? 'solar' : 'lunar';
+			const matches = entries.filter(entry => entry.kind === kind && Math.abs(entry.time - time) < 6 * 3600 * 1000);
+			if (matches.length !== 1) { problems.push(`${new Date(time).toISOString()} has ${matches.length} catalogue matches`); continue; }
+			const [entry] = matches;
+			const key = `${entry.kind}:${entry.id}`;
+			if (used.has(key)) problems.push(`${entry.kind} ${entry.td} matched twice`);
+			used.add(key);
+			if (expectedType[type] !== `${kind} ${entry.type}`) problems.push(`${entry.td} type ${type} vs NASA ${entry.type}`);
+			if (Math.abs(entry.time - time) > 1000) problems.push(`${entry.td} TD differs by ${(entry.time - time) / 1000} s`);
+		}
+		const missing = entries.filter(entry => !used.has(`${entry.kind}:${entry.id}`));
+		return [...problems, ...missing.map(entry => `missing ${entry.kind} ${entry.td}`)];
+	};
+	assert.deepEqual(compare(eclipseList, catalogue), []);
+	// 自检：编号重复的两条各删一条、或重复列出同一次食，都必须报错。
+	const shared = catalogue.filter(entry => entry.id === '09537');
+	assert.equal(shared.length, 2, 'catalogue numbers 09537 appear in both the solar and lunar lists');
+	for (const entry of shared) {
+		const list = eclipseList.filter(([time]) => time !== entry.time);
+		assert.deepEqual(compare(list, catalogue), [`missing ${entry.kind} ${entry.td}`], `removing ${entry.kind} ${entry.td} must be reported`);
 	}
-	const missing = catalogue.filter(entry => !used.has(entry.id));
-	assert.deepEqual([...problems, ...missing.map(entry => `missing ${entry.kind} ${entry.td}`)], []);
+	const duplicate = eclipseList.find(([time]) => time === shared[0].time);
+	assert.ok(compare([...eclipseList, duplicate], catalogue).some(problem => problem.endsWith('matched twice')), 'a duplicated eclipse must be reported');
 });
 
 // 8. 跨时区一致性

@@ -35,7 +35,7 @@ const locales = {
 		noHighlights: '这一年在支持范围内没有年度节日或日月食。',
 		faq: '常见问题', faqAlias: { 'saka-dawa': '萨嘎达瓦节' }, sourceBook: '藏历、公历、农历对照百年历书（1951–2050）',
 		faqYear: year => `${year} 年是藏历什么年？`,
-		faqYearAnswer: (before, after, losar) => `${losar}藏历新年之前是藏历${before}，从藏历新年起是${after}。`,
+		faqYearAnswer: (before, after, start, losar) => losar === start ? `${start}藏历新年之前是藏历${before}，从藏历新年起是${after}。` : `${start}之前是藏历${before}，从${start}（正月初二）起是${after}。这一年正月初一是缺日，藏历新年按缺日规则提前一天，在${losar}（十二月三十）。`,
 		faqYearSingle: (year, label) => `${year} 年在支持范围内都属于藏历${label}。`,
 		faqDate: (year, name) => `${year} 年${name}是哪一天？`,
 		faqDateAnswer: item => `${item.gregorian}（${item.weekday}），藏历${item.tibetan}${item.shifted ? '（原日为缺日，提前一天）' : ''}。`,
@@ -63,7 +63,7 @@ const locales = {
 		noHighlights: '這一年在支援範圍內沒有年度節日或日月食。',
 		faq: '常見問題', faqAlias: { 'saka-dawa': '薩嘎達瓦節' }, sourceBook: '藏曆、公曆、農曆對照百年曆書（1951–2050）',
 		faqYear: year => `${year} 年是藏曆什麼年？`,
-		faqYearAnswer: (before, after, losar) => `${losar}藏曆新年之前是藏曆${before}，從藏曆新年起是${after}。`,
+		faqYearAnswer: (before, after, start, losar) => losar === start ? `${start}藏曆新年之前是藏曆${before}，從藏曆新年起是${after}。` : `${start}之前是藏曆${before}，從${start}（正月初二）起是${after}。這一年正月初一是缺日，藏曆新年按缺日規則提前一天，在${losar}（十二月三十）。`,
 		faqYearSingle: (year, label) => `${year} 年在支援範圍內都屬於藏曆${label}。`,
 		faqDate: (year, name) => `${year} 年${name}是哪一天？`,
 		faqDateAnswer: item => `${item.gregorian}（${item.weekday}），藏曆${item.tibetan}${item.shifted ? '（原日為缺日，提前一天）' : ''}。`,
@@ -91,7 +91,7 @@ const locales = {
 		noHighlights: 'No major observances or eclipses fall in the supported range this year.',
 		faq: 'Questions', faqAlias: {}, sourceBook: 'Tibetan, Gregorian and Chinese Lunar Calendar Comparison (1951–2050)',
 		faqYear: year => `Which Tibetan year is ${year}?`,
-		faqYearAnswer: (before, after, losar) => `Until Losar on ${losar} it is the Tibetan ${before} year; from Losar it is the ${after} year.`,
+		faqYearAnswer: (before, after, start, losar) => losar === start ? `Until Losar on ${start} it is the Tibetan ${before} year; from Losar it is the ${after} year.` : `Until ${start} it is the Tibetan ${before} year; from ${start} (day 2 of month 1) it is the ${after} year. Day 1 of month 1 is skipped that year, so Losar is observed one day early, on ${losar} (day 30 of month 12).`,
 		faqYearSingle: (year, label) => `The supported part of ${year} falls in the Tibetan ${label} year.`,
 		faqDate: (year, name) => `When is ${name} in ${year}?`,
 		faqDateAnswer: item => `${item.weekday}, ${item.gregorian} (Tibetan ${item.tibetan.replace(' · ', ', ').toLowerCase()}${item.shifted ? '; observed one day early because its own day is skipped' : ''}).`,
@@ -165,7 +165,7 @@ function collectYear(locale, ctx, year) {
 	const highlights = [];
 	const annualDates = {};
 	const tibetanYears = [];
-	let losar = '', saka = '';
+	let losar = '', saka = '', yearStart = '';
 	for (let month = 1; month <= 12; month++) {
 		const cells = [];
 		const specials = [];
@@ -178,7 +178,11 @@ function collectYear(locale, ctx, year) {
 			if (zangli.value === 'error') { cells.push({ day, weekdayIndex, outOfRange: true }); continue; }
 			const eclipse = ctx.getEclipse({ year, month, day });
 			const label = s.tibetanYear(yearLabel(locale, zangli));
-			if (!tibetanYears.includes(label)) tibetanYears.push(label);
+			if (!tibetanYears.includes(label)) {
+				// 藏历年在正月初一切换；初一缺日时从初二起算，而藏历新年按缺日规则提前到上一年十二月三十（如 1977 年），两者不是同一天。
+				if (tibetanYears.length) yearStart ||= longDate.format(instant);
+				tibetanYears.push(label);
+			}
 			const events = zangli.events.map(event => `${clean(event.title)}${event.shifted ? (locale === 'en' ? ` (${s.shifted})` : `（${s.shifted}）`) : ''}`);
 			if (eclipse.value) events.push(eclipseName(eclipse.value));
 			// 年度节日与日月食摘要：同一天的合并为一行。
@@ -212,7 +216,7 @@ function collectYear(locale, ctx, year) {
 		}
 		if (cells.some(cell => !cell.outOfRange)) months.push({ month, cells, specials, tibetanMonths });
 	}
-	return { months, highlights, tibetanYears, losar, saka, annualDates };
+	return { months, highlights, tibetanYears, losar, saka, yearStart, annualDates };
 }
 
 function renderCell(s, prefix, cell) {
@@ -272,7 +276,8 @@ function render(locale, ctx, year) {
 	const partial = s.partial[year] ? `<p class="year-partial">${s.partial[year]}</p>` : '';
 	// 常见问题：页面上可见，同样写进 JSON-LD（FAQPage），便于搜索引擎和 AI 直接引用答案（D023）。
 	const faq = [];
-	if (data.tibetanYears.length > 1 && data.losar) faq.push([s.faqYear(year), s.faqYearAnswer(data.tibetanYears[0], data.tibetanYears[1], locale === 'en' ? `${data.losar}, ${year}` : `${year}年${data.losar}`)]);
+	const fullDate = value => locale === 'en' ? `${value}, ${year}` : `${year}年${value}`;
+	if (data.tibetanYears.length > 1 && data.yearStart) faq.push([s.faqYear(year), s.faqYearAnswer(data.tibetanYears[0], data.tibetanYears[1], fullDate(data.yearStart), data.losar ? fullDate(data.losar) : '')]);
 	else if (data.tibetanYears.length === 1) faq.push([s.faqYear(year), s.faqYearSingle(year, data.tibetanYears[0])]);
 	for (const id of FAQ_IDS) if (data.annualDates[id]) faq.push([s.faqDate(year, s.faqAlias[id] ? `${s.faqAlias[id]}（${data.annualDates[id].name}）` : data.annualDates[id].name), s.faqDateAnswer(data.annualDates[id])]);
 	const faqSection = faq.length ? `<section class="year-section year-card year-faq" aria-labelledby="faqTitle"><h2 id="faqTitle">${s.faq}</h2><dl>${faq.map(([question, answer]) => `<div><dt>${escapeHTML(question)}</dt><dd>${escapeHTML(answer)}</dd></div>`).join('')}</dl></section>` : '';

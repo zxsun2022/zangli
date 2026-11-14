@@ -432,7 +432,8 @@ function renderAnnualList(revealUpcoming = false) {
 		const first = new Date(year, 0, 1, 12), last = new Date(year, 11, 31, 12);
 		const from = first < startDate ? startDate : first;
 		const to = last > endDate ? endDate : last;
-		state.annualEvents = scanEvents(from, to);
+		// 12 月 31 日不存在的时区（如 Pacific/Kiritimati 1994-12-31）会把终点顺延到次年 1 月 1 日，所以按年份再筛一次。
+		state.annualEvents = scanEvents(from, to).filter(event => event.date.getFullYear() === year);
 	}
 	$('annualYear').textContent = msg('yearTitle', { year: String(year) });
 	$('annualPrevYear').disabled = year <= startDate.getFullYear();
@@ -952,10 +953,11 @@ function handleDocumentClick(event) {
 
 function shiftMonths(date, months) {
 	const first = new Date(date.getFullYear(), date.getMonth() + months, 1, 12);
-	const lastDay = new Date(first.getFullYear(), first.getMonth() + 1, 0, 12).getDate();
+	// 月份天数按公历（UTC）计算：本地时区可能跳过某天（如 Pacific/Kiritimati 1994-12-31），本地末日会顺延到下月。
+	const lastDay = new Date(Date.UTC(first.getFullYear(), first.getMonth() + 1, 0)).getUTCDate();
 	const day = Math.min(date.getDate(), lastDay);
-	// 目标日在本地时区不存在时，由 Date 顺延到相邻的一天。
-	return createLocalDate(first.getFullYear(), first.getMonth() + 1, day) || new Date(first.getFullYear(), first.getMonth(), day, 12);
+	// 目标日在本地时区不存在时，取同月的前一天或后一天。
+	return createLocalDate(first.getFullYear(), first.getMonth() + 1, day) || createLocalDate(first.getFullYear(), first.getMonth() + 1, day - 1) || createLocalDate(first.getFullYear(), first.getMonth() + 1, day + 1) || new Date(first.getFullYear(), first.getMonth(), day, 12);
 }
 
 function calendarKeyTarget(date, event) {
