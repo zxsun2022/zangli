@@ -267,6 +267,7 @@
 - 根目录新增 `llms.txt`，用文字说明网站内容、数据来源与口径，以及怎样拼出年份页和数据文件的地址、怎样回答“某天是藏历几号”“某年藏历新年是哪天”。随 `npm run build` 复制到 `dist/`。
 - `scripts/generate-year-data.js` 在构建时生成 `/data/1951.json`–`/data/2051.json` 和 `/data/index.json`，不提交进仓库。每天一条：公历、星期、藏历年（代号）、月、日、闰月、重日、缺日、节日代号（缺日提前的另列）、日月食（类型与食甚 UTC）、理发吉日、飞幡日；名称和说明集中放在文件顶部，有简体、繁体、英文三种。`_headers` 允许跨域读取。
 - 年份页增加可见的“常见问题”（当年属于哪个藏历年、藏历新年、神变节、萨嘎达瓦节等年度节日的日期；缺日提前的要说明），并用 JSON-LD 写出同样的 `FAQPage` 和指向数据文件的 `Dataset`；`<head>` 用 `rel="alternate" type="application/json"` 链到数据文件。
+- 2026-11-16 补充：逐日数据按 CC BY 4.0 许可提供（署名 zangli.org）。`Dataset` 的 `license`、数据文件的 `license` / `attribution`、`llms.txt` 和年份页“资料来源与口径”里写同一个许可（Search Console 报 Missing field "license"）。代码仍按仓库的 `LICENSE.md`。
 
 **理由：** AI 代理回答日期问题时，抓到的首页和 `/date/…` 是 JavaScript 生成的空壳，读不到藏历日期；年份页虽是静态 HTML，月历格子里的信息也不如一句完整的问答好引用。数据文件让代理可以精确查任意一天，问答句子让搜索引擎和 AI 摘要可以直接引用答案。
 

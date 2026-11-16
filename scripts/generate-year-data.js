@@ -7,6 +7,7 @@ const { ASSET_VERSION } = require('./release-config');
 const { runtime, FIRST_YEAR, LAST_YEAR, yearHref } = require('./generate-year-pages');
 
 const SITE = 'https://zangli.org';
+const DATA_LICENSE = 'https://creativecommons.org/licenses/by/4.0/';
 const LANGUAGES = [['zh-CN', 'zh-cn'], ['zh-TW', 'tw'], ['en', 'en']];
 const ANNUAL_IDS = new Set(['losar', 'chotrul', 'buddha-birth', 'saka-dawa', 'chokhor', 'buddha-conception', 'lhabab', 'ganden-ngamcho']);
 const ELEMENTS = ['iron', 'water', 'wood', 'fire', 'earth'];
@@ -77,6 +78,8 @@ function buildYear(contexts, year) {
 		pages: Object.fromEntries(LANGUAGES.map(([tag, locale]) => [tag, `${SITE}${yearHref(locale, year)}`])),
 		documentation: `${SITE}/llms.txt`,
 		version: ASSET_VERSION,
+		license: DATA_LICENSE,
+		attribution: 'zangli.org (百年藏曆)',
 		rules: RULES,
 		fields: {
 			'tibetan.year': 'key into tibetanYears (element-animal year)',
@@ -110,6 +113,8 @@ function generateYearData(outputRoot) {
 		coverage: { from: '1951-01-08', to: '2051-02-11' },
 		documentation: `${SITE}/llms.txt`,
 		version: ASSET_VERSION,
+		license: DATA_LICENSE,
+		attribution: 'zangli.org (百年藏曆)',
 		rules: RULES,
 		years
 	};
