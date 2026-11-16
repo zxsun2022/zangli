@@ -23,6 +23,7 @@ Each page has a calendar grid and the holy days for every month, then the year's
 
 - [Index of yearly files](https://zangli.org/data/index.json): coverage, rules and the URL of every year.
 - [Example: 2027](https://zangli.org/data/2027.json): one JSON file per Gregorian year, `days[]` in date order. Optional fields are omitted when false or empty.
+- License: the data is available under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); please credit zangli.org.
 
 ## Method and caveats
 

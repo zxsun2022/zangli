@@ -318,6 +318,8 @@ assert.equal(vm.runInContext("getZangli('2027-02-20').extraInfo", en), 'Chotrul 
 		assert.ok(data1951.days[0].date === '1951-01-08' && data2051.days.at(-1).date === '2051-02-11', 'Data files should respect the supported range');
 		const ld = JSON.parse(yearPage.match(/<script type="application\/ld\+json">(.*?)<\/script>/)[1]);
 		assert.deepEqual(ld['@graph'].map(node => node['@type']), ['Dataset', 'FAQPage']);
+		assert.equal(ld['@graph'][0].license, 'https://creativecommons.org/licenses/by/4.0/', 'Dataset structured data should name its license (Search Console: Missing field "license")');
+		assert.equal(data2027.license, ld['@graph'][0].license, 'Data files should carry the same license as the Dataset markup');
 		assert.ok(yearPage.includes('<dd>2027年2月7日（星期日），藏曆正月初一。</dd>') && yearPage.includes('<link rel="alternate" type="application/json" href="/data/2027.json">'), 'Year pages should answer festival dates in plain text and point to their data');
 		assert.ok(fs.readFileSync(path.join(out, '1977', 'index.html'), 'utf8').includes('藏历十二月三十（原日为缺日，提前一天）'), 'A Losar moved for a skipped day should say so');
 		// R1：FAQ 里“从哪天起是新的藏历年”必须与逐日数据的年份切换日一致，而不是藏历新年节日的日期（1977 年两者相差一天）。
