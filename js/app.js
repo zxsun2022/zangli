@@ -514,6 +514,7 @@ function navigateTo(year, month, day = 1) {
 	// 翻月只替换当前历史记录：否则翻几十个月后要按同样多次“后退”才能离开页面。
 	else if (location.hash !== hash) history.replaceState({}, '', hash);
 	renderApp(target);
+	window.zangliTrack?.('calendar_navigate');
 	if (monthDelta) slideMonth(monthDelta > 0 ? 'next' : 'prev');
 	// 只有月历顶部已滚出视口时才回滚，避免翻月把首屏卡片推走。
 	const workspace = $('calendarWorkspace');
@@ -582,6 +583,7 @@ function openDetail(date, anchor) {
 	if (!dialog.open) dialog.showModal();
 	requestAnimationFrame(() => dialog.classList.add('active'));
 	$('closeDetailButton').focus();
+	window.zangliTrack?.('date_detail_view');
 	const path = `${basePath}date/${formatDate(date)}`;
 	if (location.pathname !== path) history.pushState({ detail:true }, '', path);
 	// 标签页、浏览器历史和收藏里能分辨是哪一天。
@@ -852,6 +854,7 @@ function addReminder() {
 	const zangli = getZangli(state.activeDate), eclipse = getEclipse(state.activeDate);
 	const event = { date: state.activeDate, zangli, eclipse, types: eventTypes(zangli, eclipse).length ? eventTypes(zangli, eclipse) : ['festival'] };
 	downloadFile(`zangli-${formatDate(state.activeDate)}.ics`, createIcs([event], msg('copiedTitle')), 'text/calendar;charset=utf-8');
+	window.zangliTrack?.('calendar_export', { kind: 'reminder' });
 	showToast(msg('reminderExported'));
 }
 
@@ -860,6 +863,7 @@ function exportAnnual() {
 	const routine = $('annualRoutine').checked;
 	const events = routine ? annualVisibleEvents() : annualVisibleEvents().map(event => ({ ...event, title: annualTitle(event), detail: annualDetail(event) }));
 	downloadFile(`zangli-${year}${routine ? '-all' : ''}.ics`, createIcs(events, `${msg('copiedTitle')} ${year}`), 'text/calendar;charset=utf-8');
+	window.zangliTrack?.('calendar_export', { kind: 'annual' });
 	showToast(msg('calendarExported'));
 	$('exportYearButton').closest('details').open = false;
 }
@@ -931,6 +935,7 @@ function activatePanel(button) {
 		tab.setAttribute('aria-expanded', String(active));
 		$(tab.dataset.panel).hidden = !active;
 	});
+	if (shouldOpen) window.zangliTrack?.('tool_open', { kind: button.dataset.panel });
 	if (shouldOpen && button.dataset.panel === 'annualPanel') renderAnnualList();
 	if (shouldOpen && button.dataset.panel === 'reversePanel') renderReverseResults();
 	// 面板在入口下方展开，常常落在视口之外；把入口带到顶部，让人看到点开了什么。
@@ -1086,7 +1091,7 @@ function initApp() {
 	$('annualPrevYear').addEventListener('click', () => changeAnnualYear(-1));
 	$('annualNextYear').addEventListener('click', () => changeAnnualYear(1));
 	$('exportYearButton').addEventListener('click', exportAnnual);
-	$('reverseForm').addEventListener('change', renderReverseResults);
+	$('reverseForm').addEventListener('change', () => { renderReverseResults(); window.zangliTrack?.('reverse_lookup'); });
 	$('reverseForm').addEventListener('submit', event => event.preventDefault());
 	$('closeDetailButton').addEventListener('click', () => closeDetail());
 	$('detailDialog').addEventListener('cancel', event => { event.preventDefault(); closeDetail(); });

@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { ASSET_VERSION } = require('./release-config');
+const { analyticsMarkup } = require('./analytics-markup');
 // 页脚年份取自发布版本，不读系统时钟：否则跨年后重新生成的页面会与已提交的生成物不一致。
 const RELEASE_YEAR = ASSET_VERSION.slice(0, 4);
 
@@ -151,6 +152,7 @@ function render(locale, s) {
 	<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"${s.name}","url":"https://zangli.org${prefix}","description":"${s.description}","applicationCategory":"Calendar","operatingSystem":"All","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"inLanguage":"${s.lang}"}</script>
 	<link rel="stylesheet" href="/css/style.css?v=${ASSET_VERSION}">
 	<script src="/js/langDetect.js?v=${ASSET_VERSION}"></script>
+	<script defer src="/js/analytics.js?v=${ASSET_VERSION}"></script>
 	<script defer src="/js/i18n-data.js?v=${ASSET_VERSION}"></script><script defer src="/js/i18n.js?v=${ASSET_VERSION}"></script><script defer src="/zangli.js?v=${ASSET_VERSION}"></script><script defer src="/eclipse.js?v=${ASSET_VERSION}"></script><script defer src="/js/app.js?v=${ASSET_VERSION}"></script>
 </head>
 <body>
@@ -166,7 +168,7 @@ function render(locale, s) {
 				<div id="aboutPanel" class="tool-panel" role="region" aria-labelledby="aboutTab" hidden><h2>${s.sourceTitle}</h2><dl class="about-list">${s.aboutItems.map(([term, text], index) => `<div><dt>${term}</dt><dd>${text}${index === 1 ? ` <button class="link-button" type="button" data-open-settings>${s.changeBasis}</button>` : ''}</dd></div>`).join('')}</dl><p class="source-links"><a href="https://github.com/stonelf/zangli" target="_blank" rel="noopener noreferrer">GitHub</a> · <a href="https://eclipse.gsfc.nasa.gov/" target="_blank" rel="noopener noreferrer">NASA Eclipse Web Site</a></p></div>
 			</section>
 			<noscript><p class="noscript">${s.noscript}</p></noscript>
-		</main><footer><p>© ${RELEASE_YEAR} ${s.name} · 1951–2051</p><p class="footer-links">${locale === 'bo' ? '' : `<a id="footerTableLink" href="${prefix}${RELEASE_YEAR}/">${yearTableLabels[locale](RELEASE_YEAR)}</a>`}<button id="installButton" class="link-button" type="button" hidden>${s.installButton}</button><a href="mailto:${CONTACT_EMAIL}" title="${CONTACT_EMAIL}">${s.contact}</a></p></footer>
+		</main><footer><p>© ${RELEASE_YEAR} ${s.name} · 1951–2051</p><p class="footer-links">${locale === 'bo' ? '' : `<a id="footerTableLink" href="${prefix}${RELEASE_YEAR}/">${yearTableLabels[locale](RELEASE_YEAR)}</a>`}<button id="installButton" class="link-button" type="button" hidden>${s.installButton}</button><a href="mailto:${CONTACT_EMAIL}" title="${CONTACT_EMAIL}">${s.contact}</a></p>${analyticsMarkup(locale)}</footer>
 	</div>
 	<dialog id="detailDialog" aria-labelledby="detailTitle"><div class="dialog-header"><button id="shareButton" class="icon-button" type="button" aria-label="${s.share}" title="${s.share}">${icons.share}</button><button id="closeDetailButton" class="icon-button" type="button" aria-label="${s.close}" title="${s.close}">${icons.close}</button></div><div id="detailContent"></div><div class="dialog-footer"><button id="copyButton" class="secondary-button" type="button">${s.copy}</button><button id="reminderButton" class="primary-button" type="button">${s.reminder}</button></div></dialog>
 	<dialog id="periodPicker" class="period-picker" aria-labelledby="pickerTitle"><h2 id="pickerTitle" class="sr-only">${a.picker}</h2><div class="picker-head"><button id="pickerPrev" class="step-button" type="button" aria-label="${a.prevYears}" title="${a.prevYears}">${icons.left}</button><span id="pickerRange"></span><button id="pickerNext" class="step-button" type="button" aria-label="${a.nextYears}" title="${a.nextYears}">${icons.right}</button></div><div id="pickerYears" class="picker-grid" role="group" aria-label="${a.year}"></div><div class="picker-divider"></div><div id="pickerMonths" class="picker-grid" role="group" aria-label="${a.month}"></div></dialog>
