@@ -974,11 +974,3 @@ footer p { margin: 0; }
 	.year-grid td.today .day-number { background: none; color: inherit; }
 	.year-main h1 { color: #000; }
 }
-
-/* Optional analytics stays in the footer, below the calendar and tools. */
-.analytics-consent { margin: 16px auto; max-width: 680px; text-align: start; color: var(--ink-soft); font-size: 13px; }
-.analytics-consent summary { cursor: pointer; padding: 10px 0; }
-.analytics-consent p { line-height: 1.7; }
-.analytics-actions { display: flex; flex-wrap: wrap; gap: 10px; }
-.analytics-actions button[aria-pressed="true"] { outline: 2px solid var(--ink-soft); outline-offset: 2px; }
-@media print { .analytics-consent { display: none; } }
