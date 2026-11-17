@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 const { ASSET_VERSION } = require('./release-config');
-const { analyticsMarkup } = require('./analytics-markup');
+const { analyticsNote } = require('./analytics-note');
 
 const root = path.resolve(__dirname, '..');
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
@@ -334,7 +334,7 @@ function render(locale, ctx, year) {
 			<section class="year-section year-source" aria-labelledby="sourceTitle"><h2 id="sourceTitle">${s.source}</h2><p>${s.sourceText}</p><p>${s.licenseText}</p><p>${s.contactText}</p></section>
 			<nav class="year-section year-index" aria-labelledby="otherYearsTitle"><h2 id="otherYearsTitle">${s.otherYears}</h2><p>${yearIndex}</p></nav>
 		</main>
-		<footer><p>© ${RELEASE_YEAR} ${s.name} · 1951–2051</p><p class="footer-links"><a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a></p>${analyticsMarkup(locale)}</footer>
+		<footer><p>© ${RELEASE_YEAR} ${s.name} · 1951–2051</p><p class="footer-links"><a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a></p>${analyticsNote(locale)}</footer>
 	</div>
 </body></html>
 `;

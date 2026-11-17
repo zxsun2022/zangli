@@ -1,14 +1,9 @@
-// GA4 basic consent: no Google tag or event queue before opt-in.
+// GA4 starts automatically on production pages. Advertising stays disabled.
 (function () {
 	'use strict';
 	const id = 'G-WY2HDCMYRL';
-	const key = 'zangli-analytics-consent';
 	const production = !window.zangliRedirecting && location.protocol === 'https:' && ['zangli.org', 'www.zangli.org'].includes(location.hostname);
-	const panel = document.getElementById('analyticsConsent');
-	if (!panel) return;
-	const status = document.getElementById('analyticsStatus');
-	let consent = '', loading = false, ready = false, viewed = false;
-	try { consent = localStorage.getItem(key) || ''; } catch (error) {}
+	let loading = false, ready = false, viewed = false;
 	const prefix = /^\/(tw|en|bo)(?:\/|$)/.exec(location.pathname)?.[1];
 	const language = prefix || 'zh-cn';
 	const year = /\/(\d{4})\/$/.exec(location.pathname)?.[1];
@@ -25,7 +20,7 @@
 	};
 	const allowed = new Set(['page_view', 'date_detail_view', 'calendar_navigate', 'tool_open', 'reverse_lookup', 'calendar_export', 'subscription_click', 'share_click', 'copy_click', 'install_open', 'pwa_installed', 'print_click']);
 	function track(name, params = {}) {
-		if (!production || consent !== 'granted' || !ready || !navigator.onLine || !allowed.has(name)) return;
+		if (!production || !ready || !navigator.onLine || !allowed.has(name)) return;
 		const safe = {};
 		// Only fixed classification values, never dates, copied text or arbitrary URLs.
 		if (['annual', 'reminder', 'annualPanel', 'reversePanel', 'aboutPanel'].includes(params.kind)) safe.kind = params.kind;
@@ -33,10 +28,10 @@
 	}
 	window.zangliTrack = track;
 	function pageView() {
-		if (ready && consent === 'granted' && navigator.onLine && !viewed) { viewed = true; track('page_view'); }
+		if (ready && navigator.onLine && !viewed) { viewed = true; track('page_view'); }
 	}
 	function start() {
-		if (!production || consent !== 'granted' || loading || ready || !navigator.onLine) return;
+		if (!production || loading || ready || !navigator.onLine) return;
 		loading = true;
 		window[`ga-disable-${id}`] = false;
 		window.dataLayer = [];
@@ -56,38 +51,6 @@
 		script.onerror = () => { loading = false; script.remove(); window.dataLayer.length = 0; };
 		document.head.appendChild(script);
 	}
-	function render() {
-		status.textContent = status.dataset[consent] || '';
-		panel.querySelectorAll('[data-analytics-choice]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.analyticsChoice === consent)));
-	}
-	function clearCookies() {
-		for (const cookie of document.cookie.split(';')) {
-			const name = cookie.trim().split('=')[0];
-			if (name !== '_ga' && name !== '_ga_WY2HDCMYRL') continue;
-			for (const domain of ['', location.hostname, 'zangli.org']) {
-				document.cookie = `${name}=; Max-Age=0; Path=/;${domain ? ` Domain=${domain};` : ''} SameSite=Lax; Secure`;
-			}
-		}
-	}
-	panel.querySelectorAll('[data-analytics-choice]').forEach(button => button.addEventListener('click', () => {
-		consent = button.dataset.analyticsChoice;
-		try { localStorage.setItem(key, consent); } catch (error) {}
-		render();
-		window[`ga-disable-${id}`] = consent !== 'granted';
-		if (consent === 'granted') {
-			start();
-			pageView();
-		} else {
-			clearCookies();
-		}
-	}));
-	window.addEventListener('storage', event => {
-		if (event.key !== key && event.key !== null) return;
-		consent = event.newValue === 'granted' ? 'granted' : 'denied';
-		window[`ga-disable-${id}`] = consent !== 'granted';
-		render();
-		if (consent === 'granted') { start(); pageView(); } else clearCookies();
-	});
 	window.addEventListener('online', () => { start(); pageView(); });
 	document.addEventListener('click', event => {
 		const button = event.target.closest('button, a');
@@ -97,8 +60,6 @@
 		if (button.getAttribute('href')?.startsWith('webcal:')) track('subscription_click');
 	});
 	window.addEventListener('appinstalled', () => track('pwa_installed'));
-	panel.open = !['granted', 'denied'].includes(consent);
-	render();
 	// Let language redirects finish before starting a network request.
 	if (document.readyState === 'complete') start(); else window.addEventListener('load', start, { once: true });
 })();

@@ -614,8 +614,11 @@ main { padding: 8px 0 24px; }
 .about-list .link-button:hover { text-decoration: underline; }
 #aboutPanel .source-links { margin: 18px 0 0; color: var(--ink-soft); font-size: .85rem; }
 
-footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 22px 2px 32px; color: var(--ink-soft); font-size: .76rem; }
+footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding: 22px 2px 32px; color: var(--ink-soft); font-size: .76rem; }
 footer p { margin: 0; }
+/* GA4 notice (D026): its own full-width line under the footer links. */
+.analytics-note { flex-basis: 100%; font-size: .7rem; line-height: 1.6; }
+.analytics-note a { color: inherit; }
 .footer-links { display: flex; align-items: center; gap: 16px; }
 .footer-links a, .footer-links .link-button { color: var(--ink-soft); text-decoration: none; }
 .footer-links a:hover, .footer-links .link-button:hover { color: var(--red); }
@@ -888,6 +891,8 @@ footer p { margin: 0; }
 	.event-copy > strong { font-size: .93rem; }
 	.reverse-form { grid-template-columns: 1fr 1fr; }
 	footer { flex-direction: column-reverse; align-items: center; gap: 10px; padding-top: 18px; }
+	/* column-reverse puts the lowest order at the bottom. */
+	.analytics-note { order: -1; text-align: center; }
 	#detailDialog.bottom-sheet {
 		inset: auto 0 0;
 		width: 100%;
@@ -974,11 +979,3 @@ footer p { margin: 0; }
 	.year-grid td.today .day-number { background: none; color: inherit; }
 	.year-main h1 { color: #000; }
 }
-
-/* Optional analytics stays in the footer, below the calendar and tools. */
-.analytics-consent { margin: 16px auto; max-width: 680px; text-align: start; color: var(--ink-soft); font-size: 13px; }
-.analytics-consent summary { cursor: pointer; padding: 10px 0; }
-.analytics-consent p { line-height: 1.7; }
-.analytics-actions { display: flex; flex-wrap: wrap; gap: 10px; }
-.analytics-actions button[aria-pressed="true"] { outline: 2px solid var(--ink-soft); outline-offset: 2px; }
-@media print { .analytics-consent { display: none; } }
