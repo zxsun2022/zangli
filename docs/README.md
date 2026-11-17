@@ -56,4 +56,4 @@ npm run build
 
 藏历对照来自《藏历、公历、农历对照百年历书（1951–2050）》。设备本地日期模式只决定查询哪个公历日，不会按用户所在地重新推算藏历天文参数。不同寺院、传承或历书的日期可能存在差异。节日按藏历真实月日标注：年度节日不落在闰月，重日只在第一天标注，缺日的节日提前一天（见 [D011](DECISIONS.md)）。日月食按北京时间日期归档，食甚时间已由力学时换算为世界时，实际可见性取决于所在地。
 
-原项目：[stonelf/zangli](https://github.com/stonelf/zangli)。许可证见 [LICENSE.md](../LICENSE.md)。
+原项目：[stonelf/zangli](https://github.com/stonelf/zangli)。本仓库已永久分叉，不向上游提交 PR（见 [D025](DECISIONS.md)）。许可证见 [LICENSE.md](../LICENSE.md)。

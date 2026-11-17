@@ -38,6 +38,7 @@ npm run verify
 - `zangli.js` 提供 `getZangli(date)`，处理藏历月日、闰月、缺日、重日，并返回节日事件 `events[]`。节日口径：真实月日匹配、年度节日不进闰月、重日取第一天、缺日提前一天。
 - `eclipse.js` 提供 `getEclipse(date)`，把 NASA 食甚 TD 换算为 UT 后按北京时间日期索引。
 - 不合并上游 `stonelf/zangli` 的前端、小程序或整个 `zangli.js`；审计结论见 `docs/audits/`。
+- **永远不向 `stonelf/zangli` 提交任何内容**：不推送分支，不开 PR、issue 或评论。本仓库已与上游完全分叉（D025）。`gh` 必须带 `--repo zxsun2022/zangli` 或先运行 `gh repo set-default zxsun2022/zangli`，否则它可能默认指向上游。
 - “设备本地日期 / 北京时间日期”只决定查询哪个公历日，不会重新计算所在地藏历。
 - 页面依赖固定的全局脚本顺序：`i18n-data.js` → `i18n.js` → `zangli.js` → `eclipse.js` → `app.js`。
 
