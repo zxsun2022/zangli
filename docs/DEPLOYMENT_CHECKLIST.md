@@ -9,7 +9,7 @@
 - [ ] 确认 `git status --short` 没有意外改动或漏掉的生成物。
 - [ ] 如果 JS、CSS、页面模板或缓存策略变化，更新 `scripts/release-config.js` 的 `ASSET_VERSION`。
 - [ ] 运行 `npm run generate`。
-- [ ] 运行 `npm run verify`，确认 19 个 JavaScript 文件、历法测试、产品测试、514 条订阅事件和 12 个生成物检查通过。
+- [ ] 运行 `npm run verify`，确认 JavaScript 语法、历法测试、产品测试、514 条订阅事件和 12 个生成物检查通过。
 - [ ] 托管平台的构建命令为 `npm run build`，发布目录为 `dist`；部署后 `/docs/TODO.md`、`/AGENTS.md` 应返回 404。
 - [ ] 年份对照表页：`/2027/`、`/tw/2027/`、`/en/2027/` 返回 200，`/1950/`、`/2052/` 返回 404；首页页脚的对照表链接可用。
 - [ ] 运行 `git diff --check`。
@@ -87,3 +87,10 @@
 - [ ] 用已安装 PWA 检查资源版本是否更新。
 - [ ] 抽查一个日期详情分享链接、一个年度导出文件和订阅地址。
 - [ ] 记录部署平台、提交 SHA、`ASSET_VERSION` 和抽查结果。
+
+## GA4（D024）
+
+- [ ] **发布前**关闭数据流 16356658289 的增强型衡量总开关、Google Signals 与广告个性化，按 [ANALYTICS.md](ANALYTICS.md) 配置报表。
+- [ ] 首页、年份页各只有一个统计模块；首次未同意和拒绝时无 Google 脚本/收集请求，允许后一次页面浏览，撤回后停止发送。
+- [ ] 实际部署响应的 CSP 允许 Google tag 和 GA 收集域名，控制台无策略错误；拒绝、脚本拦截、离线不影响查历。
+- [ ] 在 Google 实时报告 / DebugView 验证正式域名，不能以本地测试代替生产收数验收。

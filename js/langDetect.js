@@ -7,6 +7,7 @@
 
 	const { pathname, search, hash } = location;
 	if (/^\/zh-tw(?:\/|$)/i.test(pathname)) {
+		window.zangliRedirecting = true;
 		location.replace(pathname.replace(/^\/zh-tw/i, '/tw') + search + hash);
 		return;
 	}
@@ -24,5 +25,8 @@
 		else if (first && !/^zh(?:-|$)/.test(first)) preference = 'en';
 	}
 	// 手动选过的语言同样适用于根地址；选过简体（zh-cn）时留在这里。
-	if (preference === 'tw' || preference === 'en') location.replace(`/${preference}/${search}${hash}`);
+	if (preference === 'tw' || preference === 'en') {
+		window.zangliRedirecting = true;
+		location.replace(`/${preference}/${search}${hash}`);
+	}
 })();
