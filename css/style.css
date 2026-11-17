@@ -614,8 +614,11 @@ main { padding: 8px 0 24px; }
 .about-list .link-button:hover { text-decoration: underline; }
 #aboutPanel .source-links { margin: 18px 0 0; color: var(--ink-soft); font-size: .85rem; }
 
-footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 22px 2px 32px; color: var(--ink-soft); font-size: .76rem; }
+footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding: 22px 2px 32px; color: var(--ink-soft); font-size: .76rem; }
 footer p { margin: 0; }
+/* GA4 notice (D026): its own full-width line under the footer links. */
+.analytics-note { flex-basis: 100%; font-size: .7rem; line-height: 1.6; }
+.analytics-note a { color: inherit; }
 .footer-links { display: flex; align-items: center; gap: 16px; }
 .footer-links a, .footer-links .link-button { color: var(--ink-soft); text-decoration: none; }
 .footer-links a:hover, .footer-links .link-button:hover { color: var(--red); }
@@ -888,6 +891,8 @@ footer p { margin: 0; }
 	.event-copy > strong { font-size: .93rem; }
 	.reverse-form { grid-template-columns: 1fr 1fr; }
 	footer { flex-direction: column-reverse; align-items: center; gap: 10px; padding-top: 18px; }
+	/* column-reverse puts the lowest order at the bottom. */
+	.analytics-note { order: -1; text-align: center; }
 	#detailDialog.bottom-sheet {
 		inset: auto 0 0;
 		width: 100%;

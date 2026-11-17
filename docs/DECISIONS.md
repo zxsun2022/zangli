@@ -300,3 +300,5 @@
 **保留：** 仅正式 HTTPS 域名启用、每文档一次页面浏览、事件白名单与 URL 归并、关闭广告个性化和 Google Signals、离线不补传；发布前关闭增强型衡量。
 
 **取舍：** GA4 自动使用统计 Cookie，原先拒绝的浏览器也会按新机制启动统计；此产品选择不等同于认定所有访客地区均不需要同意。网络拦截和离线仍导致样本缺失。
+
+- 2026-11-17 补充：页脚加一行小字（`scripts/analytics-note.js`）说明使用 Google Analytics 及其 Cookie、不发送查询日期或分享内容，并链接 Google 的 partner-sites 说明。不加按钮或询问。理由：Google Analytics 服务条款要求网站告知使用 GA 和 Cookie。

@@ -290,6 +290,7 @@ assert.equal(vm.runInContext("getZangli('2027-02-20').extraInfo", en), 'Chotrul 
 		assert.equal((yearPage.match(/<td data-date="2027-/g) || []).length, 365, 'Every day of 2027 should have a grid cell');
 		assert.equal((yearPage.match(/<table class="calendar-table year-grid"/g) || []).length, 12, 'Each month should have its own grid');
 		assert.deepEqual([...yearPage.matchAll(/<script[^>]*src="([^"?]+)/g)].map(match => match[1]), ['/js/langDetect.js', '/js/analytics.js', '/js/year.js'], 'Year pages load theme, automatic analytics and print helpers');
+		assert.equal((yearPage.match(/class="analytics-note"/g) || []).length, 1, 'Year pages show the one-line GA4 notice');
 		const firstYear = fs.readFileSync(path.join(out, '1951', 'index.html'), 'utf8');
 		assert.ok(!firstYear.includes('data-date="1951-01-07"') && firstYear.includes('data-date="1951-01-08"') && firstYear.includes('<td class="out-of-range"><span class="day-number">7</span></td>') && !firstYear.includes('rel="prev"'), 'The 1951 page should start at the supported range');
 		const lastYear = fs.readFileSync(path.join(out, 'en', '2051', 'index.html'), 'utf8');

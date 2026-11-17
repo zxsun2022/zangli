@@ -38,6 +38,8 @@ const failure = setup(); failure.scripts[0].onerror(); assert.equal(failure.cont
 for (const file of ['index.html', 'tw/index.html', 'en/index.html', 'bo/index.html']) {
  const html = fs.readFileSync(path.join(__dirname, '..', file), 'utf8');
  assert.ok(!html.includes('analyticsConsent'), 'Consent UI removed from ' + file);
+ assert.equal((html.match(/class="analytics-note"/g) || []).length, 1, 'One-line GA4 notice in the footer of ' + file);
+ assert.ok(html.includes('https://policies.google.com/technologies/partner-sites'), 'GA4 notice links to Google partner-sites policy in ' + file);
  assert.equal((html.match(/src="\/js\/analytics.js/g) || []).length, 1);
 }
 console.log('Analytics checks passed: automatic startup, single page view, advertising disabled, allowlist, sanitized metadata, production-only and offline recovery.');

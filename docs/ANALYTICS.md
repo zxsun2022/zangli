@@ -16,7 +16,7 @@
 
 ## 自动统计与边界
 
-首页及年份页在页面加载完成后自动加载 Google tag，不显示询问或页脚同意入口（D026）。不再读取或写入旧的 `zangli-analytics-consent`，旧选择不影响自动启动。离线时不发送自定义事件，也不补传此前行为；恢复联网后可启动统计。
+首页及年份页在页面加载完成后自动加载 Google tag，不显示询问或同意入口（D026）。页脚有一行小字说明本站使用 Google Analytics 及其 Cookie、不发送查询日期或分享内容，并链接 Google 的 partner-sites 说明；这是 Google Analytics 服务条款要求的告知，没有按钮。藏文 Beta 用英文。不再读取或写入旧的 `zangli-analytics-consent`，旧选择不影响自动启动。离线时不发送自定义事件，也不补传此前行为；恢复联网后可启动统计。
 
 只有 HTTPS 下的 `zangli.org` 与 `www.zangli.org` 启用，localhost、Pages 预览域名不启用。404 和旧 widget 不接入。藏文 Beta 同样自动统计，不改变隐藏与 noindex 策略。
 
@@ -41,6 +41,7 @@
 
 ## 代码与验证
 
+- `scripts/analytics-note.js`：页脚一行使用说明（简、繁、英），供两种页面生成器使用。
 - `js/analytics.js`：自动启动、生产域名校验、数据最小化与事件白名单。
 - `js/app.js`：在实际完成操作的位置记录主要功能；打印及操作入口由统一模块监听。
 - `_headers`：仅放行 Google tag 与 GA 收集所需域名，未开启 unsafe-inline / unsafe-eval。
