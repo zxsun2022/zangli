@@ -18,7 +18,7 @@
 
 首页及年份页在页面加载完成后自动加载 Google tag，不显示询问或页脚同意入口（D026）。不再读取或写入旧的 `zangli-analytics-consent`，旧选择不影响自动启动。离线时不发送自定义事件，也不补传此前行为；恢复联网后可启动统计。
 
-只有 HTTPS 下的 `zangli.org` 与 `www.zangli.org` 启用，localhost、Pages 预览域名不启用。404 和旧 widget 不接入。藏文 Beta 保留英文隐私说明，不改变隐藏与 noindex 策略。
+只有 HTTPS 下的 `zangli.org` 与 `www.zangli.org` 启用，localhost、Pages 预览域名不启用。404 和旧 widget 不接入。藏文 Beta 同样自动统计，不改变隐藏与 noindex 策略。
 
 不发送查询日期、节日、反查输入、分享文字。页面地址按语言入口或年份页归并，去除 query/hash，引用来源只保留 origin；因此本版本不提供 UTM 活动归因或逐日详情排名。GA 仍会处理 Cookie 标识、设备和大致地区，不能称为匿名统计。
 
